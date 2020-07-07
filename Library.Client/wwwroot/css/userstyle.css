@@ -1,0 +1,60 @@
+.contactListItem {
+    cursor: pointer;
+}
+
+.contactListItem:hover {
+    background-color: rgb(174, 184, 196);
+}
+
+.selected {
+    background-color: #bbb;
+    border: 2px dashed black;
+}
+
+.message {
+    border: 2px solid #dedede;
+    background-color: #a1e7ad;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+    margin-left: 4rem;
+}
+
+.darker {
+    border-color: #ccc;
+    background-color: #ddd;
+    margin-left: 0;
+    margin-right: 4rem;
+}
+
+.message::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.time-right {
+    float: right;
+    color: #aaa;
+}
+
+.time-left {
+    float: left;
+    color: #999;
+}
+
+sub {
+    color: #858585;
+}
+
+.message-text {
+    word-break: break-word;
+    font-size: smaller;
+    margin: 0;
+}
+
+.scrollable-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

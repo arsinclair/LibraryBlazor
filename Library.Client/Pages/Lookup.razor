@@ -1,0 +1,42 @@
+@page "/lookup"
+
+@using DataAccessLibrary.Models
+@using DataAccessLibrary.Interfaces
+
+@inject IEntityRepository connection
+
+@namespace Library.Client
+
+<form>
+    <div class="form-group">
+        <input type="text" class="form-control">
+        @if (selectedEntity != null)
+        {
+            <div id="@selectedEntity.Id">@selectedEntity.Fields.FirstOrDefault(x => x.Key == searchFieldName).Value.Value.ToString()</div>
+        }
+    </div>
+</form>
+
+@code {
+    [Parameter]
+    public string entityName { get; set; }
+
+    [Parameter]
+    public string selectedId { get; set; }
+
+    [Parameter]
+    public string searchFieldName { get; set; }
+
+    private Entity selectedEntity;
+
+    private async Task GetSelectedEntity(string entityName, string selectedId, string searchFieldName)
+    {
+        var abc = await connection.Get(selectedId, entityName, searchFieldName);
+        selectedEntity = abc;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSelectedEntity(entityName, selectedId, searchFieldName);
+    }
+}

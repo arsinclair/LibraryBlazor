@@ -1,0 +1,173 @@
+@page "/conversations/new"
+
+@using System.Timers
+@using DataAccessLibrary
+@using DataAccessLibrary.Models
+@using DataAccessLibrary.DataProviders.Interfaces
+
+@inject IContactsData contactsRepository
+@inject IMessagesData messagesRepository
+@inject IConversationsData conversationsRepository
+
+@namespace Library.Client
+
+<link rel="stylesheet" href="css/userstyle.css">
+
+<h4>Conversation Creator</h4>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            @if (Contacts is null)
+            {
+                <p>Loading Contacts...</p>
+            }
+            else
+            {
+                <input type="text" class="form-control" @oninput="@(e => ContactSearchStarted(e))">
+                <div class="scrollable-container">
+                    @foreach (var contact in Contacts)
+                    {
+                        var classname = SelectedContact?.ContactId != contact.ContactId ? "contactListItem" : "contactListItem selected";
+                        if (!contact.HiddenInUI)
+                        {
+                            <div class="@classname" id="@contact.ContactId" @onclick="@(e => ContactSelectionChanged(e, contact.ContactId))">@contact.FullName</div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+        <div class="col-6">
+            @if (SelectedContact != null)
+            {
+                if (Messages?.Count > 0) {
+                    <h5>@($"{@SelectedContact.FullName} Conversation")</h5>
+                    <div class="scrollable-container">
+                        @foreach (var message in Messages)
+                        {
+                            string conversationName = Conversations.FirstOrDefault(x => x.ConversationId == message.ConversationId)?.Subject;
+                            string className = message.ToContactId == SelectedContact.ContactId ? "message" : "message darker";
+                            <ChatMessage ClassName="@className" MessageText="@message.Text" SentOn="@message.SentOn.ToString()" ConversationName="@conversationName" />
+                        }
+                    </div>
+                }
+                else {
+                    <h5>@($"No messages")</h5>
+                }
+            }
+            else
+            {
+                <h4>Select Contact</h4>
+            }
+        </div>
+        <div class="col">
+            <form>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="From">
+                    <small>@MessageSentFrom?.FullName</small>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="To">
+                    <small>@MessageSentTo?.FullName</small>
+                </div>
+                <div class="form-group">
+                    <Lookup entityName="contact" selectedId="@("292BD0A9-469E-4567-BAF4-FB97E98B1F22")" searchFieldName="FullName" />
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Sent On">
+                    <small>@MessageSentOn</small>
+                </div>
+                <div class="form-group">
+                    <textarea type="text" class="form-control" placeholder="Text">@MessageText</textarea>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Conversation" @bind="MessageConversation">
+                    <small>@MessageConversation</small>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Website" @bind="MessageWebsite">
+                    <small>@MessageWebsite</small>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Platform" @bind="MessagePlatform">
+                    <small>@MessagePlatform</small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Contact> Contacts;
+    private List<Contact> FilteredContacts;
+    private List<Message> Messages;
+    private List<DataAccessLibrary.Models.Conversation> Conversations;
+
+    private string SearchString;
+
+    private Timer searchTimer = new Timer(400);
+
+    // New Message Section
+    private Contact MessageSentFrom;
+    private Contact MessageSentTo;
+    private DateTime MessageSentOn;
+    private string MessageText;
+    private string MessageConversation;
+    private string MessageWebsite;
+    private string MessagePlatform;
+    // End
+
+    private Contact SelectedContact;
+
+    private void ContactSelectionChanged(MouseEventArgs e, Guid selectedContactId)
+    {
+        SelectedContact = null;
+        Messages = null;
+        Conversations = null;
+        SelectedContact = Contacts.FirstOrDefault(x => x.ContactId == selectedContactId);
+        LoadMessages();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Contacts = await contactsRepository.GetContacts(null, "ContactId", "FullName");
+        searchTimer.Elapsed += DoSearch;
+    }
+
+    async void LoadMessages()
+    {
+        Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.ContactId}' OR ToContactId = '{SelectedContact.ContactId}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
+        Conversations = await conversationsRepository.GetConversations($"ConversationId in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.ContactId}' OR ToContactId = '{SelectedContact.ContactId}')", "ConversationId", "Subject");
+        StateHasChanged();
+    }
+
+    void ContactSearchStarted(ChangeEventArgs e)
+    {
+        if (SearchString != e.Value.ToString().ToLower())
+        {
+            SearchString = e.Value.ToString().ToLower();
+            searchTimer.Stop();
+            searchTimer.Start();
+        }
+    }
+
+    private void DoSearch(Object source, ElapsedEventArgs e)
+    {
+        searchTimer.Stop();
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            foreach (var contact in Contacts)
+            {
+                if (contact.FullName.ToLower().IndexOf(SearchString) == -1)
+                {
+                    contact.HiddenInUI = true;
+                }
+                else
+                {
+                    contact.HiddenInUI = false;
+                }
+            }
+        }
+        InvokeAsync(StateHasChanged);
+    }
+}

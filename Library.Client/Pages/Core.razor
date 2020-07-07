@@ -1,0 +1,26 @@
+@page "/CMS/"
+@page "/CMS/{entityName}/"
+@page "/CMS/{entityName}/{id:guid}"
+
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+<h5>Location @entityName</h5>
+<h5>ID: @Id</h5>
+
+@DynamicComponent
+
+@code {
+    [Parameter]
+    public string entityName { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    public ComponentBase DynamicComponent {get; set;}
+
+    protected override void OnInitialized()
+    {
+        entityName = entityName ?? "ListOfEntities";
+    }
+}

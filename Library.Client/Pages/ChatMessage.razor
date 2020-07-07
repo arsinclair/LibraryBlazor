@@ -1,0 +1,21 @@
+@namespace Library.Client
+
+<div class="@ClassName">
+    <sub>@ConversationName</sub>
+    <p class="message-text">@MessageText</p>
+    <span class="time-right">@SentOn</span>
+</div>
+
+@code {
+    [Parameter]
+    public string ClassName { get; set; }
+
+    [Parameter]
+    public string MessageText { get; set; }
+
+    [Parameter]
+    public string SentOn { get; set; }
+
+    [Parameter]
+    public string ConversationName { get; set; }
+}
