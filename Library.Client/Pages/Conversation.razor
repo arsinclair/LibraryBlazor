@@ -24,7 +24,7 @@
             }
             else
             {
-                <input type="text" class="form-control" @oninput="@(e => ContactSearchStarted(e))">
+                <input type="text" class="form-control" @oninput="@(e => SearchStarted(e))">
                 <div class="scrollable-container">
                     @foreach (var contact in Contacts)
                     {
@@ -130,7 +130,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Contacts = await contactsRepository.GetContacts(null, "ContactId", "FullName");
+        Contacts = await contactsRepository.GetContacts(null, "Id", "FullName");
         searchTimer.Elapsed += DoSearch;
     }
 
@@ -141,7 +141,7 @@
         StateHasChanged();
     }
 
-    void ContactSearchStarted(ChangeEventArgs e)
+    void SearchStarted(ChangeEventArgs e)
     {
         if (SearchString != e.Value.ToString().ToLower())
         {

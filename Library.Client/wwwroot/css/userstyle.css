@@ -58,3 +58,41 @@ sub {
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+.hidden {
+    display: none;
+}
+
+.lookup {
+    cursor: pointer;
+}
+
+.lookup-bullet {
+    position: relative;
+}
+
+.lookup-bullet::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 17px;
+    margin: 5px 10px;
+    font-weight: bold;
+    color: #626262;
+    content: "▾";
+}
+
+.form-group-lookup {
+    position: relative;
+}
+
+.search-menu {
+    position: absolute;
+    top: 3rem;
+    background-color: #b1d1d2;
+    padding: 0.3rem;
+    border-radius: 3px;
+    border: 1px solid #888787;
+    box-shadow: 5px 5px #d2d2d2;
+}

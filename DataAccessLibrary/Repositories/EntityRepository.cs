@@ -51,21 +51,22 @@ namespace DataAccessLibrary.Repositories
             }
         }
 
-        public async Task<Entity> Get(string id, string entityName, bool allColumns)
+        public async Task<Entity> GetById(string id, string entityName, bool allColumns)
         {
-            return await Get(id, entityName, "*");
+            return await GetById(id, entityName, "*");
         }
 
-        public async Task<Entity> Get(string id, string entityName, params string[] columns)
-        {
-            string columnsString = string.Join(", ", columns);
-            return await Get(id, entityName, columnsString);
-        }
-
-        public async Task<Entity> Get(string id, string entityName, string columns)
+        public async Task<Entity> GetById(string id, string entityName, params string[] columns)
         {
             string tableName = await this.GetEntityTableName(entityName);
-            string sql = $"SELECT {columns} FROM {tableName} WHERE {entityName}Id = @Id;";
+            string columnsString = string.Join(", ", columns);
+
+            if (columns.Contains("Id") == false && columns.First() != "*")
+            {
+                columnsString = "Id, " + columnsString;
+            }
+
+            string sql = $"SELECT {columnsString} FROM {tableName} WHERE Id = @Id;";
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {

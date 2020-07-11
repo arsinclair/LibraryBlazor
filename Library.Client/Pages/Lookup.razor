@@ -1,5 +1,6 @@
 @page "/lookup"
 
+@using System.Timers
 @using DataAccessLibrary.Models
 @using DataAccessLibrary.Interfaces
 
@@ -8,16 +9,24 @@
 @namespace Library.Client
 
 <form>
-    <div class="form-group">
-        <input type="text" class="form-control">
-        @if (selectedEntity != null)
-        {
-            <div id="@selectedEntity.Id">@selectedEntity.Fields.FirstOrDefault(x => x.Key == searchFieldName).Value.Value.ToString()</div>
-        }
+    <div class="form-group form-group-lookup">
+        <div id="@_id" class="form-control lookup lookup-bullet" @onclick="OpenSearchMenu">@_name</div>
+        <div class="search-menu @isMenuHiddenClassName">
+            <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))">
+            <div class="search-results">
+                <div>Uno</div>
+                <div>Des</div>
+                <div>Tres</div>
+            </div>
+        </div>
     </div>
 </form>
 
 @code {
+    private string _id;
+    private string _entityName;
+    private string _name;
+
     [Parameter]
     public string entityName { get; set; }
 
@@ -29,14 +38,51 @@
 
     private Entity selectedEntity;
 
-    private async Task GetSelectedEntity(string entityName, string selectedId, string searchFieldName)
+    private string isMenuHiddenClassName = "hidden";
+
+    private async Task<Entity> GetSelectedEntity(string entityName, string selectedId, string searchFieldName)
     {
-        var abc = await connection.Get(selectedId, entityName, searchFieldName);
-        selectedEntity = abc;
+        return await connection.GetById(selectedId, entityName, searchFieldName);
+    }
+
+    private void OpenSearchMenu()
+    {
+        isMenuHiddenClassName = string.IsNullOrEmpty(isMenuHiddenClassName) ? "hidden" : string.Empty;
+    }
+
+    private Timer searchTimer = new Timer(400);
+    private string SearchString;
+    private List<Entity> SearchResults;
+    void SearchStarted(ChangeEventArgs e)
+    {
+        if (SearchString != e.Value.ToString().ToLower())
+        {
+            SearchString = e.Value.ToString().ToLower();
+            searchTimer.Stop();
+            searchTimer.Start();
+        }
+    }
+
+    private void DoSearch(Object source, ElapsedEventArgs e)
+    {
+        searchTimer.Stop();
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            // SearchResults = 
+        }
+        InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await GetSelectedEntity(entityName, selectedId, searchFieldName);
+        if (selectedEntity == null)
+        {
+            selectedEntity = await GetSelectedEntity(entityName, selectedId, searchFieldName);
+        }
+        _id = (selectedEntity?.Id ?? Guid.Empty).ToString() + "-" + entityName;
+        _entityName = entityName;
+        _name = selectedEntity?[searchFieldName]?.Value.ToString() ?? "(none)";
+
+        searchTimer.Elapsed += DoSearch;
     }
 }

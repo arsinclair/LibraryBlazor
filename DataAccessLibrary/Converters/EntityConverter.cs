@@ -31,24 +31,29 @@ namespace DataAccessLibrary.Converters
                         switch (type)
                         {
                             case "GUID":
-                                field.Type = typeof(Guid);
-                                field.Value = reader.GetGuid(i);
+                                var parsed = reader.GetGuid(i);
+                                if (columns[i] == "Id")
+                                {
+                                    field.Value = parsed;
+                                    entity.Id = parsed;
+                                }
+                                else
+                                {
+                                    field.Value = new EntityReference(string.Empty, parsed); // TODO
+                                }
                                 break;
                             case "Text":
-                                field.Type = typeof(string);
                                 field.Value = reader.GetString(i);
                                 break;
                             case "Number":
-                                field.Type = typeof(int);
                                 field.Value = reader.GetInt32(i);
                                 break;
                             case "DateTime":
-                                field.Type = typeof(DateTime);
                                 field.Value = reader.GetDateTime(i);
                                 break;
                             default: throw new NotImplementedException();
                         }
-                        entity.Fields.Add(columns[i].ToString(), field);
+                        entity[columns[i]] = field;
                     }
                 }
                 output.Add(entity);

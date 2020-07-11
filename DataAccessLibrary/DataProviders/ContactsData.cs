@@ -26,7 +26,7 @@ namespace DataAccessLibrary.DataProviders
 
         public Task InsertPerson(Contact contact)
         {
-            string sql = @"insert into dbo.Contacts (ContactId, FirstName, LastName, Email) values (@ContactId, @FirstName, @LastName, @Email);";
+            string sql = @"insert into dbo.Contacts (Id, FirstName, LastName, Email) values (@Id, @FirstName, @LastName, @Email);";
 
             return _db.SaveData(sql, contact);
         }
