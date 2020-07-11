@@ -10,13 +10,15 @@
 
 <form>
     <div class="form-group form-group-lookup">
-        <div id="@_id" class="form-control lookup lookup-bullet" @onclick="OpenSearchMenu">@_name</div>
+        <label>@fieldLabel</label>
+        <div id="@_id" class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@_name</div>
         <div class="search-menu @isMenuHiddenClassName">
-            <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))">
+            <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))" @bind="SearchString">
             <div class="search-results">
-                <div>Uno</div>
-                <div>Des</div>
-                <div>Tres</div>
+                @foreach (var item in SearchResults)
+                {
+                    <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item["FullName"].Value.ToString()</div>
+                }
             </div>
         </div>
     </div>
@@ -24,7 +26,6 @@
 
 @code {
     private string _id;
-    private string _entityName;
     private string _name;
 
     [Parameter]
@@ -36,7 +37,13 @@
     [Parameter]
     public string searchFieldName { get; set; }
 
-    private Entity selectedEntity;
+    [Parameter]
+    public string fieldLabel { get; set; }
+
+    [Parameter]
+    public EntityReference selectedRecord { get; set; }
+
+    private Entity selectedEntity { get; set; }
 
     private string isMenuHiddenClassName = "hidden";
 
@@ -45,43 +52,77 @@
         return await connection.GetById(selectedId, entityName, searchFieldName);
     }
 
-    private void OpenSearchMenu()
+    private void ToggleSearchMenu()
     {
+        ClearSearchResults();
         isMenuHiddenClassName = string.IsNullOrEmpty(isMenuHiddenClassName) ? "hidden" : string.Empty;
+    }
+
+    private void ClearSearchResults()
+    {
+        SearchString = string.Empty;
+        SearchResults.Clear();
+    }
+
+    private void SearchResultSelected(string id)
+    {
+        var _id = Guid.Parse(id);
+        selectedEntity = SearchResults.Single(x => x.Id == _id);
+        ClearSearchResults();
+        ToggleSearchMenu();
+        handleSelectedEntity();
+        StateHasChanged();
     }
 
     private Timer searchTimer = new Timer(400);
     private string SearchString;
-    private List<Entity> SearchResults;
+    private List<Entity> SearchResults = new List<Entity>();
     void SearchStarted(ChangeEventArgs e)
     {
-        if (SearchString != e.Value.ToString().ToLower())
+        if (SearchString.ToLower() != e.Value.ToString().ToLower())
         {
-            SearchString = e.Value.ToString().ToLower();
-            searchTimer.Stop();
-            searchTimer.Start();
+            SearchString = e.Value.ToString();
+            if (SearchString.Length >= 3)
+            {
+                searchTimer.Stop();
+                searchTimer.Start();
+            }
         }
     }
 
-    private void DoSearch(Object source, ElapsedEventArgs e)
+    private async void DoSearch(Object source, ElapsedEventArgs e)
     {
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            // SearchResults = 
+            var _searchResults = await connection.Get(entityName, $"{searchFieldName} LIKE '%{SearchString}%'", "FullName");
+            SearchResults = _searchResults.ToList();
         }
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void handleSelectedEntity()
+    {
+        if (selectedEntity == null)
+        {
+            _id = string.Empty;
+            _name = "(none)";
+        }
+        else
+        {
+            _id = selectedEntity.Id.ToString() + "-" + entityName;
+            _name = selectedEntity[searchFieldName]?.Value.ToString();
+            selectedRecord = new EntityReference(selectedEntity.EntityName, selectedEntity.Id);
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        if (selectedEntity == null)
+        if (selectedRecord != null && selectedEntity == null)
         {
             selectedEntity = await GetSelectedEntity(entityName, selectedId, searchFieldName);
         }
-        _id = (selectedEntity?.Id ?? Guid.Empty).ToString() + "-" + entityName;
-        _entityName = entityName;
-        _name = selectedEntity?[searchFieldName]?.Value.ToString() ?? "(none)";
+        handleSelectedEntity();
 
         searchTimer.Elapsed += DoSearch;
     }

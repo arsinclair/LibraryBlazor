@@ -62,17 +62,8 @@
         </div>
         <div class="col">
             <form>
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="From">
-                    <small>@MessageSentFrom?.FullName</small>
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="To">
-                    <small>@MessageSentTo?.FullName</small>
-                </div>
-                <div class="form-group">
-                    <Lookup entityName="contact" selectedId="@("292BD0A9-469E-4567-BAF4-FB97E98B1F22")" searchFieldName="FullName" />
-                </div>
+                <Lookup selectedRecord="@MessageSentFrom" entityName="contact" searchFieldName="FullName" fieldLabel="From" />
+                <Lookup selectedRecord="@MessageSentTo" entityName="contact" searchFieldName="FullName" fieldLabel="To" />
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Sent On">
                     <small>@MessageSentOn</small>
@@ -80,17 +71,10 @@
                 <div class="form-group">
                     <textarea type="text" class="form-control" placeholder="Text">@MessageText</textarea>
                 </div>
+                <Lookup selectedRecord="@MessageConversation" entityName="conversation" searchFieldName="Subject" fieldLabel="Conversation" />
+                <Lookup selectedRecord="@MessageWebsite" entityName="website" searchFieldName="Description" fieldLabel="Website" />
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Conversation" @bind="MessageConversation">
-                    <small>@MessageConversation</small>
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Website" @bind="MessageWebsite">
-                    <small>@MessageWebsite</small>
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Platform" @bind="MessagePlatform">
-                    <small>@MessagePlatform</small>
+                    <label>Platform [To be implemented]</label>
                 </div>
             </form>
         </div>
@@ -108,13 +92,13 @@
     private Timer searchTimer = new Timer(400);
 
     // New Message Section
-    private Contact MessageSentFrom;
-    private Contact MessageSentTo;
+    private EntityReference MessageSentFrom;
+    private EntityReference MessageSentTo;
     private DateTime MessageSentOn;
     private string MessageText;
-    private string MessageConversation;
-    private string MessageWebsite;
-    private string MessagePlatform;
+    private EntityReference MessageConversation;
+    private EntityReference MessageWebsite;
+    private EntityReference MessagePlatform;
     // End
 
     private Contact SelectedContact;

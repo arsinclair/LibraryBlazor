@@ -59,12 +59,7 @@ namespace DataAccessLibrary.Repositories
         public async Task<Entity> GetById(string id, string entityName, params string[] columns)
         {
             string tableName = await this.GetEntityTableName(entityName);
-            string columnsString = string.Join(", ", columns);
-
-            if (columns.Contains("Id") == false && columns.First() != "*")
-            {
-                columnsString = "Id, " + columnsString;
-            }
+            string columnsString = transformColumns(columns);
 
             string sql = $"SELECT {columnsString} FROM {tableName} WHERE Id = @Id;";
 
@@ -117,6 +112,35 @@ namespace DataAccessLibrary.Repositories
             {
                 string tableName = await connection.QuerySingleAsync<string>(sql, new { EntityName = entityName });
                 return tableName;
+            }
+        }
+
+        private string transformColumns(string[] columns)
+        {
+            string output = string.Join(", ", columns);
+
+            // Inject must-have columns, e.g. Id
+            if (columns.Contains("Id") == false && columns.First() != "*")
+            {
+                output = "Id, " + output;
+            }
+
+            return output;
+        }
+
+        public async Task<IEnumerable<Entity>> Get(string entityName, string whereClause, params string[] columns)
+        {
+            string tableName = await this.GetEntityTableName(entityName);
+            string columnsString = transformColumns(columns);
+
+            string sql = $"SELECT {columnsString} FROM {tableName} WHERE {whereClause};";
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                using (var reader = connection.ExecuteReader(sql))
+                {
+                    return EntityConverter.Convert(reader, entityName, _configuration.GetConnectionString(DefaultConnection));
+                }
             }
         }
     }

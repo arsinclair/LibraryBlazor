@@ -4,6 +4,10 @@ namespace DataAccessLibrary.Models
 {
     public class EntityReference
     {
+        public EntityReference()
+        {           
+        }
+
         public EntityReference(string logicalName)
         {
             LogicalName = logicalName;

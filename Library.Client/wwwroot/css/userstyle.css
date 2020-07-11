@@ -96,3 +96,11 @@ sub {
     border: 1px solid #888787;
     box-shadow: 5px 5px #d2d2d2;
 }
+
+.search-result {
+    cursor: pointer;
+}
+
+.search-result:hover {
+    background-color: #718586;
+}
