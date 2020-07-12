@@ -1,3 +1,7 @@
+.nav-link-text {
+    margin-left: 0.5rem;
+}
+
 .contactListItem {
     cursor: pointer;
 }
@@ -89,6 +93,7 @@ sub {
 
 .search-menu {
     position: absolute;
+    z-index: 100;
     top: 3rem;
     background-color: #b1d1d2;
     padding: 0.3rem;
