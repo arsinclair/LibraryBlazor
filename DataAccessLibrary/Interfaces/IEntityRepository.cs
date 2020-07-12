@@ -12,6 +12,7 @@ namespace DataAccessLibrary.Interfaces
 
         Task<IEnumerable<Entity>> Get(string entityName, string whereClause, params string[] columns);
         Task<Entity> GetById(string id, string entityName, bool allColumns);
+        Task<Entity> GetById(EntityReference entityReference, params string[] allColumns);
 
         Task<IEnumerable<Entity>> GetAll(string entityName, bool allColumns);
         Task<IEnumerable<Entity>> GetAll(string entityName, params string[] columns);

@@ -143,5 +143,10 @@ namespace DataAccessLibrary.Repositories
                 }
             }
         }
+
+        public async Task<Entity> GetById(EntityReference entityReference, params string[] columns)
+        {
+            return await GetById(entityReference.Id.ToString(), entityReference.LogicalName, columns);
+        }
     }
 }

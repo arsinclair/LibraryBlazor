@@ -24,5 +24,20 @@ namespace DataAccessLibrary.Models
         public Guid Id { get; set; }
         public string EntityName { get; set; }
         public Dictionary<string, Field> Fields { get; set; }
+
+        public EntityReference ToEntityReference()
+        {
+            return new EntityReference(this.EntityName, this.Id);
+        }
+        
+        public EntityReference ToEntityReference(string objectNameField)
+        {
+            return new EntityReference()
+            {
+                Id = this.Id,
+                LogicalName = this.EntityName,
+                Name = this[objectNameField]?.Value.ToString()
+            };
+        }
     }
 }

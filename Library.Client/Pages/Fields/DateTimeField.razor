@@ -2,52 +2,69 @@
 
 <form>
     <div class="form-group">
-        <label>@label</label>
+        <label>@Label</label>
         <div class="input-group">
             <div class="input-group-prepend">
                 <span class="input-group-text no-right-border"><i class="fa fa-calendar"></i></span>
             </div>
-            <input value="@dateTimeString" type="text" class="form-control" @onchange="DateChanged">
+            <input value="@dateTimeString" type="text" class="form-control @inputErrorClassName" @onchange="DateChanged">
         </div>
     </div>
 </form>
 
 @code {
-    [Parameter]
-    public string label { get; set; }
+    // #region Logic
+    private string dateTimeString = "";
+    private string inputErrorClassName;
 
-    private DateTime _value;
-
-    [Parameter]
-    public DateTime Output
+    private void DateChanged(ChangeEventArgs changedData)
     {
-        get => _value;
+        var str = changedData.Value.ToString();
+        if (!string.IsNullOrEmpty(str))
+        {
+            DateTime parsed;
+            bool isParsed = DateTime.TryParse(str, out parsed);
+
+            if (isParsed)
+            {
+                Output = (DateTime?)parsed;
+                inputErrorClassName = string.Empty;
+                dateTimeString = Output.ToString();
+            }
+            else
+            {
+                Output = null;
+                inputErrorClassName = "is-invalid";
+            }
+        }
+        else
+        {
+            Output = null;
+            inputErrorClassName = "is-invalid";
+        }
+        StateHasChanged();
+    }
+    // #endregion
+
+    // #region Input / Output
+    [Parameter]
+    public string Label { get; set; }
+
+    private DateTime? _output;
+
+    [Parameter]
+    public DateTime? Output
+    {
+        get => _output;
         set
         {
-            if (_value == value) return;
-            _value = value;
+            if (_output == value) return;
+            _output = value;
             OutputChanged.InvokeAsync(value);
         }
     }
 
     [Parameter]
-    public EventCallback<DateTime> OutputChanged { get; set; }
-
-    private string dateTimeString = "";
-
-    private void DateChanged(ChangeEventArgs changedData)
-    {
-        var str = changedData.Value.ToString();
-        if (string.IsNullOrEmpty(str))
-        {
-            dateTimeString = string.Empty;
-            Output = DateTime.MinValue;
-        }
-        else
-        {
-            var parsed = DateTime.Parse(str);
-            dateTimeString = parsed.ToString();
-            Output = parsed;
-        }
-    }
+    public EventCallback<DateTime?> OutputChanged { get; set; }
+    // #endregion
 }
