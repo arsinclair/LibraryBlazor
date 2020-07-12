@@ -62,17 +62,14 @@
         </div>
         <div class="col">
             <form>
-                <Lookup selectedRecord="@MessageSentFrom" entityName="contact" searchFieldName="FullName" fieldLabel="From" />
-                <Lookup selectedRecord="@MessageSentTo" entityName="contact" searchFieldName="FullName" fieldLabel="To" />
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Sent On">
-                    <small>@MessageSentOn</small>
-                </div>
+                <LookupField selectedRecord="@MessageSentFrom" entityName="contact" searchFieldName="FullName" label="From" callback="MessageSentFromSet" />
+                <LookupField selectedRecord="@MessageSentTo" entityName="contact" searchFieldName="FullName" label="To" callback="MessageSentToSet" />
+                <DateTimeField label="Sent On" @bind-Output="MessageSentOn" />
                 <div class="form-group">
                     <textarea type="text" class="form-control" placeholder="Text">@MessageText</textarea>
                 </div>
-                <Lookup selectedRecord="@MessageConversation" entityName="conversation" searchFieldName="Subject" fieldLabel="Conversation" />
-                <Lookup selectedRecord="@MessageWebsite" entityName="website" searchFieldName="Description" fieldLabel="Website" />
+                <LookupField selectedRecord="@MessageConversation" entityName="conversation" searchFieldName="Subject" label="Conversation" callback="MessageConversationSet" />
+                <LookupField selectedRecord="@MessageWebsite" entityName="website" searchFieldName="Description" label="Website" callback="MessageWebsiteSet" />
                 <div class="form-group">
                     <label>Platform [To be implemented]</label>
                 </div>
@@ -93,12 +90,33 @@
 
     // New Message Section
     private EntityReference MessageSentFrom;
+    private void MessageSentFromSet(EntityReference value)
+    {
+        MessageSentFrom = value;
+    }
     private EntityReference MessageSentTo;
+    private void MessageSentToSet(EntityReference value)
+    {
+        MessageSentTo = value;
+    }
     private DateTime MessageSentOn;
     private string MessageText;
     private EntityReference MessageConversation;
+    private void MessageConversationSet(EntityReference value)
+    {
+        MessageConversation = value;
+    }
     private EntityReference MessageWebsite;
+
+    private void MessageWebsiteSet(EntityReference value)
+    {
+        MessageWebsite = value;
+    }
     private EntityReference MessagePlatform;
+    private void MessagePlatformSet(EntityReference value)
+    {
+        MessagePlatform = value;
+    }
     // End
 
     private Contact SelectedContact;

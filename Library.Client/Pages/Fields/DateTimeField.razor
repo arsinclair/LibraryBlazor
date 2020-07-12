@@ -1,0 +1,53 @@
+@namespace Library.Client
+
+<form>
+    <div class="form-group">
+        <label>@label</label>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text no-right-border"><i class="fa fa-calendar"></i></span>
+            </div>
+            <input value="@dateTimeString" type="text" class="form-control" @onchange="DateChanged">
+        </div>
+    </div>
+</form>
+
+@code {
+    [Parameter]
+    public string label { get; set; }
+
+    private DateTime _value;
+
+    [Parameter]
+    public DateTime Output
+    {
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<DateTime> OutputChanged { get; set; }
+
+    private string dateTimeString = "";
+
+    private void DateChanged(ChangeEventArgs changedData)
+    {
+        var str = changedData.Value.ToString();
+        if (string.IsNullOrEmpty(str))
+        {
+            dateTimeString = string.Empty;
+            Output = DateTime.MinValue;
+        }
+        else
+        {
+            var parsed = DateTime.Parse(str);
+            dateTimeString = parsed.ToString();
+            Output = parsed;
+        }
+    }
+}

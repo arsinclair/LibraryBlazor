@@ -1,5 +1,3 @@
-@page "/lookup"
-
 @using System.Timers
 @using DataAccessLibrary.Models
 @using DataAccessLibrary.Interfaces
@@ -10,7 +8,7 @@
 
 <form>
     <div class="form-group form-group-lookup">
-        <label>@fieldLabel</label>
+        <label>@label</label>
         <div id="@_id" class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@_name</div>
         <div class="search-menu @isMenuHiddenClassName">
             <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))" @bind="SearchString">
@@ -38,10 +36,13 @@
     public string searchFieldName { get; set; }
 
     [Parameter]
-    public string fieldLabel { get; set; }
+    public string label { get; set; }
 
     [Parameter]
     public EntityReference selectedRecord { get; set; }
+
+    [Parameter]
+    public Action<EntityReference> callback { get; set; }
 
     private Entity selectedEntity { get; set; }
 
@@ -113,6 +114,7 @@
             _id = selectedEntity.Id.ToString() + "-" + entityName;
             _name = selectedEntity[searchFieldName]?.Value.ToString();
             selectedRecord = new EntityReference(selectedEntity.EntityName, selectedEntity.Id);
+            callback(selectedRecord);
         }
     }
 
