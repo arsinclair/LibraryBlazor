@@ -2,8 +2,8 @@
     margin-left: 0.5rem;
 }
 
-
 /* DatePicker CSS */
+
 .datepicker {
     height: initial !important;
     margin: 0;
@@ -142,10 +142,28 @@ sub {
     box-shadow: 5px 5px #d2d2d2;
 }
 
+.search-menu-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.search-menu-header > label {
+    margin-bottom: 0;
+}
+
+.search-menu-close-icon {
+    cursor: pointer;
+}
+
 .search-result {
     cursor: pointer;
 }
 
 .search-result:hover {
     background-color: #718586;
+}
+
+hr {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
 }

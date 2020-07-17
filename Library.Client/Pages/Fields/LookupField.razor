@@ -10,6 +10,11 @@
     <label>@Label</label>
     <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@_name</div>
     <div class="search-menu @isMenuHiddenClassName">
+        <div class="search-menu-header">
+            <label>Search for @Output?.LogicalName</label>
+            <div @onclick="ToggleSearchMenu"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i></div>
+        </div>
+        <hr>
         <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))" @bind="SearchString">
         <div class="search-results">
             @foreach (var item in SearchResults)
@@ -17,6 +22,8 @@
                 <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item[LookupNameSource].Value.ToString()</div>
             }
         </div>
+        <hr>
+        <div>@SearchResults.Count results found.</div>
     </div>
 </div>
 
