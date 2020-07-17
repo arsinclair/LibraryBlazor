@@ -28,10 +28,10 @@
                 <div class="scrollable-container">
                     @foreach (var contact in Contacts)
                     {
-                        var classname = SelectedContact?.ContactId != contact.ContactId ? "contactListItem" : "contactListItem selected";
+                        var classname = SelectedContact?.Id != contact.Id ? "contactListItem" : "contactListItem selected";
                         if (!contact.HiddenInUI)
                         {
-                            <div class="@classname" id="@contact.ContactId" @onclick="@(e => ContactSelectionChanged(e, contact.ContactId))">@contact.FullName</div>
+                            <div class="@classname" id="@contact.Id" @onclick="@(e => ContactSelectionChanged(e, contact.Id))">@contact.FullName</div>
                         }
                     }
                 </div>
@@ -45,8 +45,8 @@
                     <div class="scrollable-container">
                         @foreach (var message in Messages)
                         {
-                            string conversationName = Conversations.FirstOrDefault(x => x.ConversationId == message.ConversationId)?.Subject;
-                            string className = message.ToContactId == SelectedContact.ContactId ? "message" : "message darker";
+                            string conversationName = Conversations.FirstOrDefault(x => x.Id == message.ConversationId)?.Subject;
+                            string className = message.ToContactId == SelectedContact.Id ? "message" : "message darker";
                             <ChatMessage ClassName="@className" MessageText="@message.Text" SentOn="@message.SentOn.ToString()" ConversationName="@conversationName" />
                         }
                     </div>
@@ -105,7 +105,7 @@
         SelectedContact = null;
         Messages = null;
         Conversations = null;
-        SelectedContact = Contacts.FirstOrDefault(x => x.ContactId == selectedContactId);
+        SelectedContact = Contacts.FirstOrDefault(x => x.Id == selectedContactId);
         LoadMessages();
     }
 
@@ -117,8 +117,8 @@
 
     async void LoadMessages()
     {
-        Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.ContactId}' OR ToContactId = '{SelectedContact.ContactId}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
-        Conversations = await conversationsRepository.GetConversations($"ConversationId in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.ContactId}' OR ToContactId = '{SelectedContact.ContactId}')", "ConversationId", "Subject");
+        Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
+        Conversations = await conversationsRepository.GetConversations($"Id in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}')", "Id", "Subject");
         StateHasChanged();
     }
 

@@ -4,7 +4,7 @@ namespace DataAccessLibrary.Models
 {
     public class Website
     {
-        public Guid WebsiteId { get; set; } 
+        public Guid Id { get; set; } 
 
         public DateTime CreatedOn { get; set; }
 

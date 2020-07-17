@@ -26,7 +26,7 @@ namespace DataAccessLibrary.DataProviders
 
         public Task InsertMessage(Message message)
         {
-            string sql = @"insert into dbo.Messages (MessageId, CreatedOn, ModifiedOn, FromContactId, ToContactId, SentOn, Text, WebsiteId, PlatformId, ConversationId, TextFormat) values (@MessageId, @CreatedOn, @ModifiedOn, @FromContactId, @ToContactId, @SentOn, @Text, @WebsiteId, @PlatformId, @ConversationId, @TextFormat);";
+            string sql = @"insert into dbo.Messages (Id, CreatedOn, ModifiedOn, FromContactId, ToContactId, SentOn, Text, WebsiteId, PlatformId, ConversationId, TextFormat) values (@Id, @CreatedOn, @ModifiedOn, @FromContactId, @ToContactId, @SentOn, @Text, @WebsiteId, @PlatformId, @ConversationId, @TextFormat);";
 
             return _db.SaveData(sql, message);
         }

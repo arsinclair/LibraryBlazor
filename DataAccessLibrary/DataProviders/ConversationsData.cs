@@ -26,7 +26,7 @@ namespace DataAccessLibrary.DataProviders
 
         public Task InsertConversation(Conversation conversation)
         {
-            string sql = @"insert into dbo.Conversations (ConversationId, CreatedOn, ModifiedOn, Subject) values (@ConversationId, @CreatedOn, @ModifiedOn, @Subject);";
+            string sql = @"insert into dbo.Conversations (Id, CreatedOn, ModifiedOn, Subject) values (@Id, @CreatedOn, @ModifiedOn, @Subject);";
 
             return _db.SaveData(sql, conversation);
         }
