@@ -64,13 +64,12 @@
                 <LookupField InitialValue="@MessageSentTo" LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
                 <DateTimeField Label="Sent On" @bind-Output="MessageSentOn" />
                 <div class="form-group">
+                    <label>Text</label>
                     <textarea type="text" class="form-control" placeholder="Text">@MessageText</textarea>
                 </div>
                 <LookupField InitialValue="@MessageConversation" LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" />
-                <LookupField InitialValue="@MessageWebsite" LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" />
-                <div class="form-group">
-                    <label>Platform [To be implemented]</label>
-                </div>
+                <LookupField InitialValue="@MessageWebsite" LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
+                <LookupField InitialValue="@MessagePlatform" LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
             </form>
         </div>
     </div>
@@ -93,7 +92,7 @@
     private string MessageText;
     private EntityReference MessageConversation = new EntityReference("conversation");
     private EntityReference MessageWebsite = new EntityReference("website");
-    private EntityReference MessagePlatform;
+    private EntityReference MessagePlatform = new EntityReference("communicationplatform");
     // End
 
     private Contact SelectedContact;

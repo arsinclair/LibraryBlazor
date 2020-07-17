@@ -38,10 +38,34 @@
         return await connection.GetById(entityReference, searchFieldName);
     }
 
-    private void ToggleSearchMenu()
+    private async void ToggleSearchMenu()
+    {
+        if (string.IsNullOrEmpty(isMenuHiddenClassName))
+        {
+            CloseSearchMenu();
+        }
+        else
+        {
+            OpenSearchMenu();
+        }
+    }
+
+    private void CloseSearchMenu()
     {
         ClearSearchResults();
-        isMenuHiddenClassName = string.IsNullOrEmpty(isMenuHiddenClassName) ? "hidden" : string.Empty;
+        isMenuHiddenClassName = "hidden";
+    }
+
+    private async void OpenSearchMenu()
+    {
+        ClearSearchResults();
+        if (PreloadRecordsCount > 0)
+        {
+            var _searchResults = await connection.Get(entityName: InitialValue.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
+            SearchResults = _searchResults.ToList();
+        }
+        isMenuHiddenClassName = string.Empty;
+        StateHasChanged();
     }
 
     private void ClearSearchResults()
@@ -50,7 +74,7 @@
         SearchResults.Clear();
     }
 
-    private void SearchResultSelected(string id)
+    private async void SearchResultSelected(string id)
     {
         var _id = Guid.Parse(id);
         Output = SearchResults.Single(x => x.Id == _id).ToEntityReference(LookupNameSource);
@@ -80,7 +104,7 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            var _searchResults = await connection.Get(InitialValue.LogicalName, $"{LookupNameSource} LIKE '%{SearchString}%'", LookupNameSource);
+            var _searchResults = await connection.Get(entityName: InitialValue.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         await InvokeAsync(StateHasChanged);
@@ -93,7 +117,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        bool isValuePassedFromParent = InitialValue?.Id != Guid.Empty && string.IsNullOrEmpty(InitialValue.LogicalName) == false;
+        bool isValuePassedFromParent = InitialValue?.Id != Guid.Empty && string.IsNullOrEmpty(InitialValue?.LogicalName) == false;
         if (isValuePassedFromParent && Output == null)
         {
             var entity = await GetSelectedEntity(InitialValue, LookupNameSource);
@@ -126,6 +150,9 @@
 
     [Parameter]
     public string LookupNameSource { get; set; }
+
+    [Parameter]
+    public int PreloadRecordsCount { get; set; } = 0;
 
     [Parameter]
     public EventCallback<EntityReference> OutputChanged { get; set; }
