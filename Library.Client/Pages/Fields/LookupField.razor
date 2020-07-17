@@ -6,21 +6,19 @@
 
 @namespace Library.Client
 
-<form>
-    <div class="form-group form-group-lookup">
-        <label>@Label</label>
-        <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@_name</div>
-        <div class="search-menu @isMenuHiddenClassName">
-            <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))" @bind="SearchString">
-            <div class="search-results">
-                @foreach (var item in SearchResults)
-                {
-                    <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item["FullName"].Value.ToString()</div>
-                }
-            </div>
+<div class="form-group form-group-lookup">
+    <label>@Label</label>
+    <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@_name</div>
+    <div class="search-menu @isMenuHiddenClassName">
+        <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))" @bind="SearchString">
+        <div class="search-results">
+            @foreach (var item in SearchResults)
+            {
+                <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item[LookupNameSource].Value.ToString()</div>
+            }
         </div>
     </div>
-</form>
+</div>
 
 @code {
     #region Logic
@@ -52,7 +50,6 @@
         ClearSearchResults();
         ToggleSearchMenu();
         UpdateUI();
-        @* StateHasChanged(); *@
     }
 
     private Timer searchTimer = new Timer(400);
@@ -76,7 +73,7 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            var _searchResults = await connection.Get(InitialValue.LogicalName, $"{LookupNameSource} LIKE '%{SearchString}%'", "FullName");
+            var _searchResults = await connection.Get(InitialValue.LogicalName, $"{LookupNameSource} LIKE '%{SearchString}%'", LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         await InvokeAsync(StateHasChanged);
