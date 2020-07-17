@@ -2,6 +2,46 @@
     margin-left: 0.5rem;
 }
 
+
+/* DatePicker CSS */
+.datepicker {
+    height: initial !important;
+    margin: 0;
+    margin-bottom: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    padding: .375rem .75rem;
+}
+
+.datepicker:hover {
+    background-color: transparent !important;
+}
+
+.datepicker:focus {
+    background-color: transparent !important;
+}
+
+.datepicker::before {
+    height: initial !important;
+}
+
+.mdc-line-ripple::before, .mdc-line-ripple::after {
+    border-bottom-style: initial !important;
+}
+
+.mdc-icon-button:hover::before {
+    opacity: 0 !important;
+}
+
+.mdc-icon-button {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    font-size: 0px;
+}
+
+/* DatePicker End */
+
 .contactListItem {
     cursor: pointer;
 }

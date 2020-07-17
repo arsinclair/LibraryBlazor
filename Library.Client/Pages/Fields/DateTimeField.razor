@@ -1,51 +1,12 @@
 @namespace Library.Client
+@using MatBlazor
 
-<form>
-    <div class="form-group">
-        <label>@Label</label>
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text no-right-border"><i class="fa fa-calendar"></i></span>
-            </div>
-            <input value="@dateTimeString" type="text" class="form-control @inputErrorClassName" @onchange="DateChanged">
-        </div>
-    </div>
-</form>
+<div class="form-group">
+    <label>@Label</label>
+    <MatDatePicker @bind-Value="Output" EnableTime="true" Outlined="true" EnableSeconds="true" Class="datepicker"></MatDatePicker>
+</div>
 
 @code {
-    // #region Logic
-    private string dateTimeString = "";
-    private string inputErrorClassName;
-
-    private void DateChanged(ChangeEventArgs changedData)
-    {
-        var str = changedData.Value.ToString();
-        if (!string.IsNullOrEmpty(str))
-        {
-            DateTime parsed;
-            bool isParsed = DateTime.TryParse(str, out parsed);
-
-            if (isParsed)
-            {
-                Output = (DateTime?)parsed;
-                inputErrorClassName = string.Empty;
-                dateTimeString = Output.ToString();
-            }
-            else
-            {
-                Output = null;
-                inputErrorClassName = "is-invalid";
-            }
-        }
-        else
-        {
-            Output = null;
-            inputErrorClassName = "is-invalid";
-        }
-        StateHasChanged();
-    }
-    // #endregion
-
     // #region Input / Output
     [Parameter]
     public string Label { get; set; }
