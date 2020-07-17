@@ -8,7 +8,6 @@ namespace DataAccessLibrary.Interfaces
     {
         Task<int> Create(T entity);
         Task<T> GetById(string id, string entityName, params string[] columns);
-        Task<IEnumerable<T>> GetAll(string entityName, string columns);
         Task<int> Update(T entity);
         Task<int> Delete(string id, string entityName);
     }

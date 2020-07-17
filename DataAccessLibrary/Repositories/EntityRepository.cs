@@ -72,31 +72,6 @@ namespace DataAccessLibrary.Repositories
             }
         }
 
-        public async Task<IEnumerable<Entity>> GetAll(string entityName, bool allColumns)
-        {
-            return await GetAll(entityName, "*");
-        }
-
-        public async Task<IEnumerable<Entity>> GetAll(string entityName, params string[] columns)
-        {
-            string columnsString = string.Join(", ", columns);
-            return await GetAll(entityName, columnsString);
-        }
-
-        public async Task<IEnumerable<Entity>> GetAll(string entityName, string columns)
-        {
-            string tableName = await this.GetEntityTableName(entityName);
-            string sql = $"SELECT {columns} FROM {tableName};";
-
-            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
-            {
-                using (var reader = connection.ExecuteReader(sql))
-                {
-                    return EntityConverter.Convert(reader, entityName, _configuration.GetConnectionString(DefaultConnection));
-                }
-            }
-        }
-
         public Task<int> Update(Entity entity)
         {
             throw new NotImplementedException();
@@ -128,12 +103,13 @@ namespace DataAccessLibrary.Repositories
             return output;
         }
 
-        public async Task<IEnumerable<Entity>> Get(string entityName, string whereClause, params string[] columns)
+        public async Task<IEnumerable<Entity>> Get(string entityName, string whereClause = "", int count = 0, params string[] columns)
         {
             string tableName = await this.GetEntityTableName(entityName);
             string columnsString = transformColumns(columns);
-
-            string sql = $"SELECT {columnsString} FROM {tableName} WHERE {whereClause};";
+            string rowCount = count > 0 ? $"TOP {count}" : string.Empty;
+            string whereString = !string.IsNullOrEmpty(whereClause) ? $"WHERE {whereClause}" : string.Empty;
+            string sql = $"SELECT {rowCount} {columnsString} FROM {tableName} {whereString};";
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
