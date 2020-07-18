@@ -33,12 +33,12 @@
 
     private string isMenuHiddenClassName = "hidden";
 
-    private async Task<Entity> GetSelectedEntity(EntityReference entityReference, string searchFieldName)
+    private Entity GetSelectedEntity(EntityReference entityReference, string searchFieldName)
     {
-        return await connection.GetById(entityReference, searchFieldName);
+        return connection.GetById(entityReference, searchFieldName);
     }
 
-    private async void ToggleSearchMenu()
+    private void ToggleSearchMenu()
     {
         if (string.IsNullOrEmpty(isMenuHiddenClassName))
         {
@@ -61,7 +61,7 @@
         ClearSearchResults();
         if (PreloadRecordsCount > 0)
         {
-            var _searchResults = await connection.Get(entityName: InitialValue.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
+            var _searchResults = connection.Get(entityName: InitialValue.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         isMenuHiddenClassName = string.Empty;
@@ -104,7 +104,7 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            var _searchResults = await connection.Get(entityName: InitialValue.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
+            var _searchResults = connection.Get(entityName: InitialValue.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         await InvokeAsync(StateHasChanged);
@@ -120,7 +120,7 @@
         bool isValuePassedFromParent = InitialValue?.Id != Guid.Empty && string.IsNullOrEmpty(InitialValue?.LogicalName) == false;
         if (isValuePassedFromParent && Output == null)
         {
-            var entity = await GetSelectedEntity(InitialValue, LookupNameSource);
+            var entity = GetSelectedEntity(InitialValue, LookupNameSource);
             Output = entity?.ToEntityReference(LookupNameSource);
         }
         UpdateUI();

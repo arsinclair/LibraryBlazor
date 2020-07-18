@@ -2,7 +2,6 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
 using Dapper;
 using DataAccessLibrary.Converters;
 using DataAccessLibrary.Interfaces;
@@ -23,42 +22,42 @@ namespace DataAccessLibrary.Repositories
 
         #region Core Methods
 
-        public Task<int> Create(Entity entity)
+        public int Create(Entity entity)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<int> Delete(Entity entity)
+        public int Delete(Entity entity)
         {
-            return await Delete(entity.Id, entity.EntityName);
+            return Delete(entity.Id, entity.EntityName);
         }
 
-        public async Task<int> Delete(Guid id, string entityName)
+        public int Delete(Guid id, string entityName)
         {
             string strId = id.ToString();
-            return await Delete(strId, entityName);
+            return Delete(strId, entityName);
         }
 
-        public async Task<int> Delete(string id, string entityName)
+        public int Delete(string id, string entityName)
         {
-            string tableName = await this.GetEntityTableName(entityName);
+            string tableName = this.GetEntityTableName(entityName);
             string sql = $"DELETE FROM @TableName WHERE Id = @Id;";
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
-                int affectedRows = await connection.ExecuteAsync(sql, new { TableName = tableName, Id = id });
+                int affectedRows = connection.Execute(sql, new { TableName = tableName, Id = id });
                 return affectedRows;
             }
         }
 
-        public async Task<Entity> GetById(string id, string entityName, bool allColumns)
+        public Entity GetById(string id, string entityName, bool allColumns)
         {
-            return await GetById(id, entityName, "*");
+            return GetById(id, entityName, "*");
         }
 
-        public async Task<Entity> GetById(string id, string entityName, params string[] columns)
+        public Entity GetById(string id, string entityName, params string[] columns)
         {
-            string tableName = await this.GetEntityTableName(entityName);
+            string tableName = this.GetEntityTableName(entityName);
             string columnsString = transformColumns(columns);
 
             string sql = $"SELECT {columnsString} FROM {tableName} WHERE Id = @Id;";
@@ -72,20 +71,20 @@ namespace DataAccessLibrary.Repositories
             }
         }
 
-        public Task<int> Update(Entity entity)
+        public int Update(Entity entity)
         {
             throw new NotImplementedException();
         }
 
         #endregion
 
-        private async Task<string> GetEntityTableName(string entityName)
+        private string GetEntityTableName(string entityName)
         {
             string sql = "SELECT DatabaseTableName FROM SysEntities WHERE UPPER(Name) = UPPER(@EntityName)";
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
-                string tableName = await connection.QuerySingleAsync<string>(sql, new { EntityName = entityName });
+                string tableName = connection.QuerySingle<string>(sql, new { EntityName = entityName });
                 return tableName;
             }
         }
@@ -103,9 +102,9 @@ namespace DataAccessLibrary.Repositories
             return output;
         }
 
-        public async Task<IEnumerable<Entity>> Get(string entityName, string whereClause = "", int count = 0, params string[] columns)
+        public IEnumerable<Entity> Get(string entityName, string whereClause = "", int count = 0, params string[] columns)
         {
-            string tableName = await this.GetEntityTableName(entityName);
+            string tableName = this.GetEntityTableName(entityName);
             string columnsString = transformColumns(columns);
             string rowCount = count > 0 ? $"TOP {count}" : string.Empty;
             string whereString = !string.IsNullOrEmpty(whereClause) ? $"WHERE {whereClause}" : string.Empty;
@@ -120,9 +119,9 @@ namespace DataAccessLibrary.Repositories
             }
         }
 
-        public async Task<Entity> GetById(EntityReference entityReference, params string[] columns)
+        public Entity GetById(EntityReference entityReference, params string[] columns)
         {
-            return await GetById(entityReference.Id.ToString(), entityReference.LogicalName, columns);
+            return GetById(entityReference.Id.ToString(), entityReference.LogicalName, columns);
         }
     }
 }
