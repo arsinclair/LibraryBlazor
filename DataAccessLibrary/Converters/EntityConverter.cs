@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data;
@@ -6,7 +5,6 @@ using System.Data.SqlClient;
 using DataAccessLibrary.Models;
 using Dapper;
 using System;
-using Microsoft.CSharp;
 
 namespace DataAccessLibrary.Converters
 {
@@ -18,14 +16,12 @@ namespace DataAccessLibrary.Converters
             var output = new List<Entity>();
             while (reader.Read())
             {
-                Entity entity = new Entity();
-                entity.Fields = new Dictionary<string, Field>();
-                entity.EntityName = entityName;
+                Entity entity = new Entity(entityName);
                 var columns = getColumns(reader).ToList();
                 for (int i = 0; i < columns.Count; i++)
                 {
                     var type = columnTypes[columns[i]];
-                    Field field = new Field();
+                    object attribute;
                     if (!reader.IsDBNull(i))
                     {
                         switch (type)
@@ -34,26 +30,26 @@ namespace DataAccessLibrary.Converters
                                 var parsed = reader.GetGuid(i);
                                 if (columns[i] == "Id")
                                 {
-                                    field.Value = parsed;
+                                    attribute = parsed;
                                     entity.Id = parsed;
                                 }
                                 else
                                 {
-                                    field.Value = new EntityReference(string.Empty, parsed); // TODO
+                                    attribute = new EntityReference(string.Empty, parsed); // TODO
                                 }
                                 break;
                             case "Text":
-                                field.Value = reader.GetString(i);
+                                attribute = reader.GetString(i);
                                 break;
                             case "Number":
-                                field.Value = reader.GetInt32(i);
+                                attribute = reader.GetInt32(i);
                                 break;
                             case "DateTime":
-                                field.Value = reader.GetDateTime(i);
+                                attribute = reader.GetDateTime(i);
                                 break;
                             default: throw new NotImplementedException();
                         }
-                        entity[columns[i]] = field;
+                        entity[columns[i]] = attribute;
                     }
                 }
                 output.Add(entity);

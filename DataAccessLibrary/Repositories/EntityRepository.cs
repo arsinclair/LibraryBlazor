@@ -29,7 +29,7 @@ namespace DataAccessLibrary.Repositories
 
         public int Delete(Entity entity)
         {
-            return Delete(entity.Id, entity.EntityName);
+            return Delete(entity.Id, entity.LogicalName);
         }
 
         public int Delete(Guid id, string entityName)

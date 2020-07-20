@@ -19,7 +19,7 @@
         <div class="search-results">
             @foreach (var item in SearchResults)
             {
-                <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item[LookupNameSource].Value.ToString()</div>
+                <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item[LookupNameSource]?.ToString()</div>
             }
         </div>
         <hr>
@@ -56,7 +56,7 @@
         isMenuHiddenClassName = "hidden";
     }
 
-    private async void OpenSearchMenu()
+    private void OpenSearchMenu()
     {
         ClearSearchResults();
         if (PreloadRecordsCount > 0)
@@ -74,10 +74,11 @@
         SearchResults.Clear();
     }
 
-    private async void SearchResultSelected(string id)
+    private void SearchResultSelected(string id)
     {
         var _id = Guid.Parse(id);
-        Output = SearchResults.Single(x => x.Id == _id).ToEntityReference(LookupNameSource);
+        var result = SearchResults.Single(x => x.Id == _id);
+        Output = result.ToEntityReference(result[LookupNameSource]?.ToString());
         ClearSearchResults();
         ToggleSearchMenu();
         UpdateUI();
@@ -115,7 +116,7 @@
         _name = Output.Name ?? "(none)";
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         bool isValuePassedFromParent = InitialValue?.Id != Guid.Empty && string.IsNullOrEmpty(InitialValue?.LogicalName) == false;
         if (isValuePassedFromParent && Output == null)
