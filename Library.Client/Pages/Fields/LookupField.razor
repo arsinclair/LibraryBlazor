@@ -59,7 +59,7 @@
         ClearSearchResults();
         if (PreloadRecordsCount > 0)
         {
-            var _searchResults = connection.Get(entityName: InitialValue.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
+            var _searchResults = connection.Get(entityName: Output.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         isMenuHiddenClassName = string.Empty;
@@ -102,7 +102,7 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            var _searchResults = connection.Get(entityName: InitialValue.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
+            var _searchResults = connection.Get(entityName: Output.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         await InvokeAsync(StateHasChanged);
@@ -114,7 +114,7 @@
         {
             var entity = GetSelectedEntity(Output, LookupNameSource);
             if (entity != null && entity.Attributes.Contains(LookupNameSource))
-    {
+            {
                 Output.Name = entity[LookupNameSource].ToString();
             }
         }
@@ -142,9 +142,6 @@
             OutputChanged.InvokeAsync(value);
         }
     }
-
-    [Parameter]
-    public EntityReference InitialValue { get; set; }
 
     [Parameter]
     public string LookupNameSource { get; set; }

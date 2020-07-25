@@ -4,10 +4,12 @@
 @using DataAccessLibrary
 @using DataAccessLibrary.Models
 @using DataAccessLibrary.DataProviders.Interfaces
+@using DataAccessLibrary.Interfaces
 
 @inject IContactsData contactsRepository
 @inject IMessagesData messagesRepository
 @inject IConversationsData conversationsRepository
+@inject IEntityRepository connection
 
 @namespace Library.Client
 
@@ -60,17 +62,20 @@
         </div>
         <div class="col">
             <form>
+                <LookupField LookupNameSource="FullName" Label="From" @bind-Output="MessageSentFrom" />
                 <div class="reverse-button" @onclick="ReverseAddressees">
                     <i class="fas fa-exchange-alt fa-rotate-90"></i>
                 </div>
+                <LookupField LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
                 <DateTimeField Label="Sent On" @bind-Output="MessageSentOn" />
                 <div class="form-group">
                     <label>Text</label>
-                    <textarea type="text" class="form-control" placeholder="Text">@MessageText</textarea>
+                    <textarea type="text" class="form-control" placeholder="Text" @bind="MessageText"></textarea>
                 </div>
-                <LookupField InitialValue="@MessageConversation" LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" />
-                <LookupField InitialValue="@MessageWebsite" LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
-                <LookupField InitialValue="@MessagePlatform" LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
+                <LookupField LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" PreloadRecordsCount="5"/>
+                <LookupField LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
+                <LookupField LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
+                <button class="btn btn-info" @onclick="CreateEntity">Add Message</button>
             </form>
         </div>
     </div>
@@ -87,7 +92,7 @@
     private Timer searchTimer = new Timer(400);
 
     // New Message Section
-    private EntityReference MessageSentFrom = new EntityReference("contact");
+    private EntityReference MessageSentFrom = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
     private EntityReference MessageSentTo = new EntityReference("contact");
     private DateTime? MessageSentOn;
     private string MessageText;
@@ -125,6 +130,30 @@
         Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
         Conversations = await conversationsRepository.GetConversations($"Id in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}')", "Id", "Subject");
         StateHasChanged();
+    }
+
+    void CreateEntity()
+    {
+        Entity message = new Entity("message");
+        message["SentOn"] = MessageSentOn;
+        message["Text"] = MessageText;
+        message["FromContactId"] = MessageSentFrom;
+        message["ToContactId"] = MessageSentTo;
+        message["ConversationId"] = MessageConversation;
+        message["WebsiteId"] = MessageWebsite;
+        message["PlatformId"] = MessagePlatform;
+        message["TextFormat"] = "BBCode";
+
+        try {
+            var newId = connection.Create(message);
+            if(newId == Guid.Empty)
+            {
+                throw new Exception("Entity Creation Error");
+            }
+        }
+        catch (Exception ex) {
+            throw ex;
+        }
     }
 
     void SearchStarted(ChangeEventArgs e)
