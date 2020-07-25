@@ -22,9 +22,54 @@ namespace DataAccessLibrary.Repositories
 
         #region Core Methods
 
-        public int Create(Entity entity)
+        public Guid Create(Entity entity)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(entity.LogicalName))
+            {
+                throw new ArgumentNullException(entity.LogicalName);
+            }
+
+            entity.Id = Guid.NewGuid();
+            entity["Id"] = entity.Id;
+
+            string tableName = GetEntityTableName(entity.LogicalName);
+            string fieldsToInsert = stringifyFieldsForInsert(entity);
+            string sql = $"INSERT INTO {tableName} {fieldsToInsert};";
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                var rowsAffected = connection.Execute(sql);
+                return entity.Id;
+            }
+        }
+
+        private string stringifyFieldsForInsert(Entity entity)
+        {
+            string fieldNames = string.Empty;
+            string fieldValues = string.Empty;
+
+            int i = 0;
+            bool last = false;
+            foreach (var attr in entity.Attributes)
+            {
+                i++;
+                last = entity.Attributes.Count == i;
+                if (attr.Value == null || string.IsNullOrEmpty(attr.Value.ToString()) || Guid.Parse(attr.Value.ToString()) == Guid.Empty)
+                {
+                    continue;
+                }
+                
+                fieldNames += attr.Key;
+
+                fieldValues += $"'{attr.Value.ToString()}'";
+                if (!last)
+                {
+                    fieldNames += ", ";
+                    fieldValues += ", ";
+                }
+            }
+            string output = $"({fieldNames}) VALUES ({fieldValues})";
+            return output;
         }
 
         public int Delete(Entity entity)
