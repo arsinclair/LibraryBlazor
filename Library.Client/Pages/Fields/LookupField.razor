@@ -8,7 +8,7 @@
 
 <div class="form-group form-group-lookup">
     <label>@Label</label>
-    <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@_name</div>
+    <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@(Output?.Name ?? "(none)")</div>
     <div class="search-menu @isMenuHiddenClassName">
         <div class="search-menu-header">
             <label>Search for @Output?.LogicalName</label>
@@ -29,8 +29,6 @@
 
 @code {
     #region Logic
-    private string _name;
-
     private string isMenuHiddenClassName = "hidden";
 
     private Entity GetSelectedEntity(EntityReference entityReference, string searchFieldName)
@@ -81,7 +79,6 @@
         Output = result.ToEntityReference(result[LookupNameSource]?.ToString());
         ClearSearchResults();
         ToggleSearchMenu();
-        UpdateUI();
     }
 
     private Timer searchTimer = new Timer(400);
@@ -111,20 +108,20 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private void UpdateUI()
+    protected override void OnParametersSet()
     {
-        _name = Output.Name ?? "(none)";
+        if (Output?.Id != Guid.Empty && !string.IsNullOrEmpty(Output?.LogicalName))
+        {
+            var entity = GetSelectedEntity(Output, LookupNameSource);
+            if (entity != null && entity.Attributes.Contains(LookupNameSource))
+    {
+                Output.Name = entity[LookupNameSource].ToString();
+            }
+        }
     }
 
     protected override void OnInitialized()
     {
-        bool isValuePassedFromParent = InitialValue?.Id != Guid.Empty && string.IsNullOrEmpty(InitialValue?.LogicalName) == false;
-        if (isValuePassedFromParent && Output == null)
-        {
-            var entity = GetSelectedEntity(InitialValue, LookupNameSource);
-            Output = entity?.ToEntityReference(LookupNameSource);
-        }
-        UpdateUI();
         searchTimer.Elapsed += DoSearch;
     }
     #endregion
