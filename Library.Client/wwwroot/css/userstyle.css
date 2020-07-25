@@ -147,7 +147,7 @@ sub {
     justify-content: space-between;
 }
 
-.search-menu-header > label {
+.search-menu-header>label {
     margin-bottom: 0;
 }
 
@@ -161,6 +161,14 @@ sub {
 
 .search-result:hover {
     background-color: #718586;
+}
+
+.reverse-button {
+    position: relative;
+    text-align: end;
+    height: 0;
+    left: 2rem;
+    cursor: pointer;
 }
 
 hr {
