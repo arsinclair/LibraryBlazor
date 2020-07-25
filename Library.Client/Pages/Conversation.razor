@@ -60,8 +60,9 @@
         </div>
         <div class="col">
             <form>
-                <LookupField InitialValue="@MessageSentFrom" LookupNameSource="FullName" Label="From" @bind-Output="MessageSentFrom" />
-                <LookupField InitialValue="@MessageSentTo" LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
+                <div class="reverse-button" @onclick="ReverseAddressees">
+                    <i class="fas fa-exchange-alt fa-rotate-90"></i>
+                </div>
                 <DateTimeField Label="Sent On" @bind-Output="MessageSentOn" />
                 <div class="form-group">
                     <label>Text</label>
@@ -103,7 +104,14 @@
         Messages = null;
         Conversations = null;
         SelectedContact = Contacts.FirstOrDefault(x => x.Id == selectedContactId);
+        MessageSentTo = new EntityReference("contact", SelectedContact.Id);
         LoadMessages();
+    }
+
+    private void ReverseAddressees(){
+        var tempReference = MessageSentTo;
+        MessageSentTo = MessageSentFrom;
+        MessageSentFrom = tempReference;
     }
 
     protected override async Task OnInitializedAsync()
