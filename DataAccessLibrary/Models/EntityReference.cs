@@ -5,7 +5,7 @@ namespace DataAccessLibrary.Models
     public class EntityReference
     {
         public EntityReference()
-        {           
+        {
         }
 
         public EntityReference(string logicalName)
@@ -23,7 +23,7 @@ namespace DataAccessLibrary.Models
         /// The ID of the record.
         /// </summary>
         public Guid Id { get; set; }
-        
+
         /// <summary>
         /// The logical name of the entity.
         /// </summary>

@@ -75,7 +75,7 @@
                 <LookupField LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" PreloadRecordsCount="5"/>
                 <LookupField LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
                 <LookupField LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
-                <button class="btn btn-info" @onclick="CreateEntity">Add Message</button>
+                <button type="button" class="btn btn-info" @onclick="CreateEntity">Add Message</button>
             </form>
         </div>
     </div>
@@ -146,6 +146,18 @@
 
         try {
             var newId = connection.Create(message);
+            var newMessage = new Message(){
+                ConversationId = MessageConversation.Id,
+                FromContactId = MessageSentFrom.Id,
+                Id = newId,
+                PlatformId = MessagePlatform.Id,
+                Text = MessageText,
+                SentOn = MessageSentOn,
+                ToContactId = MessageSentTo.Id,
+                WebsiteId = MessageWebsite.Id
+            };
+            Messages.Add(newMessage);
+            MessageText = string.Empty;
             if(newId == Guid.Empty)
             {
                 throw new Exception("Entity Creation Error");

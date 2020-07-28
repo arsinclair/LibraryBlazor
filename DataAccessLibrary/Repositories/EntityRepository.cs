@@ -29,10 +29,13 @@ namespace DataAccessLibrary.Repositories
                 throw new ArgumentNullException(entity.LogicalName);
             }
 
+            string tableName = GetEntityTableName(entity.LogicalName);
+
             entity.Id = Guid.NewGuid();
             entity["Id"] = entity.Id;
+            entity["CreatedOn"] = DateTime.Now;
+            entity["ModifiedOn"] = DateTime.Now;
 
-            string tableName = GetEntityTableName(entity.LogicalName);
             string fieldsToInsert = stringifyFieldsForInsert(entity);
             string sql = $"INSERT INTO {tableName} {fieldsToInsert};";
 
@@ -54,14 +57,15 @@ namespace DataAccessLibrary.Repositories
             {
                 i++;
                 last = entity.Attributes.Count == i;
-                if (attr.Value == null || string.IsNullOrEmpty(attr.Value.ToString()) || Guid.Parse(attr.Value.ToString()) == Guid.Empty)
+
+                if (!isValidAttr(attr))
                 {
                     continue;
                 }
-                
-                fieldNames += attr.Key;
 
-                fieldValues += $"'{attr.Value.ToString()}'";
+                fieldNames += attr.Key;
+                fieldValues += stringifyAttribute(attr.Value);
+
                 if (!last)
                 {
                     fieldNames += ", ";
@@ -70,6 +74,57 @@ namespace DataAccessLibrary.Repositories
             }
             string output = $"({fieldNames}) VALUES ({fieldValues})";
             return output;
+        }
+
+        private string stringifyAttribute(object value)
+        {
+            string output = string.Empty;
+            if (value is Guid && value.ToString() == Guid.Empty.ToString())
+            {
+                output = "";
+            }
+            else if (value is string)
+            {
+                output = value.ToString().Replace("'", "''");// SQL Escape single quote
+            }
+            else if (value is EntityReference)
+            {
+                output = ((EntityReference)value).Id.ToString();
+                if (output == Guid.Empty.ToString())
+                {
+                    output = "";
+                }
+            }
+            else if (value is DateTime)
+            {
+                output = ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            else
+            {
+                output = value.ToString();
+            }
+
+            if (output == string.Empty)
+            {
+                output = "NULL";
+            }
+            else
+            {
+                output = "'" + output + "'";
+            }
+            return output;
+        }
+
+        private bool isValidAttr(KeyValuePair<string, object> attr)
+        {
+            bool isValid = true;
+
+            if (attr.Value is DateTime && (DateTime)attr.Value < new DateTime(1900, 1, 1))
+            {
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         public int Delete(Entity entity)

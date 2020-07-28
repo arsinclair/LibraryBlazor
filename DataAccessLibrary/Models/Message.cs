@@ -14,7 +14,7 @@ namespace DataAccessLibrary.Models
 
         public Guid ToContactId { get; set; }
 
-        public DateTime SentOn { get; set; }
+        public DateTime? SentOn { get; set; }
 
         public string Text { get; set; }
 
