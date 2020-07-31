@@ -6,10 +6,11 @@
 @using DataAccessLibrary.DataProviders.Interfaces
 @using DataAccessLibrary.Interfaces
 
-@inject IContactsData contactsRepository
-@inject IMessagesData messagesRepository
-@inject IConversationsData conversationsRepository
-@inject IEntityRepository connection
+@inject IContactsData contactsRepository;
+@inject IMessagesData messagesRepository;
+@inject IConversationsData conversationsRepository;
+@inject IEntityRepository connection;
+@inject IJSRuntime JSRuntime;
 
 @namespace Library.Client
 
@@ -42,7 +43,7 @@
             {
                 if (Messages?.Count > 0) {
                     <h5>@($"{@SelectedContact.FullName} Conversation")</h5>
-                    <div class="scrollable-container">
+                    <div class="scrollable-container" id="messages-container">
                         @foreach (var message in Messages)
                         {
                             string conversationName = Conversations.FirstOrDefault(x => x.Id == message.ConversationId)?.Subject;
@@ -130,9 +131,10 @@
         Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
         Conversations = await conversationsRepository.GetConversations($"Id in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}')", "Id", "Subject");
         StateHasChanged();
+        await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
 
-    void CreateEntity()
+    private async void CreateEntity()
     {
         Entity message = new Entity("message");
         message["SentOn"] = MessageSentOn;
@@ -158,6 +160,7 @@
             };
             Messages.Add(newMessage);
             MessageText = string.Empty;
+            await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
             if(newId == Guid.Empty)
             {
                 throw new Exception("Entity Creation Error");

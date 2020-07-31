@@ -17,6 +17,7 @@
         <hr>
         <input type="text" placeholder="Search" @oninput="@(e => SearchStarted(e))" @bind="SearchString">
         <div class="search-results">
+            <div @onclick="ClearSelectedValue" class="search-result">[clear]</div>
             @foreach (var item in SearchResults)
             {
                 <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item[LookupNameSource]?.ToString()</div>
@@ -66,6 +67,12 @@
         StateHasChanged();
     }
 
+    private void ClearSelectedValue()
+    {
+        Output = new EntityReference(Output.LogicalName);
+        ClearSearchResults();
+        ToggleSearchMenu();
+    }
     private void ClearSearchResults()
     {
         SearchString = string.Empty;
