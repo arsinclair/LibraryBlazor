@@ -159,6 +159,7 @@
                 WebsiteId = MessageWebsite.Id
             };
             Messages.Add(newMessage);
+            Messages = Messages.OrderBy(x => x.SentOn).ToList();
             MessageText = string.Empty;
             await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
             if(newId == Guid.Empty)
