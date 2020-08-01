@@ -1,17 +1,43 @@
 @namespace Library.Client
 
 <div class="@ClassName">
-    <sub>@ConversationName</sub>
-    <p class="message-text">@MessageText</p>
-    <span class="time-right">@SentOn</span>
+    <div class="message-header">
+        <span>@ConversationName</span>
+        <span class="time-right">@SentOn</span>
+    </div>
+    <div class="message-text">
+        @foreach (var line in lines) 
+        {
+            <p class="message-text">@line</p>
+        }
+    </div>
 </div>
 
 @code {
+    private List<string> lines; 
+
+    private List<string> arrayrizeText(string text)
+    {
+        if(!string.IsNullOrEmpty(text))
+        {
+            var normalized = text.Replace("\r\n", "\n").Replace("\r", "\n");
+            return normalized.Split("\n", StringSplitOptions.None).ToList();
+        }
+        return null;
+    }
+
     [Parameter]
     public string ClassName { get; set; }
 
+    private string _messageText;
     [Parameter]
-    public string MessageText { get; set; }
+    public string MessageText { 
+        get => _messageText; 
+        set {
+            _messageText = value;
+            lines = arrayrizeText(value);
+        } 
+    }
 
     [Parameter]
     public string SentOn { get; set; }
