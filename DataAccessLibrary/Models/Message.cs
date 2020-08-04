@@ -16,6 +16,8 @@ namespace DataAccessLibrary.Models
 
         public DateTime? SentOn { get; set; }
 
+        public DateTime? ProvisionalSentOn { get; set; }
+
         public string Text { get; set; }
 
         public Guid WebsiteId { get; set; }

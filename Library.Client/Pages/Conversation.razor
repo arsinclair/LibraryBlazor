@@ -5,6 +5,7 @@
 @using DataAccessLibrary.Models
 @using DataAccessLibrary.DataProviders.Interfaces
 @using DataAccessLibrary.Interfaces
+@using DataAccessLibrary.Extensions
 
 @inject IContactsData contactsRepository;
 @inject IMessagesData messagesRepository;
@@ -69,6 +70,7 @@
                 </div>
                 <LookupField LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
                 <DateTimeField Label="Sent On" @bind-Output="MessageSentOn" />
+                <DateTimeField Label="Provisional Sent On" @bind-Output="MessageProvisionalSentOn" />
                 <div class="form-group">
                     <label>Text</label>
                     <textarea type="text" class="form-control" placeholder="Text" @bind="MessageText"></textarea>
@@ -96,6 +98,7 @@
     private EntityReference MessageSentFrom = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
     private EntityReference MessageSentTo = new EntityReference("contact");
     private DateTime? MessageSentOn;
+    private DateTime? MessageProvisionalSentOn;
     private string MessageText;
     private EntityReference MessageConversation = new EntityReference("conversation");
     private EntityReference MessageWebsite = new EntityReference("website");
@@ -114,7 +117,8 @@
         LoadMessages();
     }
 
-    private void ReverseAddressees(){
+    private void ReverseAddressees()
+    {
         var tempReference = MessageSentTo;
         MessageSentTo = MessageSentFrom;
         MessageSentFrom = tempReference;
@@ -129,6 +133,7 @@
     async void LoadMessages()
     {
         Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
+        Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
         Conversations = await conversationsRepository.GetConversations($"Id in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}')", "Id", "Subject");
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
@@ -138,6 +143,7 @@
     {
         Entity message = new Entity("message");
         message["SentOn"] = MessageSentOn;
+        message["ProvisionalSentOn"] = MessageProvisionalSentOn;
         message["Text"] = MessageText;
         message["FromContactId"] = MessageSentFrom;
         message["ToContactId"] = MessageSentTo;
@@ -146,28 +152,32 @@
         message["PlatformId"] = MessagePlatform;
         message["TextFormat"] = "BBCode";
 
-        try {
+        try
+        {
             var newId = connection.Create(message);
-            var newMessage = new Message(){
+            var newMessage = new Message()
+            {
                 ConversationId = MessageConversation.Id,
                 FromContactId = MessageSentFrom.Id,
                 Id = newId,
                 PlatformId = MessagePlatform.Id,
                 Text = MessageText,
                 SentOn = MessageSentOn,
+                ProvisionalSentOn = MessageProvisionalSentOn,
                 ToContactId = MessageSentTo.Id,
                 WebsiteId = MessageWebsite.Id
             };
             Messages.Add(newMessage);
-            Messages = Messages.OrderBy(x => x.SentOn).ToList();
+            Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
             MessageText = string.Empty;
             await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
-            if(newId == Guid.Empty)
+            if (newId == Guid.Empty)
             {
                 throw new Exception("Entity Creation Error");
             }
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             throw ex;
         }
     }
