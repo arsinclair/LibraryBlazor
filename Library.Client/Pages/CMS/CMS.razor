@@ -1,5 +1,4 @@
 @page "/CMS/"
-@page "/CMS/{entityName}/"
 @page "/CMS/{entityName}/{id:guid}"
 
 @using Microsoft.Extensions.Configuration
@@ -8,7 +7,11 @@
 <h5>Location @entityName</h5>
 <h5>ID: @Id</h5>
 
-@DynamicComponent
+@* @DynamicComponent *@
+
+<a href="/CMS/Settings/Entities">Entity Settings</a>
+
+<a href="/CMS/Entities">Entity List</a>
 
 @code {
     [Parameter]

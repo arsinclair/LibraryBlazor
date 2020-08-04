@@ -50,6 +50,7 @@ namespace Library.Client
             services.AddTransient<IMessagesData, MessagesData>();
             services.AddTransient<IConversationsData, ConversationsData>();
             services.AddTransient<IEntityRepository, EntityRepository>();
+            services.AddTransient<IMetadataRepository, MetadataRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

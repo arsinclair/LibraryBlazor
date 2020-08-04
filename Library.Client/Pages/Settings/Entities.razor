@@ -1,0 +1,37 @@
+@page "/CMS/Settings/Entities"
+@namespace Library.Client.Settings
+@inject IMetadataRepository metadataClient;
+
+<table class="table table-striped table-dark">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Name (Plural)</th>
+            <th>Display Name</th>
+            <th>Display Name (Plural)</th>
+            <th>Database Table Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (SysEntity entity in SystemEntities){
+            <tr>
+                <td>@entity.Name</td>
+                <td>@entity.NamePlural</td>
+                <td>@entity.DisplayName</td>
+                <td>@entity.DisplayNamePlural</td>
+                <td>@entity.DatabaseTableName</td>
+            </tr>
+        }
+    </tbody>
+    <p>Total Records: @SystemEntities.Count</p>
+    <button type="button" class="btn btn-info">New Entity</button>
+</table>
+
+@code {
+    private List<SysEntity> SystemEntities;
+
+    protected override void OnInitialized()
+    {
+        SystemEntities = metadataClient.GetEntities();
+    }
+}
