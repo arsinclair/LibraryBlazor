@@ -1,13 +1,6 @@
 @page "/"
 @page "/conversations/new"
 
-@using System.Timers
-@using DataAccessLibrary
-@using DataAccessLibrary.Models
-@using DataAccessLibrary.DataProviders.Interfaces
-@using DataAccessLibrary.Interfaces
-@using DataAccessLibrary.Extensions
-
 @inject IContactsData contactsRepository;
 @inject IMessagesData messagesRepository;
 @inject IConversationsData conversationsRepository;
@@ -65,20 +58,20 @@
         </div>
         <div class="col">
             <form>
-                <LookupField LookupNameSource="FullName" Label="From" @bind-Output="MessageSentFrom" />
+                <LookupInput LookupNameSource="FullName" Label="From" @bind-Output="MessageSentFrom" />
                 <div class="reverse-button" @onclick="ReverseAddressees">
                     <i class="fas fa-exchange-alt fa-rotate-90"></i>
                 </div>
-                <LookupField LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
-                <DateTimeField Label="Sent On" @bind-Output="MessageSentOn" />
-                <DateTimeField Label="Provisional Sent On" @bind-Output="MessageProvisionalSentOn" />
+                <LookupInput LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
+                <DateTimeInput Label="Sent On" @bind-Output="MessageSentOn" />
+                <DateTimeInput Label="Provisional Sent On" @bind-Output="MessageProvisionalSentOn" />
                 <div class="form-group">
                     <label>Text</label>
                     <textarea type="text" class="form-control" placeholder="Text" @bind="MessageText"></textarea>
                 </div>
-                <LookupField LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" PreloadRecordsCount="5"/>
-                <LookupField LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
-                <LookupField LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
+                <LookupInput LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" PreloadRecordsCount="5"/>
+                <LookupInput LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
+                <LookupInput LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
                 <button type="button" class="btn btn-info" @onclick="CreateEntity">Add Message</button>
             </form>
         </div>
