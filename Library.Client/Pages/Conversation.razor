@@ -49,7 +49,7 @@
                         {
                             string conversationName = Conversations.FirstOrDefault(x => x.Id == message.ConversationId)?.Subject;
                             string className = message.ToContactId == SelectedContact.Id ? "message" : "message darker";
-                            <ChatMessage ClassName="@className" MessageText="@message.Text" SentOn="@message.SentOn.ToString()" ConversationName="@conversationName" />
+                            <ChatMessage ClassName="@className" MessageText="@message.Text" SentOn="@(message.SentOn ?? message.ProvisionalSentOn)" ConversationName="@conversationName" />
                         }
                     </div>
                 }
@@ -132,7 +132,7 @@
 
     async void LoadMessages()
     {
-        Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId");
+        Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn");
         Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
         Conversations = await conversationsRepository.GetConversations($"Id in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}')", "Id", "Subject");
         StateHasChanged();

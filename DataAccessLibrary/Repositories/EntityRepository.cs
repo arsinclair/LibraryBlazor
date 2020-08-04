@@ -99,6 +99,10 @@ namespace DataAccessLibrary.Repositories
             {
                 output = ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss");
             }
+            else if (value == null)
+            {
+                output = "";
+            }
             else
             {
                 output = value.ToString();
