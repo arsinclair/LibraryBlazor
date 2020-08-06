@@ -1,7 +1,7 @@
 @page "/CMS/Entities"
 @inject IMetadataRepository metadataClient
 
-<table class="table table-striped table-dark">
+<table class="table table-striped">
     <thead>
         <tr>
             <th>Entity Name</th>
@@ -9,8 +9,8 @@
     </thead>
     <tbody>
         @foreach (SysEntity entity in SystemEntities){
-            <tr>
-                <td><a href="/CMS/@entity.Name/">@entity.DisplayNamePlural</a></td>
+            <tr class="table-record">
+                <td><a href="/CMS/@entity.Name">@entity.DisplayNamePlural</a></td>
             </tr>
         }
     </tbody>

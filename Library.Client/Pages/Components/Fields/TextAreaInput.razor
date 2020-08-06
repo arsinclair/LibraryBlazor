@@ -1,0 +1,28 @@
+@namespace Library.Client.Components.Fields
+
+<div class="form-group">
+    <label>@Label</label>
+    <textarea type="text" class="form-control" placeholder="Text" @bind-Value="Output"></textarea>
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; }
+
+    private string _output;
+
+    [Parameter]
+    public string Output
+    {
+        get => _output;
+        set
+        {
+            if (_output == value) return;
+            _output = value;
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> OutputChanged { get; set; }
+}

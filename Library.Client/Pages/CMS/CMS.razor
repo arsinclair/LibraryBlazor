@@ -1,29 +1,15 @@
 @page "/CMS/"
-@page "/CMS/{entityName}/{id:guid}"
-
-@using Microsoft.Extensions.Configuration
-@inject IConfiguration Configuration
-
-<h5>Location @entityName</h5>
-<h5>ID: @Id</h5>
+@inject NavigationManager NavigationManager
 
 @* @DynamicComponent *@
 
-<a href="/CMS/Settings/Entities">Entity Settings</a>
-
-<a href="/CMS/Entities">Entity List</a>
+<button class="btn btn-primary" @onclick="@(e => NavigateTo("/CMS/Settings/Entities"))">Settings</button>
 
 @code {
-    [Parameter]
-    public string entityName { get; set; }
-
-    [Parameter]
-    public Guid Id { get; set; }
-
     public ComponentBase DynamicComponent {get; set;}
 
-    protected override void OnInitialized()
+    private void NavigateTo(string url) 
     {
-        entityName = entityName ?? "ListOfEntities";
+        NavigationManager.NavigateTo(url);
     }
 }

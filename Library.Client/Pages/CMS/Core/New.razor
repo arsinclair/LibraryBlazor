@@ -1,0 +1,50 @@
+@page "/CMS/{entityName}/New"
+@inject IMetadataRepository metadataClient
+
+<h2>New Page</h2>
+<h4>For @entityName</h4>
+
+<form>
+@foreach (SysField field in entityFields) 
+{
+    if(columns.Contains(field.Name))
+    {
+        switch(field.Type.Name)
+        {
+            case "EntityReference": break;
+            case "Text": break;
+            case "DateTime": break;
+            case "Number": break;
+            case "TextArea": break;
+            default: throw new Exception("Unknown Field Type");
+        }
+        <div class="form-group">
+            <label>@field.DisplayName</label>
+            <textarea type="text" class="form-control" placeholder="Text" @bind="MessageText"></textarea>
+        </div>
+    }
+}
+</form>
+
+@code {
+    [Parameter]
+    public string entityName { get; set; }
+
+    private RenderFragment DynamicComponent { get; set; }
+
+    private List<SysField> entityFields;
+    private string[] columns;
+
+    protected override void OnInitialized()
+    {
+        columns = metadataClient.GetDefaultListLayout(entityName).Columns.Split(",");
+        entityFields = metadataClient.GetFields(entityName);
+    }
+
+    private RenderFragment CreateComponent() => builder =>
+    {
+        builder.OpenComponent(0, typeof(SfTextBox));
+        builder.AddAttribute(1, "Placeholder", "Enter your text");
+        builder.CloseComponent();
+    };
+}

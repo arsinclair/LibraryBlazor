@@ -1,0 +1,12 @@
+@page "/CMS/{entityName}/{id:guid}/Edit"
+
+<h2>Edit Page</h2>
+<h4>For @entityName - @Id</h4>
+
+@code {
+    [Parameter]
+    public string entityName { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+}

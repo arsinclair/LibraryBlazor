@@ -186,3 +186,11 @@ hr {
     margin-top: 0.2rem;
     margin-bottom: 0.2rem;
 }
+
+.table-record {
+    cursor: pointer;
+}
+
+.table-record:hover {
+    background-color: #ccc !important;
+}

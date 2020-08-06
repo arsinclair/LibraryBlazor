@@ -1,0 +1,28 @@
+@namespace Library.Client.Components.Fields
+
+<div class="form-group">
+    <label>@Label</label>
+    <input type="number" class="form-control" @bind-Value="Output">
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; }
+
+    private int _output;
+
+    [Parameter]
+    public int Output
+    {
+        get => _output;
+        set
+        {
+            if (_output == value) return;
+            _output = value;
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<int> OutputChanged { get; set; }
+}

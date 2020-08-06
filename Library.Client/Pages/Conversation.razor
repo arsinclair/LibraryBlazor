@@ -65,10 +65,7 @@
                 <LookupInput LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
                 <DateTimeInput Label="Sent On" @bind-Output="MessageSentOn" />
                 <DateTimeInput Label="Provisional Sent On" @bind-Output="MessageProvisionalSentOn" />
-                <div class="form-group">
-                    <label>Text</label>
-                    <textarea type="text" class="form-control" placeholder="Text" @bind="MessageText"></textarea>
-                </div>
+                <TextAreaInput Label="Text" @bind-Output="MessageText" />
                 <LookupInput LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" PreloadRecordsCount="5"/>
                 <LookupInput LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
                 <LookupInput LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>

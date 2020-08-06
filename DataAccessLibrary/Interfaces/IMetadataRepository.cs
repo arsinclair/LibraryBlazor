@@ -9,5 +9,6 @@ namespace DataAccessLibrary.Interfaces
         List<SysField> GetFields();
         List<SysField> GetFields(string entityName);
         List<SysFieldType> GetFieldTypes();
+        SysLayoutList GetDefaultListLayout(string entityName);
     }
 }

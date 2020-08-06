@@ -1,11 +1,50 @@
 @page "/CMS/{entityName}/"
+@inject IEntityRepository connection
+@inject IMetadataRepository metadataClient
+@inject NavigationManager NavigationManager
+
+<div style="margin-bottom: 1rem;">
+    <button class="btn btn-success" @onclick="@(e => NavigateTo($"/CMS/{entityName}/New"))"><i class="fas fa-plus"></i> New</button>
+    <button class="btn btn-secondary" disabled><i class="far fa-trash-alt"></i> Delete</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            @foreach (string columnName in columns)
+            {
+                <th>@columnName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Entity entity in entities){
+            <tr class="table-record" @onclick="@(e => NavigateTo($"/CMS/{entityName}/{entity.Id}/Edit"))">
+                @foreach(string fieldName in columns)
+                {
+                    <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
+                }
+            </tr>
+        }
+    </tbody>
+    <p>Total Records: @entities.Count</p>
+</table>
 
 @code {
     [Parameter]
     public string entityName { get; set; }
 
+    private List<Entity> entities;
+    private string[] columns;
+
     protected override void OnInitialized()
     {
-        
+        columns = metadataClient.GetDefaultListLayout(entityName).Columns.Split(",");
+        entities = connection.Get(entityName: entityName, columns: columns).ToList();
+    }
+
+    private void NavigateTo(string url) 
+    {
+        NavigationManager.NavigateTo(url);
     }
 }
