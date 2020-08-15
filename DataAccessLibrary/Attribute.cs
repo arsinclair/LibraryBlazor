@@ -1,6 +1,7 @@
 namespace DataAccessLibrary
 {
-    public class Attribute {
+    public class Attribute
+    {
         public Attribute(string key)
         {
             Key = key;

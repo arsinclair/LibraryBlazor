@@ -18,7 +18,7 @@ namespace DataAccessLibrary.DataProviders
         {
             string _columnsJoined = string.Join(", ", columns);
             string _columns = string.IsNullOrEmpty(_columnsJoined) ? "*" : _columnsJoined;
-            string _whereClause = !string.IsNullOrEmpty(whereClause) ? " where " + whereClause: "";
+            string _whereClause = !string.IsNullOrEmpty(whereClause) ? " where " + whereClause : "";
             string sql = $"select {_columns} from dbo.Contacts{_whereClause};";
 
             return _db.LoadData<Contact, dynamic>(sql, new { });
