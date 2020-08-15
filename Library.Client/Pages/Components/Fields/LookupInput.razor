@@ -2,11 +2,11 @@
 @inject IEntityRepository connection
 
 <div class="form-group form-group-lookup">
-    <label>@Label</label>
-    <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@(Output?.Name ?? "(none)")</div>
+    <label>@FieldDefinition.DisplayName</label>
+    <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@(internalValue.Name ?? "(none)")</div>
     <div class="search-menu @isMenuHiddenClassName">
         <div class="search-menu-header">
-            <label>Search for @Output?.LogicalName</label>
+            <label>Search for @FieldDefinition.ParentEntity.DisplayNamePlural</label>
             <div @onclick="ToggleSearchMenu"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i></div>
         </div>
         <hr>
@@ -55,7 +55,7 @@
         ClearSearchResults();
         if (PreloadRecordsCount > 0)
         {
-            var _searchResults = connection.Get(entityName: Output.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
+            var _searchResults = connection.Get(entityName: internalValue.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         isMenuHiddenClassName = string.Empty;
@@ -64,7 +64,7 @@
 
     private void ClearSelectedValue()
     {
-        Output = new EntityReference(Output.LogicalName);
+        internalValue = new EntityReference(internalValue.LogicalName);
         ClearSearchResults();
         ToggleSearchMenu();
     }
@@ -78,7 +78,7 @@
     {
         var _id = Guid.Parse(id);
         var result = SearchResults.Single(x => x.Id == _id);
-        Output = result.ToEntityReference(result[LookupNameSource]?.ToString());
+        internalValue = result.ToEntityReference(result[LookupNameSource]?.ToString());
         ClearSearchResults();
         ToggleSearchMenu();
     }
@@ -104,7 +104,7 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            var _searchResults = connection.Get(entityName: Output.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
+            var _searchResults = connection.Get(entityName: internalValue.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
             SearchResults = _searchResults.ToList();
         }
         await InvokeAsync(StateHasChanged);
@@ -112,12 +112,22 @@
 
     protected override void OnParametersSet()
     {
-        if (Output?.Id != Guid.Empty && !string.IsNullOrEmpty(Output?.LogicalName))
+        if (Output == null)
         {
-            var entity = GetSelectedEntity(Output, LookupNameSource);
+            internalValue = new EntityReference();
+        }
+        else
+        {
+            internalValue = (EntityReference)Output;
+        }
+        
+        internalValue.LogicalName = FieldDefinition.ReferenceTarget.TargetField.ParentEntity.Name;
+        if (internalValue.Id != null && internalValue.Id != Guid.Empty)
+        {
+            var entity = GetSelectedEntity(internalValue, LookupNameSource);
             if (entity != null && entity.Attributes.Contains(LookupNameSource))
             {
-                Output.Name = entity[LookupNameSource].ToString();
+                internalValue.Name = entity[LookupNameSource].ToString();
             }
         }
     }
@@ -128,13 +138,23 @@
     }
     #endregion
 
-    #region Input / Output
     [Parameter]
-    public string Label { get; set; }
+    public SysField FieldDefinition { get; set; }
 
-    private EntityReference _output;
+    private EntityReference _internalValue;
+    public EntityReference internalValue
+    {
+        get => _internalValue;
+        private set {
+            if (_internalValue == value) return;
+            _internalValue = value;
+            Output = value;
+        }
+    }
+
+    private object _output;
     [Parameter]
-    public EntityReference Output
+    public object Output
     {
         get => _output;
         set
@@ -145,13 +165,11 @@
         }
     }
 
-    [Parameter]
-    public string LookupNameSource { get; set; }
+    public string LookupNameSource { get => FieldDefinition.ReferenceTarget.SearchAtField.Name; }
 
     [Parameter]
     public int PreloadRecordsCount { get; set; } = 0;
 
     [Parameter]
-    public EventCallback<EntityReference> OutputChanged { get; set; }
-    #endregion
+    public EventCallback<object> OutputChanged { get; set; }
 }

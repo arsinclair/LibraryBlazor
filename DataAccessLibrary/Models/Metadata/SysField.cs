@@ -10,5 +10,8 @@ namespace DataAccessLibrary.Models.Metadata
         public string DisplayName { get; set; }
         public string DatabaseColumnName { get; set; }
         public SysFieldType Type { get; set; }
+
+        // Runtime-Only Property (not in the database)
+        public SysFieldMapping ReferenceTarget { get; set; }
     }
 }

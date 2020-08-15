@@ -1,28 +1,39 @@
 @namespace Library.Client.Components.Fields
 
 <div class="form-group">
-    <label>@Label</label>
-    <input type="text" class="form-control" @bind-Value="Output">
+    <label>@FieldDefinition.DisplayName</label>
+    <input type="text" class="form-control" @bind-value="internalValue">
 </div>
 
 @code {
     [Parameter]
-    public string Label { get; set; }
+    public SysField FieldDefinition { get; set; }
 
-    private string _output;
+    private string _internalValue;
+    public string internalValue
+    {
+        get => _internalValue;
+        private set {
+            if (_internalValue == value) return;
+            _internalValue = value;
+            Output = value;
+        }
+    }
 
+    private object _output;
     [Parameter]
-    public string Output
+    public object Output
     {
         get => _output;
         set
         {
             if (_output == value) return;
             _output = value;
+            internalValue = value as string;
             OutputChanged.InvokeAsync(value);
         }
     }
 
     [Parameter]
-    public EventCallback<string> OutputChanged { get; set; }
+    public EventCallback<object> OutputChanged { get; set; }
 }

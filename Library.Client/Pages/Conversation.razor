@@ -1,11 +1,14 @@
 @page "/"
 @page "/conversations/new"
 
-@inject IContactsData contactsRepository;
-@inject IMessagesData messagesRepository;
-@inject IConversationsData conversationsRepository;
-@inject IEntityRepository connection;
-@inject IJSRuntime JSRuntime;
+@using Attribute = DataAccessLibrary.Attribute
+
+@inject IContactsData contactsRepository
+@inject IMessagesData messagesRepository
+@inject IConversationsData conversationsRepository
+@inject IEntityRepository connection
+@inject IMetadataRepository metadataClient
+@inject IJSRuntime JSRuntime
 
 @namespace Library.Client
 
@@ -58,17 +61,10 @@
         </div>
         <div class="col">
             <form>
-                <LookupInput LookupNameSource="FullName" Label="From" @bind-Output="MessageSentFrom" />
                 <div class="reverse-button" @onclick="ReverseAddressees">
                     <i class="fas fa-exchange-alt fa-rotate-90"></i>
                 </div>
-                <LookupInput LookupNameSource="FullName" Label="To" @bind-Output="MessageSentTo" />
-                <DateTimeInput Label="Sent On" @bind-Output="MessageSentOn" />
-                <DateTimeInput Label="Provisional Sent On" @bind-Output="MessageProvisionalSentOn" />
-                <TextAreaInput Label="Text" @bind-Output="MessageText" />
-                <LookupInput LookupNameSource="Subject" Label="Conversation" @bind-Output="MessageConversation" PreloadRecordsCount="5"/>
-                <LookupInput LookupNameSource="Description" Label="Website" @bind-Output="MessageWebsite" PreloadRecordsCount="7" />
-                <LookupInput LookupNameSource="Name" Label="Platform" @bind-Output="MessagePlatform" PreloadRecordsCount="7"/>
+                <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="MessagesFields" />
                 <button type="button" class="btn btn-info" @onclick="CreateEntity">Add Message</button>
             </form>
         </div>
@@ -79,22 +75,11 @@
     private List<Contact> Contacts;
     private List<Contact> FilteredContacts;
     private List<Message> Messages;
+    private List<SysField> MessagesFields;
     private List<DataAccessLibrary.Models.Conversation> Conversations;
-
+    private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
     private string SearchString;
-
     private Timer searchTimer = new Timer(400);
-
-    // New Message Section
-    private EntityReference MessageSentFrom = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
-    private EntityReference MessageSentTo = new EntityReference("contact");
-    private DateTime? MessageSentOn;
-    private DateTime? MessageProvisionalSentOn;
-    private string MessageText;
-    private EntityReference MessageConversation = new EntityReference("conversation");
-    private EntityReference MessageWebsite = new EntityReference("website");
-    private EntityReference MessagePlatform = new EntityReference("communicationplatform");
-    // End
 
     private Contact SelectedContact;
 
@@ -104,19 +89,31 @@
         Messages = null;
         Conversations = null;
         SelectedContact = Contacts.FirstOrDefault(x => x.Id == selectedContactId);
-        MessageSentTo = new EntityReference("contact", SelectedContact.Id);
+        newEntityAttributes.Single(x => x.Key == "ToContactId").Value = new EntityReference("contact", SelectedContact.Id);
         LoadMessages();
     }
 
     private void ReverseAddressees()
     {
-        var tempReference = MessageSentTo;
-        MessageSentTo = MessageSentFrom;
-        MessageSentFrom = tempReference;
+        var from = newEntityAttributes.Single(x => x.Key == "FromContactId").Value;
+        var to = newEntityAttributes.Single(x => x.Key == "ToContactId").Value;
+        newEntityAttributes.Single(x => x.Key == "ToContactId").Value = from;
+        newEntityAttributes.Single(x => x.Key == "FromContactId").Value = to;
     }
 
     protected override async Task OnInitializedAsync()
     {
+        MessagesFields = metadataClient.GetFields("Message");
+        newEntityAttributes.Add(new Attribute("FromContactId", new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"))));
+        newEntityAttributes.Add(new Attribute("ToContactId"));
+        newEntityAttributes.Add(new Attribute("SentOn"));
+        newEntityAttributes.Add(new Attribute("ProvisionalSentOn"));
+        newEntityAttributes.Add(new Attribute("Text"));
+        newEntityAttributes.Add(new Attribute("ConversationId"));
+        newEntityAttributes.Add(new Attribute("WebsiteId"));
+        newEntityAttributes.Add(new Attribute("PlatformId"));
+        newEntityAttributes.Add(new Attribute("TextFormat", "BBCode"));
+
         Contacts = await contactsRepository.GetContacts(null, "Id", "FullName");
         searchTimer.Elapsed += DoSearch;
     }
@@ -133,34 +130,29 @@
     private async void CreateEntity()
     {
         Entity message = new Entity("message");
-        message["SentOn"] = MessageSentOn;
-        message["ProvisionalSentOn"] = MessageProvisionalSentOn;
-        message["Text"] = MessageText;
-        message["FromContactId"] = MessageSentFrom;
-        message["ToContactId"] = MessageSentTo;
-        message["ConversationId"] = MessageConversation;
-        message["WebsiteId"] = MessageWebsite;
-        message["PlatformId"] = MessagePlatform;
-        message["TextFormat"] = "BBCode";
+        foreach(Attribute attr in newEntityAttributes)
+        {
+            message[attr.Key] = attr.Value;
+        }
 
         try
         {
             var newId = connection.Create(message);
             var newMessage = new Message()
             {
-                ConversationId = MessageConversation.Id,
-                FromContactId = MessageSentFrom.Id,
+                ConversationId = ((EntityReference)message["ConversationId"]).Id,
+                FromContactId = ((EntityReference)message["FromContactId"]).Id,
                 Id = newId,
-                PlatformId = MessagePlatform.Id,
-                Text = MessageText,
-                SentOn = MessageSentOn,
-                ProvisionalSentOn = MessageProvisionalSentOn,
-                ToContactId = MessageSentTo.Id,
-                WebsiteId = MessageWebsite.Id
+                PlatformId = ((EntityReference)message["PlatformId"]).Id,
+                Text = (string)message["Text"],
+                SentOn = (DateTime?)message["SentOn"],
+                ProvisionalSentOn = (DateTime?)message["ProvisionalSentOn"],
+                ToContactId = ((EntityReference)message["ToContactId"]).Id,
+                WebsiteId = ((EntityReference)message["WebsiteId"]).Id
             };
             Messages.Add(newMessage);
             Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
-            MessageText = string.Empty;
+            newEntityAttributes.Single(x => x.Key == "Text").Value = string.Empty;
             await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
             if (newId == Guid.Empty)
             {

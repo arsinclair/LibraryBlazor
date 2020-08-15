@@ -2,30 +2,39 @@
 @using MatBlazor
 
 <div class="form-group">
-    <label>@Label</label>
-    <MatDatePicker @bind-Value="Output" EnableTime="true" Outlined="true" EnableSeconds="true" Class="datepicker"></MatDatePicker>
+    <label>@FieldDefinition.DisplayName</label>
+    <MatDatePicker @bind-Value="internalValue" EnableTime="true" Outlined="true" EnableSeconds="true" Class="datepicker"></MatDatePicker>
 </div>
 
 @code {
-    // #region Input / Output
     [Parameter]
-    public string Label { get; set; }
+    public SysField FieldDefinition { get; set; }
 
-    private DateTime? _output;
+    private DateTime? _internalValue;
+    public DateTime? internalValue
+    {
+        get => _internalValue;
+        private set {
+            if (_internalValue == value) return;
+            _internalValue = value;
+            Output = value;
+        }
+    }
 
+    private object _output;
     [Parameter]
-    public DateTime? Output
+    public object Output
     {
         get => _output;
         set
         {
             if (_output == value) return;
             _output = value;
+            internalValue = value as DateTime?;
             OutputChanged.InvokeAsync(value);
         }
     }
 
     [Parameter]
-    public EventCallback<DateTime?> OutputChanged { get; set; }
-    // #endregion
+    public EventCallback<object> OutputChanged { get; set; }
 }

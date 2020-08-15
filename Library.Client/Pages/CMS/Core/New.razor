@@ -1,50 +1,65 @@
 @page "/CMS/{entityName}/New"
 @inject IMetadataRepository metadataClient
+@inject IEntityRepository connection
+@using Attribute = DataAccessLibrary.Attribute
 
-<h2>New Page</h2>
-<h4>For @entityName</h4>
+<h2>Create new @entityName</h2>
 
 <form>
-@foreach (SysField field in entityFields) 
-{
-    if(columns.Contains(field.Name))
-    {
-        switch(field.Type.Name)
-        {
-            case "EntityReference": break;
-            case "Text": break;
-            case "DateTime": break;
-            case "Number": break;
-            case "TextArea": break;
-            default: throw new Exception("Unknown Field Type");
-        }
-        <div class="form-group">
-            <label>@field.DisplayName</label>
-            <textarea type="text" class="form-control" placeholder="Text" @bind="MessageText"></textarea>
-        </div>
-    }
-}
+    <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="entityFields" />
+    <button type="button" class="btn btn-info" @onclick="CreateEntity">Save @entityName</button>
 </form>
 
+<div class="alert @alertClass" role="alert">@alertMessage</div>
+
 @code {
+    private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
+
     [Parameter]
     public string entityName { get; set; }
 
-    private RenderFragment DynamicComponent { get; set; }
-
     private List<SysField> entityFields;
     private string[] columns;
+    private string alertClass = "hidden alert-success";
+    private string alertMessage = "";
 
     protected override void OnInitialized()
     {
-        columns = metadataClient.GetDefaultListLayout(entityName).Columns.Split(",");
+        columns = metadataClient.GetDefaultViewLayout(entityName).Columns.Split(",");
         entityFields = metadataClient.GetFields(entityName);
+
+        foreach (string column in columns)
+        {
+            SysField fieldDefinition = entityFields.Single(x => string.Equals(x.Name, column, StringComparison.OrdinalIgnoreCase));
+            newEntityAttributes.Add(new Attribute(fieldDefinition.Name));
+        }
     }
 
-    private RenderFragment CreateComponent() => builder =>
+    private void CreateEntity()
     {
-        builder.OpenComponent(0, typeof(SfTextBox));
-        builder.AddAttribute(1, "Placeholder", "Enter your text");
-        builder.CloseComponent();
-    };
+        Entity entity = new Entity(entityName);
+        foreach (Attribute attr in newEntityAttributes)
+        {
+            entity[attr.Key] = attr.Value;
+        }
+
+        try
+        {
+            Guid newId = connection.Create(entity);
+            if (newId != Guid.Empty)
+            {
+                alertClass = "alert-success";
+                alertMessage = $"New {entityName} has been created.";
+            }
+            else
+            {
+                alertClass = "alert-danger";
+                alertMessage = "Error";
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 }

@@ -1,0 +1,49 @@
+@namespace Library.Client.Components
+
+@foreach(DataAccessLibrary.Attribute attribute in Attributes) {
+    SysField fieldDefinition = FieldDefinitions.Single(x => x.Name == attribute.Key);
+
+    switch(fieldDefinition.Type.Name){
+        case "Text": 
+            <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
+        case "EntityReference":
+            <LookupInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
+        case "DateTime":
+            <DateTimeInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
+        case "Number":
+            <NumberInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
+        case "TextArea":
+            <TextAreaInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
+        case "Guid":
+            <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
+        default: throw new NotImplementedException();
+    }
+}
+
+@code {
+    [Parameter]
+    public List<SysField> FieldDefinitions { get; set; }
+
+    private List<DataAccessLibrary.Attribute> _attributes;
+
+    [Parameter]
+    public List<DataAccessLibrary.Attribute> Attributes
+    {
+        get => _attributes;
+        set
+        {
+            if (_attributes == value) return;
+            _attributes = value;
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<List<DataAccessLibrary.Attribute>> OutputChanged { get; set; }
+}
