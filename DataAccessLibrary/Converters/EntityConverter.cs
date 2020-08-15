@@ -26,7 +26,7 @@ namespace DataAccessLibrary.Converters
                     {
                         switch (type)
                         {
-                            case "GUID":
+                            case "Guid":
                                 var parsed = reader.GetGuid(i);
                                 if (columns[i] == "Id")
                                 {
