@@ -1,0 +1,39 @@
+@namespace Library.Client.Components.Fields
+
+<div class="form-group">
+    <label>@FieldDefinition.DisplayName</label>
+    <input type="checkbox" class="form-control" @bind-value="internalValue">
+</div>
+
+@code {
+    [Parameter]
+    public SysField FieldDefinition { get; set; }
+
+    private bool? _internalValue;
+    public bool? internalValue
+    {
+        get => _internalValue;
+        private set {
+            if (_internalValue == value) return;
+            _internalValue = value;
+            Output = value;
+        }
+    }
+
+    private object _output;
+    [Parameter]
+    public object Output
+    {
+        get => _output;
+        set
+        {
+            if (_output == value) return;
+            _output = value;
+            internalValue = value as bool?;
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<object> OutputChanged { get; set; }
+}

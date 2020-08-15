@@ -22,6 +22,9 @@
         case "Guid":
             <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
             break;
+        case "Boolean":
+            <CheckboxInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
         default: throw new NotImplementedException();
     }
 }

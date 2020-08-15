@@ -47,6 +47,9 @@ namespace DataAccessLibrary.Converters
                             case "DateTime":
                                 attribute = reader.GetDateTime(i);
                                 break;
+                            case "Boolean":
+                                attribute = reader.GetBoolean(i);
+                                break;
                             default: throw new NotImplementedException();
                         }
                         entity[columns[i]] = attribute;
