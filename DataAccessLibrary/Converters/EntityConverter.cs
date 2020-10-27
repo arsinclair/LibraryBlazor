@@ -50,6 +50,9 @@ namespace DataAccessLibrary.Converters
                             case "Boolean":
                                 attribute = reader.GetBoolean(i);
                                 break;
+                            case "TextArea":
+                                attribute = reader.GetString(i);
+                                break;
                             default: throw new NotImplementedException();
                         }
                         entity[columns[i]] = attribute;

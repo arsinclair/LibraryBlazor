@@ -2,6 +2,7 @@
 @inject IMetadataRepository metadataClient
 @inject IEntityRepository connection
 @using Attribute = DataAccessLibrary.Attribute
+@inject NavigationManager NavigationManager
 
 <h2>Create new @entityName</h2>
 
@@ -11,6 +12,9 @@
 </form>
 
 <div class="alert @alertClass" role="alert">@alertMessage</div>
+<div class="btn btn-success @isHidden" @onclick="@(e => NavigationManager.NavigateTo($"/CMS/{entityName}/New"))">
+    <button><i class="fas fa-plus"></i>Create Another</button>
+</div>
 
 @code {
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
@@ -21,6 +25,7 @@
     private List<SysField> entityFields;
     private string[] columns;
     private string alertClass = "hidden alert-success";
+    private string isHidden = "hidden";
     private string alertMessage = "";
 
     protected override void OnInitialized()
@@ -50,6 +55,7 @@
             {
                 alertClass = "alert-success";
                 alertMessage = $"New {entityName} has been created.";
+                isHidden = "";
             }
             else
             {
