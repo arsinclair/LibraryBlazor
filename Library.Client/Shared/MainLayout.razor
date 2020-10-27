@@ -5,9 +5,32 @@
 </div>
 
 <div class="main">
-    <div class="top-row px-4 auth">
-        <LoginDisplay />
-        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+    <div class="page-header auth">
+        <div class="page-header-content">
+            <AuthorizeView>
+                <Authorized>
+                    <div class="page-header-item">
+                        <a href="Identity/Account/Manage">Hello, @context.User.Identity.Name!</a>
+                    </div>
+                    <div class="page-header-item">
+                        <form method="post" action="Identity/Account/LogOut">
+                            <button type="submit" class="nav-link btn btn-link">Log out</button>
+                        </form>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="page-header-item">
+                        <a href="Identity/Account/Register">Register</a>
+                    </div>
+                    <div class="page-header-item">
+                        <a href="Identity/Account/Login">Log in</a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+            <div class="page-header-item">
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>
+        </div>
     </div>
 
     <div class="content px-4">

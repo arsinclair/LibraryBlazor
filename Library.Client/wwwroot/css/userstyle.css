@@ -1,5 +1,43 @@
+.page-header {
+    /* position: absolute; */
+    position: sticky;
+    top: 0;
+    height: 42px;
+    width: 100%;
+    background-color: #77528a;
+}
+
+.page-header-content {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 auto;
+    position: relative;
+    width: 960px;
+}
+
+.page-header-item {
+    display: flex;
+    align-items: center;
+    float: left;
+    width: 140px;
+    height: 42px;
+}
+
+.page-header-item > a {
+    color: white;
+}
+
+.sidebar {
+    height: 100vh;
+}
+
 .nav-link-text {
     margin-left: 0.5rem;
+}
+
+.navbar-brand {
+    padding: 0;
+    margin: 0;
 }
 
 /* DatePicker CSS */
