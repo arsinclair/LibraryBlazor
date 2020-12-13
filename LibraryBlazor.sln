@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library.Client", "Library.Client\Library.Client.csproj", "{AFCC3BDB-4923-4E1E-AB90-62BD1223503A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library.Client", "Library.Client\Library.Client.csproj", "{AFCC3BDB-4923-4E1E-AB90-62BD1223503A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{CD48E853-52A6-4036-8B3E-DEC01B96F260}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLibrary", "DataAccessLibrary\DataAccessLibrary.csproj", "{CD48E853-52A6-4036-8B3E-DEC01B96F260}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AFCC3BDB-4923-4E1E-AB90-62BD1223503A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -44,5 +41,11 @@ Global
 		{CD48E853-52A6-4036-8B3E-DEC01B96F260}.Release|x64.Build.0 = Release|Any CPU
 		{CD48E853-52A6-4036-8B3E-DEC01B96F260}.Release|x86.ActiveCfg = Release|Any CPU
 		{CD48E853-52A6-4036-8B3E-DEC01B96F260}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {437051C4-2173-48F3-90AD-28027DC57E28}
 	EndGlobalSection
 EndGlobal

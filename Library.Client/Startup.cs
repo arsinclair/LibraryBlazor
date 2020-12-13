@@ -9,17 +9,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Library.Client.Areas.Identity;
-using Library.Client.Data;
 using DataAccessLibrary;
 using DataAccessLibrary.DataProviders;
 using DataAccessLibrary.DataProviders.Interfaces;
 using DataAccessLibrary.Interfaces;
 using DataAccessLibrary.Repositories;
+using DataAccessLibrary.Helpers.Identity;
 
 namespace Library.Client
 {
@@ -36,11 +35,11 @@ namespace Library.Client
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddDapperStores()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
@@ -59,7 +58,6 @@ namespace Library.Client
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {

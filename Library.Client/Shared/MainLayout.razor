@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 <div class="sidebar">
     <NavMenu />
@@ -13,7 +14,7 @@
                         <a href="Identity/Account/Manage">Hello, @context.User.Identity.Name!</a>
                     </div>
                     <div class="page-header-item">
-                        <form method="post" action="Identity/Account/LogOut">
+                        <form method="post" asp-area="Identity" asp-page="/Account/Logout" action="Identity/Account/LogOut">
                             <button type="submit" class="nav-link btn btn-link">Log out</button>
                         </form>
                     </div>
@@ -37,3 +38,23 @@
         @Body
     </div>
 </div>
+
+@code{
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthStat { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+        var user = (await AuthStat).User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            string redirectUrl = Uri.EscapeDataString(NavigationManager.ToBaseRelativePath(NavigationManager.Uri));
+            if (redirectUrl != string.Empty && redirectUrl != "/")
+            {
+                redirectUrl = "?returnUrl=" + redirectUrl;
+            }
+            NavigationManager.NavigateTo($"Identity/Account/Login{redirectUrl}");
+        }
+    }
+}
