@@ -99,7 +99,11 @@ namespace DataAccessLibrary
         {
             get
             {
-                return this._innerDictionary[key];
+                if (this._innerDictionary.ContainsKey(key))
+                {
+                    return this._innerDictionary[key];
+                }
+                return default(TValue);
             }
             set
             {
