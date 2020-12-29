@@ -11,7 +11,7 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="page-header-item">
-                        <a href="Identity/Account/Manage">Hello, @context.User.Identity.Name!</a>
+                        <a href="Identity/Account/Manage">@context.User.Identity.Name</a>
                     </div>
                     <div class="page-header-item">
                         <form method="post" asp-area="Identity" asp-page="/Account/Logout" action="Identity/Account/LogOut">

@@ -4,11 +4,11 @@
 @inject NavigationManager NavigationManager
 
 <div style="margin-bottom: 1rem;">
-    <button class="btn btn-success" @onclick="@(e => NavigateTo($"/CMS/{entityName}/New"))"><i class="fas fa-plus"></i> New</button>
-    <button class="btn btn-secondary" disabled><i class="far fa-trash-alt"></i> Delete</button>
+    <button class="btn btn-success mt-2" @onclick="@(e => NavigateTo($"/CMS/{entityName}/New"))"><i class="fas fa-plus"></i> New</button>
+    <button class="btn btn-secondary mt-2" disabled><i class="far fa-trash-alt"></i> Delete</button>
 </div>
 
-<table class="table table-striped">
+<table class="table table-striped table-sm">
     <thead>
         <tr>
             @foreach (string columnName in columns)
@@ -27,8 +27,8 @@
             </tr>
         }
     </tbody>
-    <p>Total Records: @entities.Count</p>
 </table>
+<p>Total Records: @entities.Count</p>
 
 @code {
     [Parameter]
