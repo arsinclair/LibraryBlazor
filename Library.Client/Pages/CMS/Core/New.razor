@@ -4,6 +4,8 @@
 @using Attribute = DataAccessLibrary.Attribute
 @inject NavigationManager NavigationManager
 
+<button class="btn btn-outline-secondary mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entityName}"))><i class="fas fa-arrow-left mr-5"></i>Back</button>
+
 <h2>Create new @entityName</h2>
 
 <form>
@@ -11,10 +13,8 @@
     <button type="button" class="btn btn-info" @onclick="CreateEntity">Save @entityName</button>
 </form>
 
-<div class="alert @alertClass" role="alert">@alertMessage</div>
-<div class="btn btn-success @isHidden" @onclick="@(e => NavigationManager.NavigateTo($"/CMS/{entityName}/New"))">
-    <button><i class="fas fa-plus"></i>Create Another</button>
-</div>
+<div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
+<button class="btn btn-success @isHidden" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entityName}/New", forceLoad: true))><i class="fas fa-plus mr-2"></i>Create Another</button>
 
 @code {
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
