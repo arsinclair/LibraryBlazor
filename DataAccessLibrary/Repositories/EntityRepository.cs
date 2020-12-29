@@ -33,8 +33,8 @@ namespace DataAccessLibrary.Repositories
 
             entity.Id = Guid.NewGuid();
             entity["Id"] = entity.Id;
-            entity["CreatedOn"] = DateTime.Now;
-            entity["ModifiedOn"] = DateTime.Now;
+            entity["CreatedOn"] = DateTime.UtcNow;
+            entity["ModifiedOn"] = DateTime.UtcNow;
 
             string fieldsToInsert = stringifyFieldsForInsert(entity);
             string sql = $"INSERT INTO {tableName} {fieldsToInsert};";
@@ -85,7 +85,7 @@ namespace DataAccessLibrary.Repositories
             }
             else if (value is string)
             {
-                output = value.ToString().Replace("'", "''");// SQL Escape single quote
+                output = value.ToString().Replace("'", "''"); // SQL Escape single quote
             }
             else if (value is EntityReference)
             {
@@ -101,7 +101,7 @@ namespace DataAccessLibrary.Repositories
             }
             else if (value == null)
             {
-                output = "";
+                output = string.Empty;
             }
             else
             {
@@ -123,10 +123,11 @@ namespace DataAccessLibrary.Repositories
         {
             bool isValid = true;
 
-            if (attr.Value is DateTime && (DateTime)attr.Value < new DateTime(1900, 1, 1))
-            {
-                isValid = false;
-            }
+            // This check doesn't make any sense. However we might want to introduce other field checks here.
+            //if (attr.Value is DateTime && (DateTime)attr.Value < new DateTime(1900, 1, 1))
+            //{
+            //    isValid = false;
+            //}
 
             return isValid;
         }

@@ -19,7 +19,7 @@
     </thead>
     <tbody>
         @foreach (Entity entity in entities){
-            <tr class="table-record" @onclick="@(e => NavigateTo($"/CMS/{entityName}/{entity.Id}/Edit"))">
+            <tr class="table-record" @onclick=@(() => NavigateTo($"/CMS/{entityName}/{entity.Id}/Edit"))>
                 @foreach(string fieldName in columns)
                 {
                     <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
