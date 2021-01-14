@@ -35,8 +35,7 @@ namespace DataAccessLibrary.Converters
                                 }
                                 else
                                 {
-                                    string name = getEntityReferenceTargetText(entityName, columns[i], parsed, connectionString);
-                                    attribute = new EntityReference(name, parsed);
+                                    attribute = $"Guid: {parsed}";
                                 }
                                 break;
                             case "Text":
