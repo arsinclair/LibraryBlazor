@@ -39,11 +39,16 @@
 
     protected override void OnInitialized()
     {
-        columns = metadataClient.GetDefaultListLayout(entityName).Columns.Split(",");
+        SysListLayout layout = metadataClient.GetDefaultListLayout(entityName);
+        if (layout == null || layout.Columns == null || layout.Columns.Length == 0)
+        {
+            throw new Exception($"The layout for {entityName} is either not found or empty.");
+        }
+        columns = layout.Columns.Split(",");
         entities = connection.Get(entityName: entityName, columns: columns).ToList();
     }
 
-    private void NavigateTo(string url) 
+    private void NavigateTo(string url)
     {
         NavigationManager.NavigateTo(url);
     }
