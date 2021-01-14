@@ -33,5 +33,19 @@ namespace DataAccessLibrary.Models
         /// This property can contain a value or null. This property is not automatically populated unless the EntityReference object has been retrieved from the server. This value is used to provide text to represent the related record in any user interface elements, such as the value in a view column.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Will return the Name of the Target Entity in the Entity Reference. If the Name is not available, will call base ToString implementation.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (string.IsNullOrEmpty(this.Name) == false)
+            {
+                return this.Name;
+            }
+
+            return base.ToString();
+        }
     }
 }

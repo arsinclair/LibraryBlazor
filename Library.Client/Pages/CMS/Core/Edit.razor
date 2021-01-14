@@ -1,12 +1,97 @@
 @page "/CMS/{entityName}/{id:guid}/Edit"
+@inject IMetadataRepository metadataClient
+@inject IEntityRepository connection
+@using Attribute = DataAccessLibrary.Attribute
+@inject NavigationManager NavigationManager
 
-<h2>Edit Page</h2>
-<h4>For @entityName - @Id</h4>
+<button class="btn btn-outline-secondary mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entityName}"))><i class="fas fa-arrow-left mr-5"></i>Back</button>
+<button class="btn btn-outline-success mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entityName}/New"))><i class="fas fa-plus mr-2"></i>New</button>
 
-@code {
+<h2>Edit @entityName</h2>
+<div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
+
+<form>
+    <EntityAttributes Attributes="entityAttributes" FieldDefinitions="fieldDefinitions" />
+    <button type="button" class="btn btn-info @disableClass" @onclick="SaveEntity">Save @entityName</button>
+</form>
+
+@code { private List<Attribute> entityAttributes = new List<DataAccessLibrary.Attribute>();
+
     [Parameter]
     public string entityName { get; set; }
 
     [Parameter]
     public Guid Id { get; set; }
-}
+
+    private string alertClass = "hidden alert-success";
+    private string alertMessage = "";
+    private string disableClass = "";
+
+    private Entity Entity;
+    private string[] fieldsToDisplay;
+    private List<SysField> fieldDefinitions;
+
+    protected override void OnInitialized()
+    {
+        if (Id == Guid.Empty || Id == null)
+        {
+            return;
+        }
+
+        Entity = connection.GetById(new EntityReference(entityName, Id), "*");
+        if (Entity == null)
+        {
+            return;
+        }
+
+        if (fieldsToDisplay == null || fieldsToDisplay.Length == 0)
+        {
+            fieldsToDisplay = metadataClient.GetDefaultViewLayout(entityName).Columns.Split(",");
+        }
+
+        if (fieldDefinitions == null || fieldDefinitions.Count == 0)
+        {
+            fieldDefinitions = metadataClient.GetFields(entityName);
+        }
+
+        if (entityAttributes.Count == 0)
+        {
+            foreach (var fieldName in fieldsToDisplay)
+            {
+                entityAttributes.Add(new Attribute(fieldName, Entity[fieldName]));
+            }
+        }
+    }
+
+    private void SaveEntity()
+    {
+        alertClass = "hidden alert-success";
+        alertMessage = "";
+
+        if (Entity == null)
+        {
+            return;
+        }
+
+        foreach (var attribute in entityAttributes)
+        {
+            Entity[attribute.Key] = attribute.Value;
+        }
+
+        int updatedCount = connection.Update(Entity);
+        if (updatedCount == 1)
+        {
+            alertClass = "alert-success";
+            alertMessage = $"Saved.";
+        }
+        else if (updatedCount == 0)
+        {
+            // No modifications to the entity
+            disableClass = "disabled";
+        }
+        else
+        {
+            alertClass = "alert-danger";
+            alertMessage = "Error";
+        }
+    } }

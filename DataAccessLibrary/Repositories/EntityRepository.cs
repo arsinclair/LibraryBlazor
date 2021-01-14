@@ -176,9 +176,79 @@ namespace DataAccessLibrary.Repositories
             }
         }
 
-        public int Update(Entity entity)
+        public int Update(Entity updatedEntity)
         {
-            throw new NotImplementedException();
+            Entity oldEntity = this.GetById(updatedEntity.Id.ToString(), updatedEntity.LogicalName, true);
+            if (oldEntity == null)
+            {
+                throw new Exception("Entity Doesn't exist.");
+            }
+
+            List<KeyValuePair<string, object>> updatedAttributes = new List<KeyValuePair<string, object>>();
+            foreach (var attributePair in updatedEntity.Attributes)
+            {
+                string attribute = attributePair.Key;
+                if (rectrictedForUpdate(attribute))
+                {
+                    continue;
+                }
+
+                string newValue = stringifyAttribute(attributePair.Value);
+                string oldValue = stringifyAttribute(oldEntity[attribute]);
+
+                if (newValue != oldValue)
+                {
+                    updatedAttributes.Add(attributePair);
+                }
+            }
+
+            if (updatedAttributes.Count == 0)
+            {
+                return 0; // No need to update, entities are identical
+            }
+
+            updatedAttributes.Add(new KeyValuePair<string, object>("ModifiedOn", DateTime.UtcNow));
+
+            string tableName = this.GetEntityTableName(updatedEntity.LogicalName);
+            string updatedFieldsSQL = stringifyFieldsForUpdate(updatedAttributes);
+            string sql = $"UPDATE {tableName} SET {updatedFieldsSQL} WHERE Id = @Id;";
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                return connection.Execute(sql, new { Id = updatedEntity.Id.ToString() });
+            }
+        }
+
+        private string stringifyFieldsForUpdate(List<KeyValuePair<string, object>> updatedAttributes)
+        {
+            string output = string.Empty;
+
+            int i = 0;
+            bool last;
+            foreach (var attr in updatedAttributes)
+            {
+                i++;
+                last = updatedAttributes.Count == i;
+
+                if (!isValidAttr(attr))
+                {
+                    continue;
+                }
+
+                output += $"{attr.Key} = {stringifyAttribute(attr.Value)}";
+
+                if (!last)
+                {
+                    output += ", ";
+                }
+            }
+
+            return output;
+        }
+
+        private bool rectrictedForUpdate(string attribute)
+        {
+            return new[] { "id", "createdon", "modifiedon" }.Contains(attribute.ToLower());
         }
 
         #endregion

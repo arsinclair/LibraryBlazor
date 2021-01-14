@@ -29,7 +29,7 @@
         {
             if (_output == value) return;
             _output = value;
-            internalValue = value as string;
+            internalValue = value.ToString();
             OutputChanged.InvokeAsync(value);
         }
     }

@@ -35,7 +35,8 @@ namespace DataAccessLibrary.Converters
                                 }
                                 else
                                 {
-                                    attribute = new EntityReference(string.Empty, parsed); // TODO
+                                    string name = getEntityReferenceTargetText(entityName, columns[i], parsed, connectionString);
+                                    attribute = new EntityReference(name, parsed);
                                 }
                                 break;
                             case "Text":
@@ -53,6 +54,16 @@ namespace DataAccessLibrary.Converters
                             case "TextArea":
                                 attribute = reader.GetString(i);
                                 break;
+                            case "EntityReference":
+                                {
+                                    var parsedGuid = reader.GetGuid(i);
+                                    string name = getEntityReferenceTargetText(entityName, columns[i], parsedGuid, connectionString);
+                                    attribute = new EntityReference(entityName, parsedGuid) {
+                                        Name = name
+                                    };
+                                    break;
+                                }
+
                             default: throw new NotImplementedException();
                         }
                         entity[columns[i]] = attribute;
@@ -79,6 +90,41 @@ namespace DataAccessLibrary.Converters
                 }
             }
             return output;
+        }
+
+        private static string getEntityReferenceTargetText(string entityName, string entityReferenceFrom, Guid targetId, string connectionString)
+        {
+            if (string.IsNullOrEmpty(entityName))
+                throw new ArgumentNullException("entityName");
+            if (string.IsNullOrEmpty(entityReferenceFrom))
+                throw new ArgumentNullException("entityReferenceFrom");
+            if (string.IsNullOrEmpty(connectionString))
+                throw new ArgumentNullException("connectionString");
+            if (targetId == null || targetId == Guid.Empty)
+                throw new ArgumentNullException("targetId");
+
+            string fieldMappingSQL = @$"SELECT sf_to.DatabaseColumnName AS TargetEntityId, se_to.DatabaseTableName AS TargetTableName, sf_at.DatabaseColumnName AS TargetTextField
+                            FROM SysFieldMappings sfm
+                            INNER JOIN SysFields sf_from ON sfm.SourceField = sf_from.Id
+                            INNER JOIN SysFields sf_to ON sfm.TargetField = sf_to.Id
+                            INNER JOIN SysFields sf_at ON sfm.SearchAtField = sf_at.Id
+                            INNER JOIN SysEntities se_from ON sf_from.ParentEntity = se_from.Id
+                            INNER JOIN SysEntities se_to ON sf_to.ParentEntity = se_to.Id
+                            WHERE se_from.Name = '{entityName}' AND sf_from.Name = '{entityReferenceFrom}';";
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var result = connection.QuerySingleOrDefault(fieldMappingSQL);
+                if (result == null)
+                {
+                    throw new Exception("Entity Field Mappping is not found");
+                }
+
+                string targetTextSQL = $@"SELECT {result.TargetTextField}
+                                          FROM {result.TargetTableName}
+                                          WHERE {result.TargetEntityId} = '{targetId}';";
+                return connection.QuerySingle<string>(targetTextSQL);
+            }
         }
 
         private static IEnumerable<string> getColumns(IDataReader reader)
