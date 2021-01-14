@@ -184,5 +184,14 @@ namespace DataAccessLibrary.Repositories
                 return connection.Query<SysViewLayout, SysEntity, SysViewLayout>(sql, mapper, splitOn: "ParentEntityId").FirstOrDefault();
             }
         }
+
+        public bool IsProductionEnvironment()
+        {
+            string sql = "SELECT Value FROM SysSettings WHERE Name = 'Environment';";
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                return connection.QuerySingleOrDefault<string>(sql) == "PROD";
+            }
+        }
     }
 }

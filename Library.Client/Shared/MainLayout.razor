@@ -1,5 +1,13 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject IMetadataRepository metadataClient
+
+@{ 
+    if (metadataClient.IsProductionEnvironment() == false)
+    {
+        <div id="non-production-header">Non-production mode</div>
+    }
+}
 
 <div class="sidebar">
     <NavMenu />

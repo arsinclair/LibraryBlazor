@@ -11,5 +11,6 @@ namespace DataAccessLibrary.Interfaces
         List<SysFieldType> GetFieldTypes();
         SysListLayout GetDefaultListLayout(string entityName);
         SysViewLayout GetDefaultViewLayout(string entityName);
+        bool IsProductionEnvironment();
     }
 }

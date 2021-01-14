@@ -178,3 +178,17 @@ app {
         display: block;
     }
 }
+
+#non-production-header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    height: 8px;
+    background-color: #efff006e;
+    z-index: 1400;
+    font-size: 9px;
+    line-height: 9px;
+    color: #ffe31d;
+    font-weight: bolder;
+    text-align: center
+}
