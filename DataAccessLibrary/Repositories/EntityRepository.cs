@@ -115,6 +115,10 @@ namespace DataAccessLibrary.Repositories
             else
             {
                 output = "'" + output + "'";
+                if (value is string)
+                {
+                    output = "N" + output;
+                }
             }
             return output;
         }

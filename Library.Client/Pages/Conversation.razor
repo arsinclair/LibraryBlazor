@@ -86,8 +86,8 @@
     private void ContactSelectionChanged(MouseEventArgs e, Guid selectedContactId)
     {
         SelectedContact = null;
-        Messages = null;
-        Conversations = null;
+        Messages = new List<Message>();
+        Conversations = new List<DataAccessLibrary.Models.Conversation>();
         SelectedContact = Contacts.FirstOrDefault(x => x.Id == selectedContactId);
         newEntityAttributes.Single(x => x.Key == "ToContactId").Value = new EntityReference("contact", SelectedContact.Id);
         LoadMessages();
