@@ -56,10 +56,7 @@ namespace DataAccessLibrary.Converters
                             case "EntityReference":
                                 {
                                     var parsedGuid = reader.GetGuid(i);
-                                    string name = getEntityReferenceTargetText(entityName, columns[i], parsedGuid, connectionString);
-                                    attribute = new EntityReference(entityName, parsedGuid) {
-                                        Name = name
-                                    };
+                                    attribute = getTargetEntityReference(entityName, columns[i], parsedGuid, connectionString);
                                     break;
                                 }
 
@@ -91,7 +88,7 @@ namespace DataAccessLibrary.Converters
             return output;
         }
 
-        private static string getEntityReferenceTargetText(string entityName, string entityReferenceFrom, Guid targetId, string connectionString)
+        private static EntityReference getTargetEntityReference(string entityName, string entityReferenceFrom, Guid targetId, string connectionString)
         {
             if (string.IsNullOrEmpty(entityName))
                 throw new ArgumentNullException("entityName");
@@ -102,7 +99,7 @@ namespace DataAccessLibrary.Converters
             if (targetId == null || targetId == Guid.Empty)
                 throw new ArgumentNullException("targetId");
 
-            string fieldMappingSQL = @$"SELECT sf_to.DatabaseColumnName AS TargetEntityId, se_to.DatabaseTableName AS TargetTableName, sf_at.DatabaseColumnName AS TargetTextField
+            string fieldMappingSQL = @$"SELECT sf_to.DatabaseColumnName AS TargetEntityId, se_to.DatabaseTableName AS TargetTableName, se_to.Name as TargetEntityName, sf_at.DatabaseColumnName AS TargetTextField
                             FROM SysFieldMappings sfm
                             INNER JOIN SysFields sf_from ON sfm.SourceField = sf_from.Id
                             INNER JOIN SysFields sf_to ON sfm.TargetField = sf_to.Id
@@ -122,7 +119,10 @@ namespace DataAccessLibrary.Converters
                 string targetTextSQL = $@"SELECT {result.TargetTextField}
                                           FROM {result.TargetTableName}
                                           WHERE {result.TargetEntityId} = '{targetId}';";
-                return connection.QuerySingle<string>(targetTextSQL);
+                return new EntityReference(result.TargetEntityName, targetId)
+                {
+                    Name = connection.QuerySingle<string>(targetTextSQL)
+                };
             }
         }
 

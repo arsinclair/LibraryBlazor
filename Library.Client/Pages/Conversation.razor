@@ -3,9 +3,6 @@
 
 @using Attribute = DataAccessLibrary.Attribute
 
-@inject IContactsData contactsRepository
-@inject IMessagesData messagesRepository
-@inject IConversationsData conversationsRepository
 @inject IEntityRepository connection
 @inject IMetadataRepository metadataClient
 @inject IJSRuntime JSRuntime
@@ -17,36 +14,40 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col">
-            @if (Contacts is null)
+            @if (Conversations is null || Conversations.Count == 0)
             {
-                <p>Loading Contacts...</p>
+                <p>Loading Conversations...</p>
             }
             else
             {
                 <input type="text" class="form-control" @oninput="@(e => SearchStarted(e))">
                 <div class="scrollable-container">
-                    @foreach (var contact in Contacts)
+                    @foreach (var conversation in VisibleConversations)
                     {
-                        var classname = SelectedContact?.Id != contact.Id ? "contactListItem" : "contactListItem selected";
-                        if (!contact.HiddenInUI)
-                        {
-                            <div class="@classname" id="@contact.Id" @onclick="@(e => ContactSelectionChanged(e, contact.Id))">@contact.FullName</div>
-                        }
+                        var classname = SelectedConversation?.Id != conversation.Id ? "listItem" : "listItem selected";
+                        var isChat = conversation.LogicalName.ToLower() == "conversation" ? "Chat:" : string.Empty;
+                        <div class="@classname" id="@conversation.Id" @onclick="@(e => ConversationSelectionChanged(e, conversation.Id))">@isChat @conversation.Name</div>
                     }
                 </div>
             }
         </div>
         <div class="col-6">
-            @if (SelectedContact != null)
+            @if (SelectedConversation != null)
             {
                 if (Messages?.Count > 0) {
-                    <h5>@($"{@SelectedContact.FullName} Conversation")</h5>
+                    <h5>@(SelectedConversation.Name)</h5>
                     <div class="scrollable-container" id="messages-container">
-                        @foreach (var message in Messages)
+                        @foreach (Entity message in Messages)
                         {
-                            string conversationName = Conversations.FirstOrDefault(x => x.Id == message.ConversationId)?.Subject;
-                            string className = message.ToContactId == SelectedContact.Id ? "message" : "message darker";
-                            <ChatMessage ClassName="@className" MessageText="@message.Text" SentOn="@(message.SentOn ?? message.ProvisionalSentOn)" ConversationName="@conversationName" />
+                            string conversationName = ((EntityReference)message["ConversationId"])?.Name;
+                            string className = DefaultContact.Equals((EntityReference)message["FromContactId"]) ? "message darker" : "message";
+                            DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
+                            <ChatMessage 
+                                         ClassName="@className" 
+                                         MessageText="@((string)message["Text"])" 
+                                         SentOn="@sentOn" 
+                                         ConversationName="@conversationName"
+                                         Contact="@((EntityReference)message["FromContactId"])"/>
                         }
                     </div>
                 }
@@ -72,24 +73,31 @@
 </div>
 
 @code {
-    private List<Contact> Contacts;
-    private List<Contact> FilteredContacts;
-    private List<Message> Messages;
+    private List<EntityReference> Conversations = new List<EntityReference>();
+    private List<EntityReference> VisibleConversations = new List<EntityReference>();
+    private List<Entity> Messages = new List<Entity>();
     private List<SysField> MessagesFields;
-    private List<DataAccessLibrary.Models.Conversation> Conversations;
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
     private string SearchString;
     private Timer searchTimer = new Timer(400);
+    private EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
 
-    private Contact SelectedContact;
+    private EntityReference SelectedConversation;
 
-    private void ContactSelectionChanged(MouseEventArgs e, Guid selectedContactId)
+    private void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
     {
-        SelectedContact = null;
-        Messages = new List<Message>();
-        Conversations = new List<DataAccessLibrary.Models.Conversation>();
-        SelectedContact = Contacts.FirstOrDefault(x => x.Id == selectedContactId);
-        newEntityAttributes.Single(x => x.Key == "ToContactId").Value = new EntityReference("contact", SelectedContact.Id);
+        SelectedConversation = null;
+        Messages.Clear();
+        SelectedConversation = Conversations.FirstOrDefault(x => x.Id == selectedId);
+        if (SelectedConversation.LogicalName.ToLower() == "contact")
+        {
+            newEntityAttributes.Single(x => x.Key == "ToContactId").Value = SelectedConversation;
+        }
+        else if (SelectedConversation.LogicalName.ToLower() == "conversation")
+        {
+            newEntityAttributes.Single(x => x.Key == "ConversationId").Value = SelectedConversation;
+        }
+
         LoadMessages();
     }
 
@@ -104,7 +112,7 @@
     protected override async Task OnInitializedAsync()
     {
         MessagesFields = metadataClient.GetFields("Message");
-        newEntityAttributes.Add(new Attribute("FromContactId", new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"))));
+        newEntityAttributes.Add(new Attribute("FromContactId", DefaultContact));
         newEntityAttributes.Add(new Attribute("ToContactId"));
         newEntityAttributes.Add(new Attribute("SentOn"));
         newEntityAttributes.Add(new Attribute("ProvisionalSentOn"));
@@ -112,17 +120,27 @@
         newEntityAttributes.Add(new Attribute("ConversationId"));
         newEntityAttributes.Add(new Attribute("WebsiteId"));
         newEntityAttributes.Add(new Attribute("PlatformId"));
-        newEntityAttributes.Add(new Attribute("TextFormat", "BBCode"));
+        newEntityAttributes.Add(new Attribute("TextFormat"));
 
-        Contacts = await contactsRepository.GetContacts(null, "Id", "FullName");
+        if (Conversations.Count == 0)
+        {
+            IEnumerable<EntityReference> contactsEF = connection.Get("contact", columns: "FullName").Select(x => x.ToEntityReference(x["FullName"] as string));
+            IEnumerable<EntityReference> conversationsEF = connection.Get("conversation", columns: "Subject").Select(x => x.ToEntityReference(x["Subject"] as string));
+            Conversations = contactsEF.Concat(conversationsEF).ToList();
+            VisibleConversations.AddRange(Conversations);
+        }
+
         searchTimer.Elapsed += DoSearch;
     }
 
     async void LoadMessages()
     {
-        Messages = await messagesRepository.GetMessages($"FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}'", "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn");
+        string whereClause = $"'{SelectedConversation.Id}' in (FromContactId, ToContactId, ConversationId)";
+        string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn" };
+
+        Messages = connection.Get("message", whereClause, columns: fields).ToList();
         Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
-        Conversations = await conversationsRepository.GetConversations($"Id in (Select ConversationId From Messages Where FromContactId = '{SelectedContact.Id}' OR ToContactId = '{SelectedContact.Id}')", "Id", "Subject");
+
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
@@ -135,34 +153,14 @@
             message[attr.Key] = attr.Value;
         }
 
-        try
-        {
-            var newId = connection.Create(message);
-            var newMessage = new Message()
-            {
-                ConversationId = ((EntityReference)message["ConversationId"]).Id,
-                FromContactId = ((EntityReference)message["FromContactId"]).Id,
-                Id = newId,
-                PlatformId = ((EntityReference)message["PlatformId"]).Id,
-                Text = (string)message["Text"],
-                SentOn = (DateTime?)message["SentOn"],
-                ProvisionalSentOn = (DateTime?)message["ProvisionalSentOn"],
-                ToContactId = ((EntityReference)message["ToContactId"]).Id,
-                WebsiteId = ((EntityReference)message["WebsiteId"]).Id
-            };
-            Messages.Add(newMessage);
-            Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
-            newEntityAttributes.Single(x => x.Key == "Text").Value = string.Empty;
-            await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
-            if (newId == Guid.Empty)
-            {
-                throw new Exception("Entity Creation Error");
-            }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
+        Guid newId = connection.Create(message);
+
+        message.Id = newId;
+        message["Id"] = newId;
+        Messages.Add(message);
+        Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
+        newEntityAttributes.Single(x => x.Key == "Text").Value = string.Empty;
+        await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
 
     void SearchStarted(ChangeEventArgs e)
@@ -180,17 +178,18 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            foreach (var contact in Contacts)
+            VisibleConversations.Clear();
+            foreach (var conversation in Conversations)
             {
-                if (contact.FullName.ToLower().IndexOf(SearchString) == -1)
+                if (conversation.Name.ToLower().IndexOf(SearchString) != -1)
                 {
-                    contact.HiddenInUI = true;
-                }
-                else
-                {
-                    contact.HiddenInUI = false;
+                    VisibleConversations.Add(conversation);
                 }
             }
+        }
+        else
+        {
+            VisibleConversations = Conversations;
         }
         InvokeAsync(StateHasChanged);
     }

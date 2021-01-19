@@ -4,13 +4,13 @@ using DataAccessLibrary.Models;
 
 namespace DataAccessLibrary.Extensions
 {
-    public class MessagesComparer : IComparer<Message>
+    public class MessagesComparer : IComparer<Entity>
     {
-        public int Compare(Message x, Message y)
+        public int Compare(Entity x, Entity y)
         {
-            var date1 = x.SentOn ?? x.ProvisionalSentOn;
-            var date2 = y.SentOn ?? y.ProvisionalSentOn;
-            return Nullable.Compare<DateTime>(date1, date2);
+            var date1 = (DateTime?)(x["SentOn"] ?? x["ProvisionalSentOn"]);
+            var date2 = (DateTime?)(y["SentOn"] ?? y["ProvisionalSentOn"]);
+            return Nullable.Compare(date1, date2);
         }
     }
 }

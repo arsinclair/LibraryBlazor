@@ -2,7 +2,14 @@
 
 <div class="@ClassName">
     <div class="message-header">
-        <span>@ConversationName</span>
+        <a href="/CMS/Contact/@(Contact.Id)/Edit" class="im-link">@Contact.Name</a>
+        @{ 
+            if (!string.IsNullOrEmpty(ConversationName))
+            {
+                <span>@ConversationName</span>
+            }
+        }
+        
         <span class="time-right">@SentOn</span>
     </div>
     <div class="message-text">
@@ -14,7 +21,7 @@
 </div>
 
 @code {
-    private List<string> lines; 
+    private List<string> lines;
 
     private List<string> arrayrizeText(string text)
     {
@@ -31,13 +38,16 @@
 
     private string _messageText;
     [Parameter]
-    public string MessageText { 
-        get => _messageText; 
+    public string MessageText {
+        get => _messageText;
         set {
             _messageText = value;
             lines = arrayrizeText(value);
-        } 
+        }
     }
+
+    [Parameter]
+    public EntityReference Contact { get; set; }
 
     [Parameter]
     public DateTime? SentOn { get; set; }

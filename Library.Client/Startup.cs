@@ -1,24 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Library.Client.Areas.Identity;
 using DataAccessLibrary;
-using DataAccessLibrary.DataProviders;
-using DataAccessLibrary.DataProviders.Interfaces;
 using DataAccessLibrary.Interfaces;
 using DataAccessLibrary.Repositories;
-using DataAccessLibrary.Helpers.Identity;
 
 namespace Library.Client
 {
@@ -45,9 +35,6 @@ namespace Library.Client
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             services.AddTransient<ISqlDataAccess, SqlDataAccess>();
-            services.AddTransient<IContactsData, ContactsData>();
-            services.AddTransient<IMessagesData, MessagesData>();
-            services.AddTransient<IConversationsData, ConversationsData>();
             services.AddTransient<IEntityRepository, EntityRepository>();
             services.AddTransient<IMetadataRepository, MetadataRepository>();
         }

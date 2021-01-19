@@ -115,6 +115,11 @@ app {
     color: red;
 }
 
+.im-link {
+    color: #2a5885;
+    font-weight: 700;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
@@ -191,4 +196,8 @@ app {
     color: #ffe31d;
     font-weight: bolder;
     text-align: center
+}
+
+.form-group {
+    margin-bottom: 0.5rem;
 }

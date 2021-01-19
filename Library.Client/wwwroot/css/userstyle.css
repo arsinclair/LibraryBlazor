@@ -80,11 +80,11 @@
 
 /* DatePicker End */
 
-.contactListItem {
+.listItem {
     cursor: pointer;
 }
 
-.contactListItem:hover {
+.listItem:hover {
     background-color: rgb(174, 184, 196);
 }
 
