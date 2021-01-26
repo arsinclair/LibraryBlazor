@@ -67,14 +67,17 @@ namespace Library.Client.Areas.Identity.Pages.Account
         {
             return NotFound(); // Registration is disabled
 
+#pragma warning disable CS0162 // Unreachable code detected
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+#pragma warning restore CS0162 // Unreachable code detected
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             return NotFound(); // Registration is disabled
 
+#pragma warning disable CS0162 // Unreachable code detected
             returnUrl = returnUrl ?? Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
@@ -114,6 +117,7 @@ namespace Library.Client.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+#pragma warning restore CS0162 // Unreachable code detected
         }
     }
 }
