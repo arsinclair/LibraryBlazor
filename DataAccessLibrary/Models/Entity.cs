@@ -138,7 +138,7 @@ namespace DataAccessLibrary.Models
         ///   <para>Gets or sets the state of the entity.</para>
         /// </summary>
         /// <returns>
-        ///         <para>Type: <see cref="T:Microsoft.Xrm.Sdk.EntityState" />.
+        ///         <para>Type: <see cref="T:DataAccessLibrary.EntityState" />.
         /// The state of the entity.</para>
         ///       </returns>
         /// <remarks>
