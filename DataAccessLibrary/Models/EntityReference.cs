@@ -48,16 +48,9 @@ namespace DataAccessLibrary.Models
             return base.ToString();
         }
 
-        public override bool Equals(object obj)
+        public bool SameAs(EntityReference entityReference)
         {
-            var parsed = obj as EntityReference;
-
-            if (parsed == null)
-            {
-                return false;
-            }
-
-            return parsed.Id == this.Id && parsed.LogicalName.Equals(this.LogicalName, StringComparison.OrdinalIgnoreCase);
+            return entityReference.Id == this.Id && entityReference.LogicalName.Equals(this.LogicalName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

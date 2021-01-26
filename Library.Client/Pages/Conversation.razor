@@ -40,7 +40,7 @@
                         @foreach (Entity message in Messages)
                         {
                             string conversationName = ((EntityReference)message["ConversationId"])?.Name;
-                            string className = DefaultContact.Equals((EntityReference)message["FromContactId"]) ? "message darker" : "message";
+                            string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message darker" : "message";
                             DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
                             <ChatMessage 
                                          ClassName="@className" 
