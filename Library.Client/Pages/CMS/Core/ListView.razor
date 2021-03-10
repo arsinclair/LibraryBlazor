@@ -45,7 +45,9 @@
             throw new Exception($"The layout for {entityName} is either not found or empty.");
         }
         columns = layout.Columns.Split(",");
-        entities = connection.Get(entityName: entityName, columns: columns).ToList();
+        entities = connection.Get(new QueryExpression(entityName) { 
+            ColumnSet = new ColumnSet(columns) 
+        }).ToList();
     }
 
     private void NavigateTo(string url)

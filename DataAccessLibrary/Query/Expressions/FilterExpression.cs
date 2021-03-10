@@ -5,11 +5,10 @@
     /// </summary>
     public sealed class FilterExpression
     {
-        private LogicalOperator _filterOperator;
+        private LogicalOperator _queryOperator;
         private string _filterHint;
-        private DataCollection<ConditionExpression> _conditions;
-        private DataCollection<FilterExpression> _filters;
-        private bool _isQuickFindFilter;
+        private DataCollection<ConditionExpression> _queries;
+        private DataCollection<FilterExpression> _subQueries;
 
         /// <summary>
         ///   <para>Initializes a new instance of the <see cref="T:DataAccessLibrary.Query.FilterExpression" /> class.</para>
@@ -21,10 +20,10 @@
         /// <summary>
         ///   <para>Initializes a new instance of the <see cref="T:DataAccessLibrary.Query.FilterExpression" /> class.</para>
         /// </summary>
-        /// <param name="filterOperator">
+        /// <param name="queryOperator">
         ///   <para>Type: <see cref="T:DataAccessLibrary.Query.LogicalOperator" />. The filter operator.</para>
         /// </param>
-        public FilterExpression(LogicalOperator filterOperator) => this.FilterOperator = filterOperator;
+        public FilterExpression(LogicalOperator queryOperator) => this.QueryOperator = queryOperator;
 
         /// <summary>
         ///   <para>Gets or sets the logical AND/OR filter operator.</para>
@@ -32,10 +31,10 @@
         /// <returns>
         ///   <para>Type: <see cref="T:DataAccessLibrary.Query.LogicalOperator" />The filter operator.</para>
         /// </returns>
-        public LogicalOperator FilterOperator
+        public LogicalOperator QueryOperator
         {
-            get => this._filterOperator;
-            set => this._filterOperator = value;
+            get => this._queryOperator;
+            set => this._queryOperator = value;
         }
 
         public string FilterHint
@@ -51,44 +50,32 @@
         ///         <para>Type: <see cref="T:DataAccessLibrary.DataCollection`1" />&lt;<see cref="T:DataAccessLibrary.Query.ConditionExpression" />&gt;
         /// The collection of condition expressions.</para>
         ///       </returns>
-        public DataCollection<ConditionExpression> Conditions
+        public DataCollection<ConditionExpression> Queries
         {
             get
             {
-                if (this._conditions == null)
-                    this._conditions = new DataCollection<ConditionExpression>();
-                return this._conditions;
+                if (this._queries == null)
+                    this._queries = new DataCollection<ConditionExpression>();
+                return this._queries;
             }
-            private set => this._conditions = value;
+            private set => this._queries = value;
         }
 
         /// <summary>
-        ///   <para>Gets a collection of condition and logical filter expressions that filter the results of the query.</para>
+        ///   <para>Gets a collection of condition expressions that represent the subquery of a query. SubQueries are used to build complex queries that include multiple OR and AND operations.</para>
         /// </summary>
         /// <returns>
-        ///   <para>Type: <see cref="T:DataAccessLibrary.DataCollection`1" />&lt;<see cref="T:DataAccessLibrary.Query.FilterExpression" />&gt;The collection of filters.</para>
+        ///   <para>Type: <see cref="T:DataAccessLibrary.DataCollection`1" />&lt;<see cref="T:DataAccessLibrary.Query.FilterExpression" />&gt;The collection of sub-queries.</para>
         /// </returns>
-        public DataCollection<FilterExpression> Filters
+        public DataCollection<FilterExpression> SubQueries
         {
             get
             {
-                if (this._filters == null)
-                    this._filters = new DataCollection<FilterExpression>();
-                return this._filters;
+                if (this._subQueries == null)
+                    this._subQueries = new DataCollection<FilterExpression>();
+                return this._subQueries;
             }
-            private set => this._filters = value;
-        }
-
-        /// <summary>
-        ///   <para>Gets or sets whether the expression is part of a quick find query.</para>
-        /// </summary>
-        /// <returns>
-        ///   <para>Type: Booleantrue if the filter is part of a quick find query; otherwise, false.</para>
-        /// </returns>
-        public bool IsQuickFindFilter
-        {
-            get => this._isQuickFindFilter;
-            set => this._isQuickFindFilter = value;
+            private set => this._subQueries = value;
         }
 
         /// <summary>
@@ -103,12 +90,12 @@
         /// <param name="values">
         ///   <para>Type: Object[]. The array of values to add.</para>
         /// </param>
-        public void AddCondition(
+        public void AddQuery(
           string attributeName,
           ConditionOperator conditionOperator,
           params object[] values)
         {
-            this.Conditions.Add(new ConditionExpression(attributeName, conditionOperator, values));
+            this.Queries.Add(new ConditionExpression(attributeName, conditionOperator, values));
         }
 
         /// <summary>
@@ -126,26 +113,26 @@
         /// <param name="values">
         ///   <para>Type: Object[]. The array of values to add.</para>
         /// </param>
-        public void AddCondition(
+        public void AddQuery(
           string entityName,
           string attributeName,
           ConditionOperator conditionOperator,
           params object[] values)
         {
-            this.Conditions.Add(new ConditionExpression(entityName, attributeName, conditionOperator, values));
+            this.Queries.Add(new ConditionExpression(entityName, attributeName, conditionOperator, values));
         }
 
         /// <param name="attributeName" />
         /// <param name="conditionOperator" />
         /// <param name="compareColumns" />
         /// <param name="values" />
-        public void AddCondition(
+        public void AddQuery(
           string attributeName,
           ConditionOperator conditionOperator,
           bool compareColumns,
           object[] values)
         {
-            this.Conditions.Add(new ConditionExpression(attributeName, conditionOperator, compareColumns, values));
+            this.Queries.Add(new ConditionExpression(attributeName, conditionOperator, compareColumns, values));
         }
 
         /// <param name="entityName" />
@@ -153,27 +140,27 @@
         /// <param name="conditionOperator" />
         /// <param name="compareColumns" />
         /// <param name="values" />
-        public void AddCondition(
+        public void AddQuery(
           string entityName,
           string attributeName,
           ConditionOperator conditionOperator,
           bool compareColumns,
           object[] values)
         {
-            this.Conditions.Add(new ConditionExpression(entityName, attributeName, conditionOperator, compareColumns, values));
+            this.Queries.Add(new ConditionExpression(entityName, attributeName, conditionOperator, compareColumns, values));
         }
 
         /// <param name="attributeName" />
         /// <param name="conditionOperator" />
         /// <param name="compareColumns" />
         /// <param name="value" />
-        public void AddCondition(
+        public void AddQuery(
           string attributeName,
           ConditionOperator conditionOperator,
           bool compareColumns,
           object value)
         {
-            this.Conditions.Add(new ConditionExpression(attributeName, conditionOperator, (compareColumns ? 1 : 0) != 0, new object[1]
+            this.Queries.Add(new ConditionExpression(attributeName, conditionOperator, (compareColumns ? 1 : 0) != 0, new object[1]
             {
         value
             }));
@@ -184,14 +171,14 @@
         /// <param name="conditionOperator" />
         /// <param name="compareColumns" />
         /// <param name="value" />
-        public void AddCondition(
+        public void AddQuery(
           string entityName,
           string attributeName,
           ConditionOperator conditionOperator,
           bool compareColumns,
           object value)
         {
-            this.Conditions.Add(new ConditionExpression(entityName, attributeName, conditionOperator, (compareColumns ? 1 : 0) != 0, new object[1]
+            this.Queries.Add(new ConditionExpression(entityName, attributeName, conditionOperator, (compareColumns ? 1 : 0) != 0, new object[1]
             {
         value
             }));
@@ -203,7 +190,7 @@
         /// <param name="condition">
         ///   <para>Type: <see cref="T:DataAccessLibrary.Query.ConditionExpression" />. Specifies the condition expression to be added.</para>
         /// </param>
-        public void AddCondition(ConditionExpression condition) => this.Conditions.Add(condition);
+        public void AddQuery(ConditionExpression condition) => this.Queries.Add(condition);
 
         /// <summary>
         ///   <para>Adds a child filter to the filter expression setting the logical operator.</para>
@@ -215,25 +202,25 @@
         ///         <para>Type: <see cref="T:DataAccessLibrary.Query.FilterExpression" />
         /// The new filter expression.</para>
         ///       </returns>
-        public FilterExpression AddFilter(LogicalOperator logicalOperator)
+        public FilterExpression AddSubQuery(LogicalOperator logicalOperator)
         {
             FilterExpression filterExpression = new FilterExpression();
-            filterExpression.FilterOperator = logicalOperator;
-            this.Filters.Add(filterExpression);
+            filterExpression.QueryOperator = logicalOperator;
+            this.SubQueries.Add(filterExpression);
             return filterExpression;
         }
 
         /// <summary>
         ///   <para>Adds a child filter to the filter expression.</para>
         /// </summary>
-        /// <param name="childFilter">
+        /// <param name="subQuery">
         ///   <para>Type: <see cref="T:DataAccessLibrary.Query.FilterExpression" />. The filter to be added.</para>
         /// </param>
-        public void AddFilter(FilterExpression childFilter)
+        public void AddSubQuery(FilterExpression subQuery)
         {
-            if (childFilter == null)
+            if (subQuery == null)
                 return;
-            this.Filters.Add(childFilter);
+            this.SubQueries.Add(subQuery);
         }
     }
 }
