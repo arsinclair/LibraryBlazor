@@ -1,0 +1,79 @@
+@namespace Library.Client.Components.Fields
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using System.IO
+
+<div class="form-group">
+    <label>@FieldDefinition.DisplayName</label>
+    <InputFile class="form-control" OnChange="@LoadFiles" />
+    <input type="file" @bind-value="internalValue">
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    @if (!string.IsNullOrEmpty(exceptionMessage))
+    {
+        <p>@exceptionMessage</p>
+    }
+</div>
+
+@code {
+
+    private bool isLoading;
+    string exceptionMessage;
+
+    async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        loadedFiles.Clear();
+        exceptionMessage = string.Empty;
+
+        try
+        {
+            foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+            {
+                using var memoryStream = new MemoryStream(file.OpenReadStream(1024 * 1024 * 5)); // 5 MB
+
+                internalValue = memoryStream.ToArray();
+            }
+        }
+        catch (Exception ex)
+        {
+            exceptionMessage = ex.Message;
+        }
+
+        isLoading = false;
+    }
+
+    [Parameter]
+    public SysField FieldDefinition { get; set; }
+
+    private byte[] _internalValue;
+    public byte[] internalValue
+    {
+        get => _internalValue;
+        private set
+        {
+            if (_internalValue == value) return;
+            _internalValue = value;
+            Output = value;
+        }
+    }
+
+    private object _output;
+    [Parameter]
+    public object Output
+    {
+        get => _output;
+        set
+        {
+            if (_output == value) return;
+            _output = value;
+            internalValue = (byte[])value;
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<object> OutputChanged { get; set; }
+}

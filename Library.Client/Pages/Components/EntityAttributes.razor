@@ -25,6 +25,9 @@
         case "Boolean":
             <CheckboxInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
             break;
+        case "Binary":
+            <UploadFileInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            break;
         default: throw new NotImplementedException();
     }
 }
