@@ -8,10 +8,10 @@ namespace DataAccessLibrary.Converters
     public static class FilterExpressionConverter
     {
         /// <summary>
-        /// Convert a FilterExpression instance to the SQL string.
+        /// Convert a FilterExpression instance to the SQL WHERE clause.
         /// </summary>
         /// <param name="filterExpression"></param>
-        /// <param name="depth">For internal use. It facilitates building the WHERE clause. If depth is zero, this will append the 'WHERE' word to the output.</param>
+        /// <param name="depth">For internal use. It facilitates building the WHERE clause. If depth is zero, or not provided, this will append the 'WHERE' word to the output.</param>
         /// <returns></returns>
         public static string ConvertToSQL(FilterExpression filterExpression, int depth = 0)
         {

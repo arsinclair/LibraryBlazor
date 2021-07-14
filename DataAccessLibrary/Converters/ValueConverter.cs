@@ -1,10 +1,5 @@
-﻿using DataAccessLibrary.Cache;
-using DataAccessLibrary.Models;
-using DataAccessLibrary.Models.Metadata;
-using DataAccessLibrary.Query;
+﻿using DataAccessLibrary.Models;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DataAccessLibrary.Converters
 {
@@ -14,18 +9,18 @@ namespace DataAccessLibrary.Converters
         {
             switch (fieldTypeName)
             {
-                case "text": return EscapeForSQL(value.ToString(), isLikeClause);
-                case "textarea": return EscapeForSQL(value.ToString(), isLikeClause);
-                case "number": return value.ToString();
-                case "guid": return EscapeForSQL(value.ToString(), isLikeClause);
-                case "boolean": return (bool)value == true ? "1" : "0";
-                case "datetime": return EscapeForSQL(((DateTime)value).ToUniversalTime().ToString(), isLikeClause);
-                case "entityreference": return EscapeForSQL(((EntityReference)value).Id.ToString(), isLikeClause);
+                case "Text": return EscapeForSQL(value.ToString(), isLikeClause);
+                case "TextArea": return EscapeForSQL(value.ToString(), isLikeClause);
+                case "Number": return value.ToString();
+                case "Guid": return EscapeForSQL(value.ToString(), isLikeClause);
+                case "Boolean": return (bool)value == true ? "1" : "0";
+                case "DateTime": return EscapeForSQL(((DateTime)value).ToUniversalTime().ToString(), false);
+                case "EntityReference": return EscapeForSQL(((EntityReference)value).Id.ToString(), isLikeClause);
                 default: throw new NotImplementedException();
             }
         }
 
-        private static string EscapeForSQL(string unescapedString, bool isLikeClause)
+        public static string EscapeForSQL(string unescapedString, bool isLikeClause)
         {
             string output = unescapedString;
             if (isLikeClause)
