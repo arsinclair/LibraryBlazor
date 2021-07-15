@@ -20,7 +20,7 @@ namespace DataAccessLibrary.Converters
             }
         }
 
-        public static string EscapeForSQL(string unescapedString, bool isLikeClause)
+        internal static string EscapeForSQL(string unescapedString, bool isLikeClause)
         {
             string output = unescapedString;
             if (isLikeClause)
