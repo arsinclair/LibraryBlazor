@@ -1,5 +1,6 @@
 using Dapper;
 using DataAccessLibrary.Models.Metadata;
+using DataAccessLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -9,6 +10,7 @@ namespace DataAccessLibrary.Cache
 {
     public class DatabaseCache
     {
+        private MetadataRepository metadataRepository;
         private readonly string _connectionString;
         private bool _IsLocked;
 
@@ -31,17 +33,17 @@ namespace DataAccessLibrary.Cache
 
         public DatabaseCache(string connectionString)
         {
-            _connectionString = connectionString;
+            metadataRepository = new MetadataRepository(configuration);
             Populate();
         }
 
         protected void Populate()
         {
-            _FieldTypes = GetFieldTypes(_connectionString);
-            _Entities = GetEntities(_connectionString);
-            _Fields = GetFields(_connectionString);
+            _FieldTypes = GetFieldTypes(metadataRepository);
+            _Entities = GetEntities(metadataRepository);
+            _Fields = GetFields(metadataRepository);
             _TableNameCache = GetEntityTableNames(_connectionString);
-            _FieldsByEntityName = GetFieldsByEntityName(_connectionString);
+            _FieldsByEntityName = GetAllEntityFields();
         }
 
         public void Refresh()
@@ -90,40 +92,19 @@ namespace DataAccessLibrary.Cache
             }
         }
 
-        private Dictionary<Guid, SysEntity> GetEntities(string connectionString)
+        private Dictionary<Guid, SysEntity> GetEntities(MetadataRepository repository)
         {
-            string sql = "SELECT Id, LOWER(Name), NamePlural, DisplayName, DisplayNamePlural, DatabaseTableName FROM SysEntities;";
-            using (var connection = new SqlConnection(connectionString))
-            {
-                return connection.Query<SysEntity>(sql).ToDictionary(x => x.Id, x => x);
-            }
+            return repository.GetEntities().ToDictionary(x => x.Id, x => x);
         }
 
-        private Dictionary<Guid, SysFieldType> GetFieldTypes(string connectionString)
+        private Dictionary<Guid, SysFieldType> GetFieldTypes(MetadataRepository repository)
         {
-            string sql = "SELECT Id, LOWER(Name) as Name FROM SysFieldTypes;";
-            using (var connection = new SqlConnection(connectionString))
-            {
-                return connection.Query<SysFieldType>(sql).ToDictionary(x => x.Id, x => x);
-            }
+            return repository.GetFieldTypes().ToDictionary(x => x.Id, x => x);
         }
 
-        private Dictionary<Guid, SysField> GetFields(string connectionString)
+        private Dictionary<Guid, SysField> GetFields(MetadataRepository repository)
         {
-            string sql = "select Id, ParentEntity, LOWER(Name) as Name, DisplayName, DatabaseColumnName, Type from SysFields;";
-
-            Func<SysField, SysField> mapper = (field) =>
-            {
-                // field.ParentEntity = parentEntity;
-                return field;
-                throw new NotImplementedException();
-            };
-
-            using (var connection = new SqlConnection(connectionString))
-            {
-                return connection.Query<SysField>(sql, mapper).ToDictionary(x => x.Id, x => x);
-            }
-            throw new NotImplementedException();
+            return repository.GetFields().ToDictionary(x => x.Id, x => x);
         }
 
         private Dictionary<string, string> GetEntityTableNames(string connectionString)
