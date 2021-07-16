@@ -57,7 +57,7 @@ namespace DataAccessLibrary.Converters
 
         private static string BuildWhereClause(QueryExpression query)
         {
-            return FilterExpressionConverter.ConvertToSQL(query.Criteria);
+            return FilterExpressionConverter.ConvertToSQL(query.Criteria, query.EntityName);
         }
 
         private static string BuildOrderBy(QueryExpression query)

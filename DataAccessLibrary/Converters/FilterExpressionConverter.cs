@@ -1,4 +1,4 @@
-﻿using DataAccessLibrary.Query;
+using DataAccessLibrary.Query;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,7 +13,7 @@ namespace DataAccessLibrary.Converters
         /// <param name="filterExpression"></param>
         /// <param name="depth">For internal use. It facilitates building the WHERE clause. If depth is zero, or not provided, this will append the 'WHERE' word to the output.</param>
         /// <returns></returns>
-        public static string ConvertToSQL(FilterExpression filterExpression, int depth = 0)
+        public static string ConvertToSQL(FilterExpression filterExpression, string entityName, int depth = 0)
         {
             depth++;
             StringBuilder sb = new StringBuilder();
@@ -31,6 +31,10 @@ namespace DataAccessLibrary.Converters
                 {
                     for (int i = 0; i < filterExpression.Queries.Count; i++)
                     {
+                        if (string.IsNullOrEmpty(filterExpression.Queries[i].EntityName))
+                        {
+                            filterExpression.Queries[i].EntityName = entityName; // not tested
+                        }
                         sb.Append(ConditionExpressionConverter.ConvertToSQL(filterExpression.Queries[i]));
                         var isLastQuery = (i == filterExpression.Queries.Count - 1);
                         if (!isLastQuery || hasSubQueries)
@@ -43,7 +47,7 @@ namespace DataAccessLibrary.Converters
                 {
                     for (int i = 0; i < filterExpression.SubQueries.Count; i++)
                     {
-                        sb.Append(FilterExpressionConverter.ConvertToSQL(filterExpression.SubQueries[i], depth));
+                        sb.Append(FilterExpressionConverter.ConvertToSQL(filterExpression.SubQueries[i], entityName, depth));
                         if (i != filterExpression.SubQueries.Count - 1)
                         {
                             sb.Append(operatorSQL);
