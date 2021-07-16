@@ -45,7 +45,7 @@ namespace DataAccessLibrary.Converters
             {
                 if (condition.Values == null || condition.Values.Count != 1 || condition.Values[0] == null)
                     throw new Exception($"One and only one value should be provided when using {condition.Operator} operator.");
-                if (Array.IndexOf(new[] { "text", "textarea", "number" }, fieldDefinition.Type.Name) == -1)
+                if (Array.IndexOf(new[] { "text", "textarea", "number" }, fieldDefinition.Type.Name.ToLower()) == -1)
                     throw new Exception($"{condition.Operator} can only be used with Text, TextArea and Number types.");
 
                 output += condition.AttributeName + operatorStr;
