@@ -14,4 +14,10 @@
     <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
   </ItemGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>DataAccessLibrary.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
 </Project>

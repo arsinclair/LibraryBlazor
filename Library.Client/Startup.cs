@@ -9,6 +9,7 @@ using Library.Client.Areas.Identity;
 using DataAccessLibrary;
 using DataAccessLibrary.Interfaces;
 using DataAccessLibrary.Repositories;
+using DataAccessLibrary.Cache;
 
 namespace Library.Client
 {
@@ -34,9 +35,11 @@ namespace Library.Client
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
-            services.AddTransient<ISqlDataAccess, SqlDataAccess>();
-            services.AddTransient<IEntityRepository, EntityRepository>();
-            services.AddTransient<IMetadataRepository, MetadataRepository>();
+            services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
+            services.AddSingleton<IEntityRepository, EntityRepository>();
+            services.AddSingleton<IMetadataRepository, MetadataRepository>();
+
+            CacheManager.Initialize(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

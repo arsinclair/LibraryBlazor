@@ -21,7 +21,7 @@ namespace DataAccessLibrary.Repositories
 
         public List<SysEntity> GetEntities()
         {
-            string sql = "SELECT * FROM SysEntities;";
+            string sql = "SELECT Id, LOWER(Name) as Name, NamePlural, DisplayName, DisplayNamePlural, DatabaseTableName FROM SysEntities;";
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
                 return connection.Query<SysEntity>(sql).ToList();
@@ -30,7 +30,7 @@ namespace DataAccessLibrary.Repositories
 
         public List<SysFieldType> GetFieldTypes()
         {
-            string sql = "SELECT * FROM SysFieldTypes;";
+            string sql = "SELECT Id, LOWER(Name) as Name FROM SysFieldTypes;";
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
                 return connection.Query<SysFieldType>(sql).ToList();
@@ -39,7 +39,7 @@ namespace DataAccessLibrary.Repositories
 
         public List<SysField> GetFields()
         {
-            string sql = @"SELECT F.Id, F.Name, F.DisplayName, F.DatabaseColumnName, F.ParentEntity as ParentEntityId, E.Id, E.Name, E.NamePlural, E.DisplayName, E.DisplayNamePlural, E.DatabaseTableName, F.Type as ParentEntityType, T.Id, T.Name FROM SysFields AS F 
+            string sql = @"SELECT F.Id, LOWER(F.Name) as Name, F.DisplayName, F.DatabaseColumnName, F.ParentEntity as ParentEntityId, E.Id, LOWER(E.Name) as Name, E.NamePlural, E.DisplayName, E.DisplayNamePlural, E.DatabaseTableName, F.Type as ParentEntityType, T.Id, T.Name FROM SysFields AS F 
             INNER JOIN SysEntities E ON F.ParentEntity = E.Id
             INNER JOIN SysFieldTypes T ON F.Type = T.Id;";
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))

@@ -55,7 +55,15 @@
         ClearSearchResults();
         if (PreloadRecordsCount > 0)
         {
-            var _searchResults = connection.Get(entityName: internalValue.LogicalName, count: PreloadRecordsCount, columns: LookupNameSource);
+            var preloadQE = new QueryExpression(internalValue.LogicalName)
+            {
+                ColumnSet = new ColumnSet(LookupNameSource),
+                PageInfo = new PagingInfo()
+                {
+                    Count = PreloadRecordsCount
+                }
+            };
+            var _searchResults = connection.Get(preloadQE);
             SearchResults = _searchResults.ToList();
         }
         isMenuHiddenClassName = string.Empty;
@@ -104,7 +112,13 @@
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))
         {
-            var _searchResults = connection.Get(entityName: internalValue.LogicalName, whereClause: $"{LookupNameSource} LIKE '%{SearchString}%'", columns: LookupNameSource);
+            var searchQE = new QueryExpression(internalValue.LogicalName)
+            {
+                ColumnSet = new ColumnSet(LookupNameSource),
+                Criteria = new FilterExpression()
+            };
+            searchQE.Criteria.Queries.Add(new ConditionExpression(LookupNameSource, ConditionOperator.Like, SearchString));
+            var _searchResults = connection.Get(searchQE);
             SearchResults = _searchResults.ToList();
         }
         await InvokeAsync(StateHasChanged);
@@ -120,7 +134,7 @@
         {
             internalValue = (EntityReference)Output;
         }
-        
+
         internalValue.LogicalName = FieldDefinition.ReferenceTarget.TargetField.ParentEntity.Name;
         if (internalValue.Id != null && internalValue.Id != Guid.Empty)
         {
