@@ -73,7 +73,36 @@ namespace DataAccessLibrary.Cache
 
         public SysField GetFieldByName(string fieldName, string entityName)
         {
+            foreach (SysEntity entity in _Entities.Values)
+            {
+                if (entityName.ToLower() == entity.Name.ToLower())
+                {
+                    foreach (SysField field in _Fields.Values)
+                    {
+                        if (fieldName.ToLower() == field.Name.ToLower())
+                        {
+                            return field;
+                        }
+                    }
+                }
+            }
 
+            // If not found in the cache, try fetch from DB
+            string sql = @"SELECT sf.* 
+                           FROM SysFields sf 
+                           INNER JOIN SysEntities se ON se.Id = sf.ParentEntity 
+                           WHERE se.Name = LOWER(@EntityName) AND sf.Name = LOWER(@FieldName);";
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                SysField sysField = connection.QuerySingleOrDefault<SysField>(sql, new { EntityName = entityName, FieldName = fieldName });
+                if (sysField == null)
+                {
+                    throw new Exception($"A field called '{sysField}' for entity '{entityName}' is not found in SysFields.");
+                }
+                _Fields.Add(sysField.Id, sysField);
+                return sysField;
+            }
         }
 
         #region Routines
