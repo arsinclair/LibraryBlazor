@@ -1,4 +1,4 @@
-using DataAccessLibrary.Query;
+﻿using DataAccessLibrary.Query;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,7 +24,7 @@ namespace DataAccessLibrary.Converters
             {
                 if (depth == 1) sb.Append(" WHERE ");
 
-                string operatorSQL = LogicalOperatorConverter.ConvertToSQL(filterExpression.QueryOperator) + " ";
+                string operatorSQL = " " + LogicalOperatorConverter.ConvertToSQL(filterExpression.QueryOperator) + " ";
                 sb.Append(" ( ");
 
                 if (hasQueries)
