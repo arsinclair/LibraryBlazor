@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using System;
 
 namespace DataAccessLibrary.Cache
@@ -25,6 +25,27 @@ namespace DataAccessLibrary.Cache
             ThrowIfNotInitialized();
             if (_databaseCache == null) _databaseCache = new DatabaseCache(_connectionString);
             return _databaseCache;
+        }
+
+        /// <summary>
+        ///     <para>Allows to bypass building the cache from the database, by setting the in-memory DatabaseCache to provided method parameter. Should only be used for unit tests to avoid spinning up the database instance.</para>
+        /// </summary>
+        internal static void SetBypassDatabaseCache(DatabaseCache databaseCache)
+        {
+            if (!IsInitialized)
+            {
+                if (_databaseCache == null) _databaseCache = databaseCache;
+                IsInitialized = true;
+            }
+        }
+
+        internal static void DisposeCache()
+        {
+            if (IsInitialized)
+            {
+                _databaseCache = null;
+                IsInitialized = false;
+            }
         }
 
         private static void ThrowIfNotInitialized()

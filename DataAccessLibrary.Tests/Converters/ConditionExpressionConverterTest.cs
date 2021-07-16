@@ -1,5 +1,7 @@
-﻿using DataAccessLibrary.Converters;
+using DataAccessLibrary.Cache;
+using DataAccessLibrary.Converters;
 using DataAccessLibrary.Query;
+using DataAccessLibrary.Tests.SetUp.Fixtures;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,8 +9,14 @@ using Xunit;
 
 namespace DataAccessLibrary.Tests.Converters
 {
+    [Collection("DatabaseCache Collection")]
     public class ConditionExpressionConverterTest
     {
+        public ConditionExpressionConverterTest(DatabaseCacheFixture fixture)
+        {
+            CacheManager.SetBypassDatabaseCache(fixture);
+        }
+
         [Fact]
         public void ConvertToSQLTestStringValue()
         {

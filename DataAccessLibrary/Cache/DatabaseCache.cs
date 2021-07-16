@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using DataAccessLibrary.Models.Metadata;
 using System;
 using System.Collections.Generic;
@@ -12,15 +12,22 @@ namespace DataAccessLibrary.Cache
         private readonly string _connectionString;
         private bool _IsLocked;
 
-        private Dictionary<Guid, SysFieldType> _FieldTypes;
-        private Dictionary<Guid, SysEntity> _Entities;
-        private Dictionary<Guid, SysField> _Fields;
+        protected Dictionary<Guid, SysFieldType> _FieldTypes;
+        protected Dictionary<Guid, SysEntity> _Entities;
+        protected Dictionary<Guid, SysField> _Fields;
 
         // Format: Entity Name - Table Name (Database)
-        private Dictionary<string, string> _TableNameCache;
+        protected Dictionary<string, string> _TableNameCache;
 
         // Format: Entity Name - [Field Name - Column Name (Database)]
-        private Dictionary<string, Dictionary<string, SysField>> _FieldsByEntityName;
+        protected Dictionary<string, Dictionary<string, SysField>> _FieldsByEntityName;
+
+        /// <summary>
+        ///     <para>Initializes a new instance of the <see cref="T:DataAccessLibrary.Cache.DatabaseCache" /> class. The cache collections in the created instance are empty, as the purpose of this constructor is to be used in unit tests.</para>
+        /// </summary>
+        internal DatabaseCache()
+        {
+        }
 
         public DatabaseCache(string connectionString)
         {
@@ -28,7 +35,7 @@ namespace DataAccessLibrary.Cache
             Populate();
         }
 
-        private void Populate()
+        protected void Populate()
         {
             _FieldTypes = GetFieldTypes(_connectionString);
             _Entities = GetEntities(_connectionString);
@@ -147,7 +154,7 @@ namespace DataAccessLibrary.Cache
             }
         }
 
-        private Dictionary<string, Dictionary<string, SysField>> GetFieldsByEntityName(string connectionString)
+        protected Dictionary<string, Dictionary<string, SysField>> GetFieldsByEntityName(string connectionString)
         {
             var output = new Dictionary<string, Dictionary<string, SysField>>();
             foreach (SysField field in _Fields.Values)

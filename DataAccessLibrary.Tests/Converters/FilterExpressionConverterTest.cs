@@ -1,11 +1,21 @@
+using DataAccessLibrary.Cache;
 using DataAccessLibrary.Converters;
+using DataAccessLibrary.Models;
 using DataAccessLibrary.Query;
+using DataAccessLibrary.Tests.SetUp.Fixtures;
+using System;
 using Xunit;
 
 namespace DataAccessLibrary.Tests
 {
+    [Collection("DatabaseCache Collection")]
     public class FilterExpressionConverterTest
     {
+        public FilterExpressionConverterTest(DatabaseCacheFixture fixture)
+        {
+            CacheManager.SetBypassDatabaseCache(fixture);
+        }
+
         [Fact]
         public void ConvertToSQLEmptyFilterExpressionTest()
         {
