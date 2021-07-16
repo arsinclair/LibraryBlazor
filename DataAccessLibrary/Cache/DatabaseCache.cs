@@ -154,12 +154,19 @@ namespace DataAccessLibrary.Cache
             }
         }
 
-        protected Dictionary<string, Dictionary<string, SysField>> GetFieldsByEntityName(string connectionString)
+        protected Dictionary<string, Dictionary<string, SysField>> GetAllEntityFields()
         {
             var output = new Dictionary<string, Dictionary<string, SysField>>();
             foreach (SysField field in _Fields.Values)
             {
+                if (output.Keys.Contains(field.ParentEntity.Name))
+                {
                 output[field.ParentEntity.Name][field.Name] = field;
+                }
+                else
+                {
+                    output.Add(field.ParentEntity.Name, new Dictionary<string, SysField>());
+                }
             }
             return output;
         }
