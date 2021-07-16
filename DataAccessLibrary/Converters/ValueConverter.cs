@@ -11,7 +11,7 @@ namespace DataAccessLibrary.Converters
             {
                 case "Text": return EscapeForSQL(value.ToString(), isLikeClause);
                 case "TextArea": return EscapeForSQL(value.ToString(), isLikeClause);
-                case "Number": return value.ToString();
+                case "Number": return EscapeForSQL(value.ToString(), isLikeClause);
                 case "Guid": return EscapeForSQL(value.ToString(), isLikeClause);
                 case "Boolean": return (bool)value == true ? "1" : "0";
                 case "DateTime": return EscapeForSQL(((DateTime)value).ToUniversalTime().ToString(), false);
