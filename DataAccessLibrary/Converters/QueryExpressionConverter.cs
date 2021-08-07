@@ -1,4 +1,4 @@
-using DataAccessLibrary.Cache;
+﻿using DataAccessLibrary.Cache;
 using DataAccessLibrary.Query;
 using System;
 using System.Collections.Generic;
@@ -36,8 +36,7 @@ namespace DataAccessLibrary.Converters
             }
         }
 
-
-        private static string BuildColumns(QueryExpression query)
+        internal static string BuildColumns(QueryExpression query)
         {
             string output = string.Empty;
 
@@ -62,12 +61,12 @@ namespace DataAccessLibrary.Converters
             return output;
         }
 
-        private static string BuildWhereClause(QueryExpression query)
+        internal static string BuildWhereClause(QueryExpression query)
         {
             return FilterExpressionConverter.ConvertToSQL(query.Criteria, query.EntityName);
         }
 
-        private static string BuildOrderByWithOffset(QueryExpression query)
+        internal static string BuildOrderByWithOffset(QueryExpression query)
         {
             List<string> output = new List<string>();
 
@@ -88,8 +87,8 @@ namespace DataAccessLibrary.Converters
                         orderType = "DESC";
                     }
                     output.Add($"[{sortOrder.AttributeName}]{orderType}");
-                    }
                 }
+            }
 
             if (output.Count == 0 && query.PageInfo.Count > 0)
             {
@@ -105,7 +104,7 @@ namespace DataAccessLibrary.Converters
                 : string.Empty;
         }
 
-        private static string BuildOffset(QueryExpression query)
+        internal static string BuildOffset(QueryExpression query)
         {
             string output = string.Empty;
 

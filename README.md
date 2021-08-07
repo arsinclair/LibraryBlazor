@@ -5,6 +5,5 @@
 - FilterExpressionConverter
 
 #### To Do
-- QueryExpressionConverter
 - ConditionExpressionConverter
 - EntityConverter
