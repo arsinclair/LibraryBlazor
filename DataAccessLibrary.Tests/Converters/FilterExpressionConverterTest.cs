@@ -6,7 +6,7 @@ using DataAccessLibrary.Tests.SetUp.Fixtures;
 using System;
 using Xunit;
 
-namespace DataAccessLibrary.Tests
+namespace DataAccessLibrary.Tests.Converters
 {
     [Collection("DatabaseCache Collection")]
     public class FilterExpressionConverterTest

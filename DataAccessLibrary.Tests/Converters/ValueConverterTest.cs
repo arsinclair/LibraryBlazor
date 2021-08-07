@@ -30,7 +30,7 @@ namespace DataAccessLibrary.Tests.Converters
         [Fact]
         public void ConvertToSQLNumberField()
         {
-            Assert.Equal("42345", ValueConverter.ConvertToSQL(42345, "Number", false));
+            Assert.Equal("'42345'", ValueConverter.ConvertToSQL(42345, "Number", false));
         }
 
         [Fact]

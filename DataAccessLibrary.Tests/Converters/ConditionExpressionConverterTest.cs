@@ -1,4 +1,4 @@
-using DataAccessLibrary.Cache;
+﻿using DataAccessLibrary.Cache;
 using DataAccessLibrary.Converters;
 using DataAccessLibrary.Query;
 using DataAccessLibrary.Tests.SetUp.Fixtures;
@@ -20,13 +20,18 @@ namespace DataAccessLibrary.Tests.Converters
         [Fact]
         public void ConvertToSQLTestStringValue()
         {
-            var conditionExpression = new ConditionExpression("testFieldName", ConditionOperator.Equal, "testFieldValue");
+            var conditionExpression = new ConditionExpression("Name", ConditionOperator.Equal, "testFieldValue");
+            conditionExpression.EntityName = "contact";
             string output = ConditionExpressionConverter.ConvertToSQL(conditionExpression);
+            Assert.Equal("[testFieldName]=testFieldValue", output);
         }
 
         [Fact]
         public void ConvertToSQLTestEscapeStringValue()
         {
+            var conditionExpression = new ConditionExpression("testFieldName", ConditionOperator.Equal, "testField');[somedata]%percentage_underscore LIKE");
+            string output = ConditionExpressionConverter.ConvertToSQL(conditionExpression);
+            Assert.Equal("[testFieldName]=testFieldValue", output);
         }
 
         [Fact]
@@ -42,8 +47,8 @@ namespace DataAccessLibrary.Tests.Converters
         [Fact]
         public void ConvertToSQLTestBooleanValue()
         {
-            var input = new ConditionExpression("booleanField", ConditionOperator.Equal, true);
-            Assert.Equal("booleanField = 1", ConditionExpressionConverter.ConvertToSQL(input));
+            var input = new ConditionExpression("Contact", "IsActive", ConditionOperator.Equal, true);
+            Assert.Equal("[IsActive]=1", ConditionExpressionConverter.ConvertToSQL(input));
         }
 
         [Fact]
