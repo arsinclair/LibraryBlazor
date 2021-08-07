@@ -30,7 +30,7 @@ namespace DataAccessLibrary.Tests
             FilterExpression fe = new FilterExpression();
             fe.AddQuery("Contact", "FullName", ConditionOperator.Equal, "John Gray");
 
-            Assert.Equal(" WHERE  ( FullName = 'John Gray' ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+            Assert.Equal("WHERE([FullName]='John Gray')", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
         }
 
         [Fact]
@@ -40,15 +40,15 @@ namespace DataAccessLibrary.Tests
             fe.AddQuery("Contact", "FullName", ConditionOperator.Equal, "John Gray");
             fe.AddQuery("FullName", ConditionOperator.Like, true, "David Black");
 
-            Assert.Equal(" WHERE  ( FullName = 'John Gray' AND FullName LIKE '%David Black%' ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+            Assert.Equal("WHERE([FullName]='John Gray'AND[FullName]LIKE'%David Black%')", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
 
             fe.QueryOperator = LogicalOperator.Or;
 
-            Assert.Equal(" WHERE  ( FullName = 'John Gray' OR FullName LIKE '%David Black%' ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+            Assert.Equal("WHERE([FullName]='John Gray'OR[FullName]LIKE'%David Black%')", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
 
             fe.AddQuery("Age", ConditionOperator.GreaterThan, 6);
 
-            Assert.Equal(" WHERE  ( FullName = 'John Gray' OR FullName LIKE '%David Black%' OR Age > '6' ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+            Assert.Equal("WHERE([FullName]='John Gray'OR[FullName]LIKE'%David Black%'OR[Age]>'6')", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace DataAccessLibrary.Tests
             subQuery.AddQuery("GenderId", ConditionOperator.Equal, new EntityReference("Gender", Guid.Parse("824b213f-8ec2-4157-b5f1-96b1ebe89d6c"))); // 824b213f-8ec2-4157-b5f1-96b1ebe89d6c - GUID for Male
             fe.AddSubQuery(subQuery);
 
-            Assert.Equal(" WHERE  (  ( FirstName LIKE '%David%' AND GenderId = '824b213f-8ec2-4157-b5f1-96b1ebe89d6c' )  ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+            Assert.Equal("WHERE(([FirstName]LIKE'%David%'AND[GenderId]='824b213f-8ec2-4157-b5f1-96b1ebe89d6c'))", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace DataAccessLibrary.Tests
             subQuery2.AddQuery("Contact", "GenderId", ConditionOperator.Equal, new EntityReference("Gender", Guid.Parse("912b9357-c9c8-40d8-8a81-646057a33053"))); // 912b9357-c9c8-40d8-8a81-646057a33053 - GUID for Female
             fe.AddSubQuery(subQuery2);
 
-            Assert.Equal(" WHERE  (  ( FullName LIKE '%David Black%' AND GenderId = '824b213f-8ec2-4157-b5f1-96b1ebe89d6c' )  OR  ( FirstName LIKE '%Sarah%' AND GenderId = '912b9357-c9c8-40d8-8a81-646057a33053' )  ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact")); // 824B213F-8EC2-4157-B5F1-96B1EBE89D6C - GUID for Male, 912B9357-C9C8-40D8-8A81-646057A33053 - GUID for female
+            Assert.Equal("WHERE(([FullName]LIKE'%David Black%'AND[GenderId]='824b213f-8ec2-4157-b5f1-96b1ebe89d6c')OR([FirstName]LIKE'%Sarah%'AND[GenderId]='912b9357-c9c8-40d8-8a81-646057a33053'))", FilterExpressionConverter.ConvertToSQL(fe, "Contact")); // 824B213F-8EC2-4157-B5F1-96B1EBE89D6C - GUID for Male, 912B9357-C9C8-40D8-8A81-646057A33053 - GUID for female
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace DataAccessLibrary.Tests
             fe.AddSubQuery(subQuery2);
             fe.AddSubQuery(subQuery3);
 
-            Assert.Equal(" WHERE  ( CityOfOriginId = 'afbdd272-028b-e811-95b7-08002791e63c' AND CountryOfOriginId = 'c6257bef-848a-e811-8f78-08002791e63c' AND Age LIKE '%2%' AND  ( FirstName LIKE '%Joe%' OR FirstName LIKE '%Mark%' OR FirstName LIKE '%Charley%' )  AND  ( Address LIKE '%Hanover Sq.%' )  AND  ( Description LIKE '%The Biggest Company%' OR  ( ContactRepresentative LIKE '%Paul%' OR ContactRepresentative LIKE '%Peter%' )  )  ) ", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+            Assert.Equal("WHERE([CityOfOriginId]='afbdd272-028b-e811-95b7-08002791e63c'AND[CountryOfOriginId]='c6257bef-848a-e811-8f78-08002791e63c'AND[Age]LIKE'%2%'AND([FirstName]LIKE'%Joe%'OR[FirstName]LIKE'%Mark%'OR[FirstName]LIKE'%Charley%')AND([Address]LIKE'%Hanover Sq.%')AND([Description]LIKE'%The Biggest Company%'OR([ContactRepresentative]LIKE'%Paul%'OR[ContactRepresentative]LIKE'%Peter%')))", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
         }
     }
 }

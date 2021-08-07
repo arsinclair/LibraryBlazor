@@ -21,21 +21,21 @@ namespace DataAccessLibrary.Converters
             {
                 if (condition.Values != null || condition.Values.Count > 0)
                     throw new Exception($"No values should be provided when using ${condition.Operator} operator.");
-                output += condition.AttributeName + operatorStr;
+                output += $"[{condition.AttributeName}]{operatorStr}";
             }
             else if (condition.Operator == ConditionOperator.In || condition.Operator == ConditionOperator.NotIn)
             {
                 if (condition.Values == null || condition.Values.Count == 0)
                     throw new Exception($"At least one value should be provided when using ${condition.Operator} operator.");
 
-                output += condition.AttributeName + operatorStr + "(";
+                output += $"[{condition.AttributeName}]{operatorStr}(";
 
                 for (int i = 0; i < condition.Values.Count; i++)
                 {
                     output += ValueConverter.ConvertToSQL(condition.Values[i], fieldDefinition.Type.Name, false);
                     if (i != condition.Values.Count - 1)
                     {
-                        output += ", ";
+                        output += ",";
                     }
                 }
 
@@ -48,7 +48,7 @@ namespace DataAccessLibrary.Converters
                 if (Array.IndexOf(new[] { "text", "textarea", "number" }, fieldDefinition.Type.Name.ToLower()) == -1)
                     throw new Exception($"{condition.Operator} can only be used with Text, TextArea and Number types.");
 
-                output += condition.AttributeName + operatorStr;
+                output += $"[{condition.AttributeName}]{operatorStr}";
                 output += ValueConverter.ConvertToSQL(condition.Values[0], fieldDefinition.Type.Name, true);
             }
             else
@@ -58,7 +58,7 @@ namespace DataAccessLibrary.Converters
                 if (condition.Values.Count > 1)
                     throw new Exception($"Only one value should be provided when using {condition.Operator} operator.");
 
-                output += condition.AttributeName + operatorStr;
+                output += $"[{condition.AttributeName}]{operatorStr}";
                 output += ValueConverter.ConvertToSQL(condition.Values[0], fieldDefinition.Type.Name, false);
             }
 
@@ -69,16 +69,16 @@ namespace DataAccessLibrary.Converters
         {
             switch (@operator)
             {
-                case ConditionOperator.Equal: return " = ";
-                case ConditionOperator.NotEqual: return " <> ";
-                case ConditionOperator.GreaterThan: return " > ";
-                case ConditionOperator.LessThan: return " < ";
-                case ConditionOperator.GreaterEqual: return " >= ";
-                case ConditionOperator.LessEqual: return " <= ";
-                case ConditionOperator.Like: return " LIKE ";
-                case ConditionOperator.NotLike: return " NOT LIKE ";
-                case ConditionOperator.NotNull: return " IS NOT NULL ";
-                case ConditionOperator.Null: return " IS NULL ";
+                case ConditionOperator.Equal: return "=";
+                case ConditionOperator.NotEqual: return "<>";
+                case ConditionOperator.GreaterThan: return ">";
+                case ConditionOperator.LessThan: return "<";
+                case ConditionOperator.GreaterEqual: return ">=";
+                case ConditionOperator.LessEqual: return "<=";
+                case ConditionOperator.Like: return "LIKE";
+                case ConditionOperator.NotLike: return "NOT LIKE";
+                case ConditionOperator.NotNull: return "IS NOT NULL";
+                case ConditionOperator.Null: return "IS NULL";
                 default:
                     throw new NotImplementedException();
             }

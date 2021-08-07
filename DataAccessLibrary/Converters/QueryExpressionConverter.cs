@@ -1,30 +1,29 @@
-﻿using DataAccessLibrary.Cache;
+using DataAccessLibrary.Cache;
 using DataAccessLibrary.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DataAccessLibrary.Converters
 {
     public static class QueryExpressionConverter
     {
+        private const string ColumnNameRegexPattern = "[^A-Za-z_]";
+
         public static string ConvertToSQL(QueryExpression query)
         {
             ThrowIfNotValid(query);
 
             string tableName = CacheManager.GetDatabaseCache().GetTableName(query.EntityName);
+            string sql = string.Empty;
 
-            string columnsString = BuildColumns(query);
-            string rowCount = BuildOffset(query);
-            string orderBy = BuildOrderBy(query);
-            string whereString = BuildWhereClause(query);
-
-            string sql = @$"SELECT {columnsString} 
-                            FROM {tableName} 
-                            {whereString}
-                            ORDER BY {orderBy}
-                            {rowCount};";
+            sql += $"SELECT{BuildColumns(query)}";
+            sql += $"FROM[{tableName}]";
+            sql += BuildWhereClause(query);
+            sql += BuildOrderByWithOffset(query);
+            sql += ";";
 
             return sql;
         }
@@ -40,7 +39,7 @@ namespace DataAccessLibrary.Converters
 
         private static string BuildColumns(QueryExpression query)
         {
-            string output;
+            string output = string.Empty;
 
             if (query.ColumnSet.AllColumns)
             {
@@ -48,8 +47,16 @@ namespace DataAccessLibrary.Converters
             }
             else
             {
-                query.ColumnSet.AddColumn("Id");
-                output = string.Join(", ", query.ColumnSet.Columns.ToArray().Distinct(StringComparer.OrdinalIgnoreCase));
+                var listWithDuplicates = new List<string>() { "[Id]" }; // Id column should be returned with all queries
+                foreach (var column in query.ColumnSet.Columns)
+                {
+                    if (string.IsNullOrEmpty(column)) continue;
+                    if (Regex.IsMatch(column, ColumnNameRegexPattern)) throw new ArgumentException($"Query Expression Column Name conatins invalid characters. {column}");
+
+                    listWithDuplicates.Add($"[{column}]");
+                }
+
+                output = (string.Join(",", listWithDuplicates.Distinct(StringComparer.OrdinalIgnoreCase)));
             }
 
             return output;
@@ -60,35 +67,42 @@ namespace DataAccessLibrary.Converters
             return FilterExpressionConverter.ConvertToSQL(query.Criteria, query.EntityName);
         }
 
-        private static string BuildOrderBy(QueryExpression query)
+        private static string BuildOrderByWithOffset(QueryExpression query)
         {
-            string output = string.Empty;
+            List<string> output = new List<string>();
 
-            if (query.Orders.Count > 0)
+            foreach (OrderExpression sortOrder in query.Orders)
             {
-                for (int i = 0; i < query.Orders.Count; i++)
+                if (!string.IsNullOrEmpty(sortOrder.AttributeName))
                 {
-                    output += query.Orders[i].AttributeName;
-                    if (query.Orders[i].OrderType == OrderType.Ascending)
+                    if (Regex.IsMatch(sortOrder.AttributeName, ColumnNameRegexPattern))
+                        throw new ArgumentException($"Query Expression Sort Order Attribute Name conatins invalid characters. {sortOrder.AttributeName}");
+
+                    string orderType = string.Empty;
+                    if (sortOrder.OrderType == OrderType.Ascending)
                     {
-                        output += " ASC";
+                        orderType = "ASC";
                     }
-                    else if (query.Orders[i].OrderType == OrderType.Descending)
+                    else if (sortOrder.OrderType == OrderType.Descending)
                     {
-                        output += " DESC";
+                        orderType = "DESC";
                     }
-                    if (i != query.Orders.Count - 1)
-                    {
-                        output += ", ";
+                    output.Add($"[{sortOrder.AttributeName}]{orderType}");
                     }
                 }
-            }
-            else
+
+            if (output.Count == 0 && query.PageInfo.Count > 0)
             {
-                output = "Id";
+                throw new ArgumentException("Can't use pagination (PageInfo OFFSET Query) without ORDER BY Clause");
             }
 
-            return output;
+            string offsetClause = BuildOffset(query);
+            if (!string.IsNullOrEmpty(offsetClause))
+                offsetClause = " " + offsetClause;
+
+            return output.Count > 0
+                ? $"ORDER BY{string.Join(",", output)}{offsetClause}"
+                : string.Empty;
         }
 
         private static string BuildOffset(QueryExpression query)

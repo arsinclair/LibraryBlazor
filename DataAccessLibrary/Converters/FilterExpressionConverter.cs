@@ -1,7 +1,4 @@
 ﻿using DataAccessLibrary.Query;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DataAccessLibrary.Converters
 {
@@ -16,16 +13,16 @@ namespace DataAccessLibrary.Converters
         public static string ConvertToSQL(FilterExpression filterExpression, string entityName, int depth = 0)
         {
             depth++;
-            StringBuilder sb = new StringBuilder();
+            string output = string.Empty;
             bool hasQueries = filterExpression.Queries != null && filterExpression.Queries.Count > 0;
             bool hasSubQueries = filterExpression.SubQueries != null && filterExpression.SubQueries.Count > 0;
 
             if (hasQueries || hasSubQueries)
             {
-                if (depth == 1) sb.Append(" WHERE ");
+                if (depth == 1) output += "WHERE";
 
-                string operatorSQL = " " + LogicalOperatorConverter.ConvertToSQL(filterExpression.QueryOperator) + " ";
-                sb.Append(" ( ");
+                string operatorSQL = LogicalOperatorConverter.ConvertToSQL(filterExpression.QueryOperator);
+                output += "(";
 
                 if (hasQueries)
                 {
@@ -35,11 +32,11 @@ namespace DataAccessLibrary.Converters
                         {
                             filterExpression.Queries[i].EntityName = entityName; // not tested
                         }
-                        sb.Append(ConditionExpressionConverter.ConvertToSQL(filterExpression.Queries[i]));
+                        output += ConditionExpressionConverter.ConvertToSQL(filterExpression.Queries[i]);
                         var isLastQuery = (i == filterExpression.Queries.Count - 1);
                         if (!isLastQuery || hasSubQueries)
                         {
-                            sb.Append(operatorSQL);
+                            output += operatorSQL;
                         }
                     }
                 }
@@ -47,17 +44,17 @@ namespace DataAccessLibrary.Converters
                 {
                     for (int i = 0; i < filterExpression.SubQueries.Count; i++)
                     {
-                        sb.Append(FilterExpressionConverter.ConvertToSQL(filterExpression.SubQueries[i], entityName, depth));
+                        output += FilterExpressionConverter.ConvertToSQL(filterExpression.SubQueries[i], entityName, depth);
                         if (i != filterExpression.SubQueries.Count - 1)
                         {
-                            sb.Append(operatorSQL);
+                            output += operatorSQL;
                         }
                     }
                 }
-                sb.Append(" ) ");
+                output += ")";
             }
 
-            return sb.ToString();
+            return output;
         }
     }
 }
