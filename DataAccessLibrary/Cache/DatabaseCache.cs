@@ -142,7 +142,7 @@ namespace DataAccessLibrary.Cache
 
             using (var connection = new SqlConnection(connectionString))
             {
-                return connection.Query(sql).ToDictionary(row => (string)row.EntityName, row => (string)row.TableName);
+                return connection.Query(sql).ToDictionary(row => (string)row.EntityName, row => (string)row.TableName, StringComparer.OrdinalIgnoreCase);
             }
         }
 

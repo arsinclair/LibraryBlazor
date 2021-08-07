@@ -1,4 +1,4 @@
-﻿using DataAccessLibrary.Cache;
+using DataAccessLibrary.Cache;
 using DataAccessLibrary.Models.Metadata;
 using System;
 using System.Collections.Generic;
@@ -77,7 +77,7 @@ namespace DataAccessLibrary.Tests.SetUp.Fixtures
 
         private Dictionary<string, string> PopulateTableNames()
         {
-            return new Dictionary<string, string>()
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Contact", "Contacts" },
                 { "City", "Cities" },
