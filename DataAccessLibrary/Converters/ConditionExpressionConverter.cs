@@ -1,4 +1,4 @@
-using DataAccessLibrary.Cache;
+﻿using DataAccessLibrary.Cache;
 using DataAccessLibrary.Models.Metadata;
 using DataAccessLibrary.Query;
 using System;
@@ -68,7 +68,7 @@ namespace DataAccessLibrary.Converters
             return output;
         }
 
-        private static string GetOperatorAsSQL(ConditionOperator @operator)
+        internal static string GetOperatorAsSQL(ConditionOperator @operator)
         {
             switch (@operator)
             {

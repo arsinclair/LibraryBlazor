@@ -3,7 +3,8 @@
 - ValueConverter
 - LogicalOperatorConverter
 - FilterExpressionConverter
+- QueryExpressionConverter
+- ConditionExpressionConverter
 
 #### To Do
-- ConditionExpressionConverter
 - EntityConverter
