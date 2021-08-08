@@ -13,6 +13,9 @@ namespace DataAccessLibrary.Converters
             if (string.IsNullOrEmpty(condition.AttributeName))
                 throw new ArgumentNullException(nameof(condition.AttributeName));
 
+            if (string.IsNullOrEmpty(condition.EntityName))
+                throw new ArgumentNullException(nameof(condition.EntityName));
+
             string output = string.Empty;
             string operatorStr = GetOperatorAsSQL(condition.Operator);
 
