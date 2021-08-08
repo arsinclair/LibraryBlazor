@@ -46,7 +46,8 @@ namespace DataAccessLibrary.Tests.Converters
         {
             Assert.Equal("1", ValueConverter.ConvertToSQL(true, "Boolean", false));
             Assert.Equal("0", ValueConverter.ConvertToSQL(false, "Boolean", true));
-            Assert.Throws<InvalidCastException>(() => ValueConverter.ConvertToSQL("test invalid case", "Boolean", false));
+            Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL("test invalid case", "Boolean", false));
+            Assert.Throws<ArgumentNullException>(() => ValueConverter.ConvertToSQL(null, "Boolean", false));
         }
 
         [Fact]
@@ -58,8 +59,9 @@ namespace DataAccessLibrary.Tests.Converters
             Assert.Equal($"'{UTCDateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", true));
             Assert.Equal($"'{UTCDateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", false));
 
-            Assert.Throws<InvalidCastException>(() => ValueConverter.ConvertToSQL("test invalid case", "DateTime", false));
-            Assert.Throws<InvalidCastException>(() => ValueConverter.ConvertToSQL(UTCDateTimeString, "DateTime", false));
+            Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL("test invalid case", "DateTime", false));
+            Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL(UTCDateTimeString, "DateTime", false));
+            Assert.Throws<ArgumentNullException>(() => ValueConverter.ConvertToSQL(null, "DateTime", false));
         }
 
         [Fact]
@@ -69,7 +71,15 @@ namespace DataAccessLibrary.Tests.Converters
             EntityReference ef = new EntityReference("contact", id);
             Assert.Equal($"'%{id}%'", ValueConverter.ConvertToSQL(ef, "EntityReference", true));
             Assert.Equal($"'{id}'", ValueConverter.ConvertToSQL(ef, "EntityReference", false));
-            Assert.Throws<InvalidCastException>(() => ValueConverter.ConvertToSQL("test invalid case", "EntityReference", false));
+
+            EntityReference efNoEntityName = new EntityReference() { Id = id };
+            Assert.Equal($"'{id}'", ValueConverter.ConvertToSQL(efNoEntityName, "EntityReference", false));
+
+            Assert.Equal($"'{id}'", ValueConverter.ConvertToSQL(id, "EntityReference", false)); // Guid, instead of EF
+            Assert.Equal($"'{id}'", ValueConverter.ConvertToSQL(id.ToString(), "EntityReference", false)); // String instead of EF
+
+            Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL("test invalid case", "EntityReference", false));
+            Assert.Throws<ArgumentNullException>(() => ValueConverter.ConvertToSQL(null, "EntityReference", false));
         }
 
         [Fact]
