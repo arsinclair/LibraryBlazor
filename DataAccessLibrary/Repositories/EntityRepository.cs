@@ -7,6 +7,8 @@ using DataAccessLibrary.Converters;
 using DataAccessLibrary.Interfaces;
 using DataAccessLibrary.Models;
 using Microsoft.Extensions.Configuration;
+using DataAccessLibrary.Query;
+using DataAccessLibrary.Cache;
 
 namespace DataAccessLibrary.Repositories
 {
@@ -29,7 +31,7 @@ namespace DataAccessLibrary.Repositories
                 throw new ArgumentNullException(entity.LogicalName);
             }
 
-            string tableName = GetEntityTableName(entity.LogicalName);
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(entity.LogicalName);
 
             entity.Id = Guid.NewGuid();
             entity["Id"] = entity.Id;
@@ -149,7 +151,7 @@ namespace DataAccessLibrary.Repositories
 
         public int Delete(string id, string entityName)
         {
-            string tableName = this.GetEntityTableName(entityName);
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(entityName);
             string sql = $"DELETE FROM @TableName WHERE Id = @Id;";
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
@@ -166,7 +168,7 @@ namespace DataAccessLibrary.Repositories
 
         public Entity GetById(string id, string entityName, params string[] columns)
         {
-            string tableName = this.GetEntityTableName(entityName);
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(entityName);
             string columnsString = transformColumns(columns);
 
             string sql = $"SELECT {columnsString} FROM {tableName} WHERE Id = @Id;";
@@ -213,7 +215,7 @@ namespace DataAccessLibrary.Repositories
 
             updatedAttributes.Add(new KeyValuePair<string, object>("ModifiedOn", DateTime.UtcNow));
 
-            string tableName = this.GetEntityTableName(updatedEntity.LogicalName);
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(updatedEntity.LogicalName);
             string updatedFieldsSQL = stringifyFieldsForUpdate(updatedAttributes);
             string sql = $"UPDATE {tableName} SET {updatedFieldsSQL} WHERE Id = @Id;";
 
@@ -257,25 +259,23 @@ namespace DataAccessLibrary.Repositories
 
         #endregion
 
-        private string GetEntityTableName(string entityName)
+        private string transformColumns(string[] columns, bool allColumns = false)
         {
-            string sql = "SELECT DatabaseTableName FROM SysEntities WHERE UPPER(Name) = UPPER(@EntityName)";
+            string output;
 
-            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            if (allColumns || columns.Contains("*"))
             {
-                string tableName = connection.QuerySingle<string>(sql, new { EntityName = entityName });
-                return tableName;
+                output = "*";
             }
-        }
-
-        private string transformColumns(string[] columns)
-        {
-            string output = string.Join(", ", columns);
-
-            // Inject must-have columns, e.g. Id
-            if (columns.Contains("Id") == false && columns.First() != "*")
+            else
             {
-                output = "Id, " + output;
+                output = string.Join(", ", columns);
+
+                // Inject must-have columns, e.g. Id
+                if (columns.Contains("Id", StringComparer.OrdinalIgnoreCase) == false)
+                {
+                    output = "Id, " + output;
+                }
             }
 
             return output;
@@ -283,7 +283,7 @@ namespace DataAccessLibrary.Repositories
 
         public IEnumerable<Entity> Get(string entityName, string whereClause = "", int count = 0, params string[] columns)
         {
-            string tableName = this.GetEntityTableName(entityName);
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(entityName);
             string columnsString = transformColumns(columns);
             string rowCount = count > 0 ? $"TOP {count}" : string.Empty;
             string whereString = !string.IsNullOrEmpty(whereClause) ? $"WHERE {whereClause}" : string.Empty;
@@ -294,6 +294,19 @@ namespace DataAccessLibrary.Repositories
                 using (var reader = connection.ExecuteReader(sql))
                 {
                     return EntityConverter.Convert(reader, entityName, _configuration.GetConnectionString(DefaultConnection));
+                }
+            }
+        }
+
+        public IEnumerable<Entity> Get(QueryExpression query)
+        {
+            string sql = QueryExpressionConverter.ConvertToSQL(query);
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                using (var reader = connection.ExecuteReader(sql))
+                {
+                    return EntityConverter.Convert(reader, query.EntityName, _configuration.GetConnectionString(DefaultConnection));
                 }
             }
         }
