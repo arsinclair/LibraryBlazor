@@ -1,6 +1,7 @@
-using Dapper;
+﻿using Dapper;
 using DataAccessLibrary.Models.Metadata;
 using DataAccessLibrary.Repositories;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -10,6 +11,7 @@ namespace DataAccessLibrary.Cache
 {
     public class DatabaseCache
     {
+        private readonly IConfiguration _configuration;
         private MetadataRepository metadataRepository;
         private readonly string _connectionString;
         private bool _IsLocked;
@@ -31,8 +33,10 @@ namespace DataAccessLibrary.Cache
         {
         }
 
-        public DatabaseCache(string connectionString)
+        public DatabaseCache(IConfiguration configuration)
         {
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("DefaultConnection");
             metadataRepository = new MetadataRepository(configuration);
             Populate();
         }
@@ -171,7 +175,7 @@ namespace DataAccessLibrary.Cache
             {
                 if (output.Keys.Contains(field.ParentEntity.Name))
                 {
-                output[field.ParentEntity.Name][field.Name] = field;
+                    output[field.ParentEntity.Name][field.Name] = field;
                 }
                 else
                 {

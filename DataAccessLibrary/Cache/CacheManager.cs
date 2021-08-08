@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System;
 
 namespace DataAccessLibrary.Cache
@@ -23,7 +23,7 @@ namespace DataAccessLibrary.Cache
         public static DatabaseCache GetDatabaseCache()
         {
             ThrowIfNotInitialized();
-            if (_databaseCache == null) _databaseCache = new DatabaseCache(_connectionString);
+            if (_databaseCache == null) _databaseCache = new DatabaseCache(_configuration);
             return _databaseCache;
         }
 
