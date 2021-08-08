@@ -1,4 +1,4 @@
-﻿using DataAccessLibrary.Cache;
+using DataAccessLibrary.Cache;
 using DataAccessLibrary.Models.Metadata;
 using DataAccessLibrary.Query;
 using System;
@@ -79,6 +79,8 @@ namespace DataAccessLibrary.Converters
                 case ConditionOperator.NotLike: return "NOT LIKE";
                 case ConditionOperator.NotNull: return "IS NOT NULL";
                 case ConditionOperator.Null: return "IS NULL";
+                case ConditionOperator.In: return "IN";
+                case ConditionOperator.NotIn: return "NOT IN";
                 default:
                     throw new NotImplementedException();
             }
