@@ -22,13 +22,13 @@ namespace DataAccessLibrary.Converters
             SysField fieldDefinition = CacheManager.GetDatabaseCache().GetFieldByName(condition.AttributeName, condition.EntityName);
             if (condition.Operator == ConditionOperator.Null || condition.Operator == ConditionOperator.NotNull)
             {
-                if (condition.Values != null || condition.Values.Count > 0)
+                if (condition.Values.Count > 0)
                     throw new Exception($"No values should be provided when using ${condition.Operator} operator.");
                 output += $"[{condition.AttributeName}]{operatorStr}";
             }
             else if (condition.Operator == ConditionOperator.In || condition.Operator == ConditionOperator.NotIn)
             {
-                if (condition.Values == null || condition.Values.Count == 0)
+                if (condition.Values.Count == 0)
                     throw new Exception($"At least one value should be provided when using ${condition.Operator} operator.");
 
                 output += $"[{condition.AttributeName}]{operatorStr}(";
@@ -46,7 +46,7 @@ namespace DataAccessLibrary.Converters
             }
             else if (condition.Operator == ConditionOperator.Like || condition.Operator == ConditionOperator.NotLike)
             {
-                if (condition.Values == null || condition.Values.Count != 1 || condition.Values[0] == null)
+                if (condition.Values.Count != 1 || condition.Values[0] == null)
                     throw new Exception($"One and only one value should be provided when using {condition.Operator} operator.");
                 if (Array.IndexOf(new[] { "text", "textarea", "number" }, fieldDefinition.Type.Name.ToLower()) == -1)
                     throw new Exception($"{condition.Operator} can only be used with Text, TextArea and Number types.");
@@ -56,7 +56,7 @@ namespace DataAccessLibrary.Converters
             }
             else
             {
-                if (condition.Values == null || condition.Values[0] == null || condition.Values.Count == 0)
+                if (condition.Values.Count == 0 || condition.Values[0] == null)
                     throw new Exception($"A value should be provided when using {condition.Operator} operator. For Null-checks use {ConditionOperator.Null} operator.");
                 if (condition.Values.Count > 1)
                     throw new Exception($"Only one value should be provided when using {condition.Operator} operator.");
