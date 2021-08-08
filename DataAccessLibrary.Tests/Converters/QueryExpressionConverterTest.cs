@@ -139,8 +139,9 @@ namespace DataAccessLibrary.Tests.Converters
             var queryExpression = new QueryExpression();
             queryExpression.ColumnSet.AddColumn("FirstName");
             queryExpression.ColumnSet.AddColumns("LastName", "Age", "Gender");
+            queryExpression.ColumnSet.AddColumn("AlternativeName2");
 
-            Assert.Equal("[Id],[FirstName],[LastName],[Age],[Gender]", QueryExpressionConverter.BuildColumns(queryExpression));
+            Assert.Equal("[Id],[FirstName],[LastName],[Age],[Gender],[AlternativeName2]", QueryExpressionConverter.BuildColumns(queryExpression));
         }
 
         [Fact]

@@ -10,7 +10,7 @@ namespace DataAccessLibrary.Converters
 {
     public static class QueryExpressionConverter
     {
-        private const string ColumnNameRegexPattern = "[^A-Za-z_]";
+        private const string ColumnNameRegexPattern = "[^0-9A-Za-z_]";
 
         public static string ConvertToSQL(QueryExpression query)
         {
