@@ -28,3 +28,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: dotnet test --no-restore
+      - name: Publish
+        run: dotnet publish Library.Client --configuration Release
+      - name: Package
+        run: zip -r publish.zip ./Library.Client/bin/Release/net5.0/publish
