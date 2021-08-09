@@ -29,9 +29,9 @@ jobs:
       - name: Test It
         run: dotnet test --no-restore
       - name: Publish It (dotnet publish)
-        run: dotnet publish Library.Client --configuration Release
+        run: dotnet publish Library.Client --configuration Release --runtime win10-x64 --self-contained false
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
           name: Library.Client-packaged
-          path: ./Library.Client/bin/Release/net5.0/publish/
+          path: ./Library.Client/bin/Release/net5.0/win10-x64/publish/
