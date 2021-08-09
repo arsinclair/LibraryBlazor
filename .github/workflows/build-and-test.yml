@@ -22,13 +22,22 @@ jobs:
         uses: actions/setup-dotnet@v1.7.2
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-      - name: Install dependencies
+      - name: Install dependencies (dotnet restore)
         run: dotnet restore
-      - name: Build
+      - name: Build It
         run: dotnet build --configuration Release --no-restore
-      - name: Test
+      - name: Test It
         run: dotnet test --no-restore
-      - name: Publish
+      - name: Publish It (dotnet publish)
         run: dotnet publish Library.Client --configuration Release
-      - name: Package
-        run: zip -r publish.zip ./Library.Client/bin/Release/net5.0/publish
+      - name: Package It (ZIP)
+        run: zip -r ./Library.Client/bin/Release/publish.zip ./Library.Client/bin/Release/net5.0/publish
+      - name: Upload to Github
+        uses: actions/upload-artifact@v2
+        with:
+          name: publish.zip
+          path: ./Library.Client/bin/Release/
+      - name: Clean Up
+        run: |
+          find . -type d -iname "obj" | xargs rm -rf
+          find . -type d -iname "bin" | xargs rm -rf
