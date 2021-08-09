@@ -48,7 +48,7 @@ namespace DataAccessLibrary.Converters
 
             if (value is DateTime)
             {
-                return ((DateTime)value).ToUniversalTime().ToString();
+                return ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss.fff");
             }
 
             throw new FormatException($"Unable to cast to a DateTime - {value}.");

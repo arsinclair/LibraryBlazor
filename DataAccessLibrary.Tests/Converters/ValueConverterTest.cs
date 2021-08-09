@@ -54,13 +54,13 @@ namespace DataAccessLibrary.Tests.Converters
         public void ConvertToSQLDateTimeField()
         {
             DateTime inputDateTime = DateTime.Parse("7/13/2021 10:54:27 PM");
-            string UTCDateTimeString = inputDateTime.ToUniversalTime().ToString();
+            string dateTimeString = inputDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
             
-            Assert.Equal($"'{UTCDateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", true));
-            Assert.Equal($"'{UTCDateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", false));
+            Assert.Equal($"'{dateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", true));
+            Assert.Equal($"'{dateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", false));
 
             Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL("test invalid case", "DateTime", false));
-            Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL(UTCDateTimeString, "DateTime", false));
+            Assert.Throws<FormatException>(() => ValueConverter.ConvertToSQL(dateTimeString, "DateTime", false));
             Assert.Throws<ArgumentNullException>(() => ValueConverter.ConvertToSQL(null, "DateTime", false));
         }
 

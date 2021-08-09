@@ -141,7 +141,7 @@ namespace DataAccessLibrary.Tests.Converters
         [Fact]
         public void ConvertToSQLOtherCases()
         {
-            var CEWithDateTime = new ConditionExpression("Contact", "ModifiedOn", ConditionOperator.GreaterThan, DateTime.Parse("2019-08-31").ToUniversalTime());
+            var CEWithDateTime = new ConditionExpression("Contact", "ModifiedOn", ConditionOperator.GreaterThan, DateTime.Parse("2019-08-31"));
             var CEWithGuidAsString = new ConditionExpression("Contact", "Id", ConditionOperator.NotEqual, "CE683F2B-0758-E911-80C2-005056010787");
             var CEWithGuid = new ConditionExpression("Contact", "Id", ConditionOperator.NotEqual, Guid.Parse("CE683F2B-0758-E911-80C2-005056010787"));
             var CEWithText = new ConditionExpression("Contact", "FirstName", ConditionOperator.NotNull);
@@ -151,7 +151,7 @@ namespace DataAccessLibrary.Tests.Converters
             var CEWithEFAsString = new ConditionExpression("Contact", "GenderId", ConditionOperator.In, "824B213F-8EC2-4157-B5F1-96B1EBE89D6C", "912B9357-C9C8-40D8-8A81-646057A33053");
             var CEWithEF = new ConditionExpression("Contact", "GenderId", ConditionOperator.NotIn, new EntityReference("Gender", Guid.Parse("824B213F-8EC2-4157-B5F1-96B1EBE89D6C")), new EntityReference("Gender", Guid.Parse("912B9357-C9C8-40D8-8A81-646057A33053")));
 
-            Assert.Equal("[ModifiedOn]>'8/30/2019 9:00:00 PM'", ConditionExpressionConverter.ConvertToSQL(CEWithDateTime));
+            Assert.Equal("[ModifiedOn]>'2019-08-31 00:00:00.000'", ConditionExpressionConverter.ConvertToSQL(CEWithDateTime));
             Assert.Equal("[Id]<>'CE683F2B-0758-E911-80C2-005056010787'", ConditionExpressionConverter.ConvertToSQL(CEWithGuidAsString));
             Assert.Equal("[Id]<>'ce683f2b-0758-e911-80c2-005056010787'", ConditionExpressionConverter.ConvertToSQL(CEWithGuid));
             Assert.Equal("[FirstName]IS NOT NULL", ConditionExpressionConverter.ConvertToSQL(CEWithText));
