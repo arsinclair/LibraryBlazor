@@ -35,8 +35,8 @@ jobs:
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
-          name: publish.zip
-          path: ./Library.Client/bin/Release/
+          name: Library.Client-packaged
+          path: ./Library.Client/bin/Release/publish.zip
       - name: Clean Up
         run: |
           find . -type d -iname "obj" | xargs rm -rf
