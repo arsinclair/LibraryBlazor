@@ -2,7 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject IMetadataRepository metadataClient
 
-@{ 
+@{
     if (metadataClient.IsProductionEnvironment() == false)
     {
         <div id="non-production-header">Non-production mode</div>
@@ -47,7 +47,7 @@
     </div>
 </div>
 
-@code{
+@code {
     [CascadingParameter]
     protected Task<AuthenticationState> AuthStat { get; set; }
 

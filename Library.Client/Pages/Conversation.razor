@@ -147,6 +147,7 @@
         string whereClause = $"'{SelectedConversation.Id}' in (FromContactId, ToContactId, ConversationId)";
         string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn" };
 
+        // This should be refactored to use new QuerySyntax
         Messages = connection.Get("message", whereClause, columns: fields).ToList();
         Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
 
