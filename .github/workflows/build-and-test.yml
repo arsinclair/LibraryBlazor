@@ -30,14 +30,8 @@ jobs:
         run: dotnet test --no-restore
       - name: Publish It (dotnet publish)
         run: dotnet publish Library.Client --configuration Release
-      - name: Package It (ZIP)
-        run: zip -r ./Library.Client/bin/Release/publish.zip ./Library.Client/bin/Release/net5.0/publish
       - name: Upload to Github
         uses: actions/upload-artifact@v2
         with:
           name: Library.Client-packaged
-          path: ./Library.Client/bin/Release/publish.zip
-      - name: Clean Up
-        run: |
-          find . -type d -iname "obj" | xargs rm -rf
-          find . -type d -iname "bin" | xargs rm -rf
+          path: ./Library.Client/bin/Release/net5.0/publish/
