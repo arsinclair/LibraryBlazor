@@ -12,7 +12,7 @@ namespace DataAccessLibrary.Converters
     {
         public static List<Entity> Convert(IDataReader reader, string entityName, string connectionString)
         {
-            Dictionary<string, string> columnTypes = getColumnTypes(entityName, connectionString);
+            Dictionary<string, string> columnDefinitions = getColumnDefinitionsFromDB(entityName, connectionString);
             var output = new List<Entity>();
             while (reader.Read())
             {
@@ -20,49 +20,37 @@ namespace DataAccessLibrary.Converters
                 var columns = getColumns(reader).ToList();
                 for (int i = 0; i < columns.Count; i++)
                 {
-                    var type = columnTypes[columns[i]];
+                    string currentColumn = columns[i];
+                    var type = columnDefinitions[currentColumn];
                     object attribute;
                     if (!reader.IsDBNull(i))
                     {
                         switch (type)
                         {
                             case "Guid":
-                                var parsed = reader.GetGuid(i);
-                                if (columns[i] == "Id")
                                 {
+                                    var parsed = reader.GetGuid(i);
+                                    if (currentColumn == "Id")
+                                    {
+                                        entity.Id = parsed;
+                                    }
                                     attribute = parsed;
-                                    entity.Id = parsed;
+                                    break;
                                 }
-                                else
-                                {
-                                    attribute = $"Guid: {parsed}";
-                                }
-                                break;
-                            case "Text":
-                                attribute = reader.GetString(i);
-                                break;
-                            case "Number":
-                                attribute = reader.GetInt32(i);
-                                break;
-                            case "DateTime":
-                                attribute = reader.GetDateTime(i);
-                                break;
-                            case "Boolean":
-                                attribute = reader.GetBoolean(i);
-                                break;
-                            case "TextArea":
-                                attribute = reader.GetString(i);
-                                break;
+                            case "Text": attribute = reader.GetString(i); break;
+                            case "Number": attribute = reader.GetInt32(i); break;
+                            case "DateTime": attribute = reader.GetDateTime(i); break;
+                            case "Boolean": attribute = reader.GetBoolean(i); break;
+                            case "TextArea": attribute = reader.GetString(i); break;
                             case "EntityReference":
                                 {
                                     var parsedGuid = reader.GetGuid(i);
-                                    attribute = getTargetEntityReference(entityName, columns[i], parsedGuid, connectionString);
+                                    attribute = getTargetEntityReference(entityName, currentColumn, parsedGuid, connectionString);
                                     break;
                                 }
-
                             default: throw new NotImplementedException();
                         }
-                        entity[columns[i]] = attribute;
+                        entity[currentColumn] = attribute;
                     }
                 }
                 output.Add(entity);
@@ -70,7 +58,7 @@ namespace DataAccessLibrary.Converters
             return output;
         }
 
-        private static Dictionary<string, string> getColumnTypes(string entityName, string connectionString)
+        private static Dictionary<string, string> getColumnDefinitionsFromDB(string entityName, string connectionString)
         {
             string sql = $@"select sf.DatabaseColumnName, sft.Name as TypeName
                             from SysFields sf 

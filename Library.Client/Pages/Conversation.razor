@@ -34,7 +34,8 @@
         <div class="col-6">
             @if (SelectedConversation != null)
             {
-                if (Messages?.Count > 0) {
+                if (Messages?.Count > 0)
+                {
                     <h5>@(SelectedConversation.Name)</h5>
                     <div class="scrollable-container" id="messages-container">
                         @foreach (Entity message in Messages)
@@ -51,7 +52,8 @@
                         }
                     </div>
                 }
-                else {
+                else
+                {
                     <h5>@($"No messages")</h5>
                 }
             }
@@ -124,8 +126,17 @@
 
         if (Conversations.Count == 0)
         {
-            IEnumerable<EntityReference> contactsEF = connection.Get("contact", columns: "FullName").Select(x => x.ToEntityReference(x["FullName"] as string));
-            IEnumerable<EntityReference> conversationsEF = connection.Get("conversation", columns: "Subject").Select(x => x.ToEntityReference(x["Subject"] as string));
+            var contactsQE = new QueryExpression("contact")
+            {
+                ColumnSet = new ColumnSet("FullName")
+            };
+            IEnumerable<EntityReference> contactsEF = connection.Get(contactsQE).Select(x => x.ToEntityReference(x["FullName"] as string));
+
+            var conversationsQE = new QueryExpression("conversation")
+            {
+                ColumnSet = new ColumnSet("Subject")
+            };
+            IEnumerable<EntityReference> conversationsEF = connection.Get(conversationsQE).Select(x => x.ToEntityReference(x["Subject"] as string));
             Conversations = contactsEF.Concat(conversationsEF).ToList();
             VisibleConversations.AddRange(Conversations);
         }
@@ -138,6 +149,7 @@
         string whereClause = $"'{SelectedConversation.Id}' in (FromContactId, ToContactId, ConversationId)";
         string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn" };
 
+        // This should be refactored to use new QuerySyntax
         Messages = connection.Get("message", whereClause, columns: fields).ToList();
         Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
 
@@ -148,7 +160,7 @@
     private async void CreateEntity()
     {
         Entity message = new Entity("message");
-        foreach(Attribute attr in newEntityAttributes)
+        foreach (Attribute attr in newEntityAttributes)
         {
             message[attr.Key] = attr.Value;
         }
