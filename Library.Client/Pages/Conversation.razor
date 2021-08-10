@@ -34,7 +34,8 @@
         <div class="col-6">
             @if (SelectedConversation != null)
             {
-                if (Messages?.Count > 0) {
+                if (Messages?.Count > 0)
+                {
                     <h5>@(SelectedConversation.Name)</h5>
                     <div class="scrollable-container" id="messages-container">
                         @foreach (Entity message in Messages)
@@ -51,7 +52,8 @@
                         }
                     </div>
                 }
-                else {
+                else
+                {
                     <h5>@($"No messages")</h5>
                 }
             }
@@ -158,7 +160,7 @@
     private async void CreateEntity()
     {
         Entity message = new Entity("message");
-        foreach(Attribute attr in newEntityAttributes)
+        foreach (Attribute attr in newEntityAttributes)
         {
             message[attr.Key] = attr.Value;
         }

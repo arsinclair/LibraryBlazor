@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
 @inject IMetadataRepository metadataClient
 
 @{
@@ -9,15 +8,15 @@
     }
 }
 
-<div class="sidebar">
-    <NavMenu />
-</div>
+<AuthorizeView>
+    <Authorized>
+        <div class="sidebar">
+            <NavMenu />
+        </div>
 
-<div class="main">
-    <div class="page-header auth">
-        <div class="page-header-content">
-            <AuthorizeView>
-                <Authorized>
+        <div class="main">
+            <div class="page-header auth">
+                <div class="page-header-content">
                     <div class="page-header-item">
                         <a href="Identity/Account/Manage">@context.User.Identity.Name</a>
                     </div>
@@ -26,43 +25,19 @@
                             <button type="submit" class="nav-link btn btn-link">Log out</button>
                         </form>
                     </div>
-                </Authorized>
-                <NotAuthorized>
                     <div class="page-header-item">
-                        <a href="Identity/Account/Register">Register</a>
+                        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
                     </div>
-                    <div class="page-header-item">
-                        <a href="Identity/Account/Login">Log in</a>
-                    </div>
-                </NotAuthorized>
-            </AuthorizeView>
-            <div class="page-header-item">
-                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+                </div>
+            </div>
+
+            <div class="content px-4">
+                @Body
             </div>
         </div>
-    </div>
-
-    <div class="content px-4">
-        @Body
-    </div>
-</div>
-
-@code {
-    [CascadingParameter]
-    protected Task<AuthenticationState> AuthStat { get; set; }
-
-    protected async override Task OnInitializedAsync()
-    {
-        base.OnInitialized();
-        var user = (await AuthStat).User;
-        if (!user.Identity.IsAuthenticated)
-        {
-            string redirectUrl = Uri.EscapeDataString(NavigationManager.ToBaseRelativePath(NavigationManager.Uri));
-            if (redirectUrl != string.Empty && redirectUrl != "/")
-            {
-                redirectUrl = "?returnUrl=" + redirectUrl;
-            }
-            NavigationManager.NavigateTo($"Identity/Account/Login{redirectUrl}");
-        }
-    }
-}
+    </Authorized>
+    <NotAuthorized>
+        @* This theoretically shouldn't be needed when we figure out how to mark all pages authorization-required. When it is done, the RedirectToLogin component at App.razor level will handle the redirection. *@
+        <RedirectToLogin />
+    </NotAuthorized>
+</AuthorizeView>
