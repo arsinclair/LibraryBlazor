@@ -105,6 +105,10 @@ namespace DataAccessLibrary.Repositories
             {
                 output = string.Empty;
             }
+            else if (value is byte[])
+            {
+                return "0x" + BitConverter.ToString(value as byte[]).Replace("-", "");
+            }
             else
             {
                 output = value.ToString();
@@ -291,7 +295,7 @@ namespace DataAccessLibrary.Repositories
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
-                using (var reader = connection.ExecuteReader(sql))
+                using (var reader = connection.ExecuteReader(sql, System.Data.CommandBehavior.SequentialAccess))
                 {
                     return EntityConverter.Convert(reader, entityName, _configuration.GetConnectionString(DefaultConnection));
                 }
@@ -304,7 +308,7 @@ namespace DataAccessLibrary.Repositories
 
             using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
             {
-                using (var reader = connection.ExecuteReader(sql))
+                using (var reader = connection.ExecuteReader(sql, System.Data.CommandBehavior.SequentialAccess))
                 {
                     return EntityConverter.Convert(reader, query.EntityName, _configuration.GetConnectionString(DefaultConnection));
                 }

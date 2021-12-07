@@ -11,11 +11,12 @@
 <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
 
 <form>
-    <EntityAttributes Attributes="entityAttributes" FieldDefinitions="fieldDefinitions" />
+    <EntityAttributes Attributes="entityAttributes" FieldDefinitions="fieldDefinitions" Entity="Entity" />
     <button type="button" class="btn btn-info @disableClass" @onclick="SaveEntity">Save @entityName</button>
 </form>
 
-@code { private List<Attribute> entityAttributes = new List<DataAccessLibrary.Attribute>();
+@code { 
+    private List<Attribute> entityAttributes = new List<DataAccessLibrary.Attribute>();
 
     [Parameter]
     public string entityName { get; set; }

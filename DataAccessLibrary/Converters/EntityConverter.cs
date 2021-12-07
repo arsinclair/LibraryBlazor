@@ -48,6 +48,7 @@ namespace DataAccessLibrary.Converters
                                     attribute = getTargetEntityReference(entityName, currentColumn, parsedGuid, connectionString);
                                     break;
                                 }
+                            case "Binary": attribute = (byte[])reader.GetValue(i); break;
                             default: throw new NotImplementedException();
                         }
                         entity[currentColumn] = attribute;
