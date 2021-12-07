@@ -1,8 +1,8 @@
 @namespace Library.Client.Components.Fields
 
-<div class="form-group">
-    <label>@FieldDefinition.DisplayName</label>
-    <input type="checkbox" class="form-control" @bind-value="internalValue">
+<div class="form-check">
+    <label for="@(FieldDefinition.Name)_control" class="form-check-label">@FieldDefinition.DisplayName</label>
+    <input id="@(FieldDefinition.Name)_control" type="checkbox" class="form-check-input" @bind="internalValue">
 </div>
 
 @code {
