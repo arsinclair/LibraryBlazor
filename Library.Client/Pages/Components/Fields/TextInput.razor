@@ -9,30 +9,20 @@
     [Parameter]
     public SysField FieldDefinition { get; set; }
 
-    private string _internalValue;
-    public string internalValue
+    private string internalValue
     {
-        get => _internalValue;
-        private set {
-            if (_internalValue == value) return;
-            _internalValue = value;
-            Output = value;
+        get => Output?.ToString();
+        set
+        {
+            if (value != Output?.ToString())
+            {
+                OutputChanged.InvokeAsync(value);
+            }
         }
     }
 
-    private object _output;
     [Parameter]
-    public object Output
-    {
-        get => _output;
-        set
-        {
-            if (_output == value) return;
-            _output = value;
-            internalValue = value.ToString();
-            OutputChanged.InvokeAsync(value);
-        }
-    }
+    public object Output { get; set; }
 
     [Parameter]
     public EventCallback<object> OutputChanged { get; set; }

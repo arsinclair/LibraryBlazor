@@ -1,0 +1,118 @@
+@namespace Library.Client.Components.Fields
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using System.IO
+
+<div class="row g-3 align-items-center">
+    <div class="col-auto">
+        <label class="col-form-label-sm">@FieldDefinition.DisplayName</label>
+    </div>
+
+    <div class="col-auto">
+        @if (_output == null)
+        {
+            <InputFile class="form-control" OnChange="@LoadFiles" />
+        }
+        else if (!string.IsNullOrEmpty(mimeType) && Entity.Id != Guid.Empty)
+        {
+            <a href="/api/File/@Entity.Id" target="_blank"><img style="max-width: 255px;" src="/api/File/@Entity.Id" /></a>
+        }
+    </div>
+
+    <div class="col-auto">
+        @if (isLoading)
+        {
+            <p>Loading...</p>
+        }
+        @if (!string.IsNullOrEmpty(exceptionMessage))
+        {
+            <div class="alert alert-danger" role="alert">@exceptionMessage</div>
+        }
+    </div>
+</div>
+
+@if (_output != null)
+{
+    <div class="row g-3 align-items-center">
+        <div class="col-auto">
+            <label class="col-form-label-sm">Actions</label>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-sm btn-danger" @onclick="RemoveFileContent" @onclick:preventDefault="true">Remove File</button>
+        </div>
+
+        <div class="col-auto">
+            @if (Entity.Id != Guid.Empty)
+            {
+                <a class="btn btn-sm btn-outline-dark" href="/api/File/Download/@Entity.Id" role="button">Download</a>
+            }
+            else
+            {
+                <div class="alert alert-danger" role="alert">Entity ID is not found</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading;
+    private string mimeType;
+    string exceptionMessage;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        @if (Entity.Attributes.Contains("ContentType"))
+        {
+            mimeType = (string)Entity.Attributes["ContentType"];
+            if ((new[] { "image/jpeg", "image/png" }).Contains(mimeType) == false)
+            {
+                mimeType = string.Empty;
+            }
+        }
+    }
+
+    async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        exceptionMessage = string.Empty;
+        var ms = new MemoryStream();
+        try
+        {
+            await e.File.OpenReadStream(1024 * 1024 * 50).CopyToAsync(ms); // 50 MB
+        }
+        catch (Exception ex)
+        {
+            exceptionMessage = ex.Message;
+        }
+        await OutputChanged.InvokeAsync(ms.ToArray());
+        isLoading = false;
+    }
+
+    private void RemoveFileContent()
+    {
+        OutputChanged.InvokeAsync(null);
+    }
+
+    [Parameter]
+    public SysField FieldDefinition { get; set; }
+
+    [Parameter]
+    public Entity Entity { get; set; }
+
+    private byte[] _output;
+    [Parameter]
+    public object Output
+    {
+        get => _output;
+        set
+        {
+            if (_output == (byte[])value) return;
+            _output = (byte[])value;
+            OutputChanged.InvokeAsync(_output);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<object> OutputChanged { get; set; }
+}

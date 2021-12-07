@@ -1,29 +1,39 @@
 @namespace Library.Client.Components
 
-@foreach(DataAccessLibrary.Attribute attribute in Attributes) {
+@foreach (DataAccessLibrary.Attribute attribute in Attributes)
+{
     SysField fieldDefinition = FieldDefinitions.Single(x => x.Name == attribute.Key);
 
-    switch(fieldDefinition.Type.Name){
-        case "Text": 
-            <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+    switch (fieldDefinition.Type.Name)
+    {
+        case "Text":
+            <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
             break;
         case "EntityReference":
-            <LookupInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            <LookupInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
             break;
         case "DateTime":
-            <DateTimeInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            <DateTimeInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
             break;
         case "Number":
-            <NumberInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            <NumberInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
             break;
         case "TextArea":
-            <TextAreaInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            <TextAreaInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
             break;
         case "Guid":
-            <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            <TextInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
             break;
         case "Boolean":
-            <CheckboxInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" />
+            <CheckboxInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
+            break;
+        case "Binary":
+            <UploadFileInput 
+                FieldDefinition="fieldDefinition" 
+                @bind-Output="attribute.Value" 
+                @bind-Output:event="OutputChanged"
+                Entity="Entity"
+            />
             break;
         default: throw new NotImplementedException();
     }
@@ -33,19 +43,24 @@
     [Parameter]
     public List<SysField> FieldDefinitions { get; set; }
 
-    private List<DataAccessLibrary.Attribute> _attributes;
 
-    [Parameter]
-    public List<DataAccessLibrary.Attribute> Attributes
+    private List<DataAccessLibrary.Attribute> _attributes
     {
-        get => _attributes;
+        get => Attributes;
         set
         {
-            if (_attributes == value) return;
-            _attributes = value;
-            OutputChanged.InvokeAsync(value);
+            if (value != Attributes)
+            {
+                OutputChanged.InvokeAsync(value);
+            }
         }
     }
+
+    [Parameter]
+    public Entity Entity { get; set; }
+
+    [Parameter]
+    public List<DataAccessLibrary.Attribute> Attributes { get; set; }
 
     [Parameter]
     public EventCallback<List<DataAccessLibrary.Attribute>> OutputChanged { get; set; }
