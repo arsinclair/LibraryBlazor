@@ -32,7 +32,7 @@ namespace Library.Client
                 .AddDefaultTokenProviders();
 
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; }); // To be removed in production, see #7
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             services.AddSingleton<IEntityRepository, EntityRepository>();
@@ -50,11 +50,11 @@ namespace Library.Client
             }
             else
             {
-                // app.UseExceptionHandler("/Error");
+                // app.UseExceptionHandler("/Error"); // To be enabled in production, see #7
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseDeveloperExceptionPage();
+            app.UseDeveloperExceptionPage(); // To be removed in production, see #7
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
