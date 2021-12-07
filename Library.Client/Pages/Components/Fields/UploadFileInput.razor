@@ -13,11 +13,18 @@
         {
             <InputFile class="form-control" OnChange="@LoadFiles" />
         }
-        else if (!string.IsNullOrEmpty(mimeType) && Entity.Id != Guid.Empty)
+        else if (!string.IsNullOrEmpty(mimeType) && Entity != null && Entity.Id != Guid.Empty)
         {
             <a href="/api/File/@Entity.Id" target="_blank"><img style="max-width: 255px;" src="/api/File/@Entity.Id" /></a>
         }
     </div>
+
+    @if (_output == null)
+    {
+        <div class="col-auto">
+            <span class="form-text">Upload limit: @uploadFileSizeLimit MB</span>
+        </div>
+    }
 
     <div class="col-auto">
         @if (isLoading)
@@ -41,28 +48,32 @@
             <button class="btn btn-sm btn-danger" @onclick="RemoveFileContent" @onclick:preventDefault="true">Remove File</button>
         </div>
 
-        <div class="col-auto">
-            @if (Entity.Id != Guid.Empty)
-            {
-                <a class="btn btn-sm btn-outline-dark" href="/api/File/Download/@Entity.Id" role="button">Download</a>
-            }
-            else
-            {
-                <div class="alert alert-danger" role="alert">Entity ID is not found</div>
-            }
-        </div>
+        @if (Entity != null)
+        {
+            <div class="col-auto">
+                @if (Entity.Id != Guid.Empty)
+                {
+                    <a class="btn btn-sm btn-outline-dark" href="/api/File/Download/@Entity.Id" role="button">Download</a>
+                }
+                else
+                {
+                    <div class="alert alert-danger" role="alert">Entity ID is not found</div>
+                }
+            </div>
+        }
     </div>
 }
 
 @code {
     private bool isLoading;
+    private int uploadFileSizeLimit = 50; // 50 MB
     private string mimeType;
     string exceptionMessage;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        @if (Entity.Attributes.Contains("ContentType"))
+        @if (Entity != null && Entity.Attributes.Contains("ContentType"))
         {
             mimeType = (string)Entity.Attributes["ContentType"];
             if ((new[] { "image/jpeg", "image/png" }).Contains(mimeType) == false)
@@ -79,7 +90,7 @@
         var ms = new MemoryStream();
         try
         {
-            await e.File.OpenReadStream(1024 * 1024 * 50).CopyToAsync(ms); // 50 MB
+            await e.File.OpenReadStream(1024 * 1024 * uploadFileSizeLimit).CopyToAsync(ms);
         }
         catch (Exception ex)
         {
