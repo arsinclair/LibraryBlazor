@@ -1,39 +1,33 @@
 @namespace Library.Client.Components.Fields
 @using MatBlazor
 
-<div class="form-group">
-    <label>@FieldDefinition.DisplayName</label>
-    <MatDatePicker @bind-Value="internalValue" EnableTime="true" Outlined="true" EnableSeconds="true" Class="datepicker"></MatDatePicker>
+<div class="row g-1 align-items-center">
+    <div class="col-auto">
+        <label class="col-form-label-sm">@FieldDefinition.DisplayName</label>
+    </div>
+    <div class="col-auto">
+        <MatDatePicker @bind-Value="internalValue" EnableTime="true" Outlined="true" EnableSeconds="true" Class="datepicker" Dense="true"></MatDatePicker>
+    </div>
 </div>
 
 @code {
     [Parameter]
     public SysField FieldDefinition { get; set; }
 
-    private DateTime? _internalValue;
-    public DateTime? internalValue
+    private DateTime? internalValue
     {
-        get => _internalValue;
-        private set {
-            if (_internalValue == value) return;
-            _internalValue = value;
-            Output = value;
+        get => Output as DateTime?;
+        set
+        {
+            if (value != (Output as DateTime?))
+            {
+                OutputChanged.InvokeAsync(value);
+            }
         }
     }
 
-    private object _output;
     [Parameter]
-    public object Output
-    {
-        get => _output;
-        set
-        {
-            if (_output == value) return;
-            _output = value;
-            internalValue = value as DateTime?;
-            OutputChanged.InvokeAsync(value);
-        }
-    }
+    public object Output { get; set; }
 
     [Parameter]
     public EventCallback<object> OutputChanged { get; set; }

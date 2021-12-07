@@ -50,6 +50,7 @@ namespace DataAccessLibrary.Models
 
         public bool SameAs(EntityReference entityReference)
         {
+            if (entityReference == null) return false;
             return entityReference.Id == this.Id && entityReference.LogicalName.Equals(this.LogicalName, StringComparison.OrdinalIgnoreCase);
         }
     }

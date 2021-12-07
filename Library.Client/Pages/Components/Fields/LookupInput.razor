@@ -1,9 +1,18 @@
 @namespace Library.Client.Components.Fields
 @inject IEntityRepository connection
 
-<div class="form-group form-group-lookup">
-    <label>@FieldDefinition.DisplayName</label>
-    <div class="form-control lookup lookup-bullet" @onclick="ToggleSearchMenu">@(internalValue.Name ?? "(none)")</div>
+<div class="row g-1 align-items-center form-group-lookup">
+    <div class="col-auto">
+        <label for="@(FieldDefinition.Name)_control" class="col-form-label-sm">@FieldDefinition.DisplayName</label>
+    </div>
+
+    <div class="col-auto">
+        <div class="input-group">
+            <input id="@(FieldDefinition.Name)_control" type="text" class="form-control form-control-sm" disabled value=@(internalValue.Name ?? "(none)")>
+            <button class="btn btn-outline-secondary" type="button" @onclick="ToggleSearchMenu"><i class="fas fa-search fa-sm" aria-hidden="true"></i></button>
+        </div>
+    </div>
+
     <div class="search-menu @isMenuHiddenClassName">
         <div class="search-menu-header">
             <label>Search for @FieldDefinition.ParentEntity.DisplayNamePlural</label>
@@ -56,13 +65,13 @@
         if (PreloadRecordsCount > 0)
         {
             var preloadQE = new QueryExpression(internalValue.LogicalName)
-            {
-                ColumnSet = new ColumnSet(LookupNameSource),
-                PageInfo = new PagingInfo()
                 {
-                    Count = PreloadRecordsCount
-                }
-            };
+                    ColumnSet = new ColumnSet(LookupNameSource),
+                    PageInfo = new PagingInfo()
+                    {
+                        Count = PreloadRecordsCount
+                    }
+                };
             var _searchResults = connection.Get(preloadQE);
             SearchResults = _searchResults.ToList();
         }
@@ -94,6 +103,7 @@
     private Timer searchTimer = new Timer(400);
     private string SearchString;
     private List<Entity> SearchResults = new List<Entity>();
+
     void SearchStarted(ChangeEventArgs e)
     {
         if (SearchString.ToLower() != e.Value.ToString().ToLower())
@@ -113,10 +123,10 @@
         if (!string.IsNullOrEmpty(SearchString))
         {
             var searchQE = new QueryExpression(internalValue.LogicalName)
-            {
-                ColumnSet = new ColumnSet(LookupNameSource),
-                Criteria = new FilterExpression()
-            };
+                {
+                    ColumnSet = new ColumnSet(LookupNameSource),
+                    Criteria = new FilterExpression()
+                };
             searchQE.Criteria.Queries.Add(new ConditionExpression(LookupNameSource, ConditionOperator.Like, SearchString));
             var _searchResults = connection.Get(searchQE);
             SearchResults = _searchResults.ToList();
@@ -126,17 +136,14 @@
 
     protected override void OnParametersSet()
     {
-        if (Output == null)
+        if (internalValue == null)
         {
-            internalValue = new EntityReference();
-        }
-        else
-        {
-            internalValue = (EntityReference)Output;
+            // Set an initial value and exit the OnParametersSet() logic, because it will be triggered again by the assignment
+            internalValue = new EntityReference(FieldDefinition.ReferenceTarget.TargetField.ParentEntity.Name);
+            return;
         }
 
-        internalValue.LogicalName = FieldDefinition.ReferenceTarget.TargetField.ParentEntity.Name;
-        if (internalValue.Id != null && internalValue.Id != Guid.Empty)
+        if (internalValue.Id != Guid.Empty)
         {
             var entity = GetSelectedEntity(internalValue, LookupNameSource);
             if (entity != null && entity.Attributes.Contains(LookupNameSource))
@@ -155,29 +162,20 @@
     [Parameter]
     public SysField FieldDefinition { get; set; }
 
-    private EntityReference _internalValue;
-    public EntityReference internalValue
+    private EntityReference internalValue
     {
-        get => _internalValue;
-        private set {
-            if (_internalValue == value) return;
-            _internalValue = value;
-            Output = value;
+        get => Output as EntityReference;
+        set
+        {
+            if (value.SameAs(Output as EntityReference) == false)
+            {
+                OutputChanged.InvokeAsync(value);
+            }
         }
     }
 
-    private object _output;
     [Parameter]
-    public object Output
-    {
-        get => _output;
-        set
-        {
-            if (_output == value) return;
-            _output = value;
-            OutputChanged.InvokeAsync(value);
-        }
-    }
+    public object Output { get; set; }
 
     public string LookupNameSource { get => FieldDefinition.ReferenceTarget.SearchAtField.Name; }
 

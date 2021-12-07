@@ -3,13 +3,13 @@
 @using Microsoft.AspNetCore.Components.Web
 @using System.IO
 
-<div class="row g-3 align-items-center">
+<div class="row g-1 align-items-center">
     <div class="col-auto">
         <label class="col-form-label-sm">@FieldDefinition.DisplayName</label>
     </div>
 
     <div class="col-auto">
-        @if (_output == null)
+        @if (internalValue == null)
         {
             <InputFile class="form-control" OnChange="@LoadFiles" />
         }
@@ -19,7 +19,7 @@
         }
     </div>
 
-    @if (_output == null)
+    @if (internalValue == null)
     {
         <div class="col-auto">
             <span class="form-text">Upload limit: @uploadFileSizeLimit MB</span>
@@ -29,7 +29,7 @@
     <div class="col-auto">
         @if (isLoading)
         {
-            <p>Loading...</p>
+            <p>Uploading...</p>
         }
         @if (!string.IsNullOrEmpty(exceptionMessage))
         {
@@ -38,9 +38,9 @@
     </div>
 </div>
 
-@if (_output != null)
+@if (internalValue != null)
 {
-    <div class="row g-3 align-items-center">
+    <div class="row g-1 align-items-center">
         <div class="col-auto">
             <label class="col-form-label-sm">Actions</label>
         </div>
@@ -96,13 +96,13 @@
         {
             exceptionMessage = ex.Message;
         }
-        await OutputChanged.InvokeAsync(ms.ToArray());
+        internalValue = ms.ToArray();
         isLoading = false;
     }
 
     private void RemoveFileContent()
     {
-        OutputChanged.InvokeAsync(null);
+        internalValue = null;
     }
 
     [Parameter]
@@ -111,18 +111,20 @@
     [Parameter]
     public Entity Entity { get; set; }
 
-    private byte[] _output;
-    [Parameter]
-    public object Output
+    private byte[] internalValue
     {
-        get => _output;
+        get => Output as byte[];
         set
         {
-            if (_output == (byte[])value) return;
-            _output = (byte[])value;
-            OutputChanged.InvokeAsync(_output);
+            if (value != (Output as byte[]))
+            {
+                OutputChanged.InvokeAsync(value);
+            }
         }
     }
+
+    [Parameter]
+    public object Output { get; set; }
 
     [Parameter]
     public EventCallback<object> OutputChanged { get; set; }

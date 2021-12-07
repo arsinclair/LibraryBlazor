@@ -44,10 +44,6 @@
 
 .datepicker {
     height: initial !important;
-    margin: 0;
-    margin-bottom: 1rem;
-    border: 1px solid #ced4da;
-    border-radius: .25rem;
     padding: .375rem .75rem;
 }
 
@@ -154,26 +150,6 @@ sub {
 
 .hidden {
     display: none;
-}
-
-.lookup {
-    cursor: pointer;
-}
-
-.lookup-bullet {
-    position: relative;
-}
-
-.lookup-bullet::after {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    font-size: 17px;
-    margin: 5px 10px;
-    font-weight: bold;
-    color: #626262;
-    content: "▾";
 }
 
 .form-group-lookup {
