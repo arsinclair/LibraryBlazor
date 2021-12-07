@@ -35,7 +35,6 @@ namespace Library.Client
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
-            services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
             services.AddSingleton<IEntityRepository, EntityRepository>();
             services.AddSingleton<IMetadataRepository, MetadataRepository>();
 
