@@ -1,38 +1,32 @@
 @namespace Library.Client.Components.Fields
 
-<div class="form-group">
-    <label>@FieldDefinition.DisplayName</label>
-    <textarea type="text" class="form-control text-area-field" placeholder="Text" @bind="internalValue"></textarea>
+<div class="row g-1 align-items-center">
+    <div class="col-auto">
+        <label for="@(FieldDefinition.Name)_control" class="col-form-label-sm">@FieldDefinition.DisplayName</label>
+    </div>
+    <div class="col-auto">
+        <textarea id="@(FieldDefinition.Name)_control" type="text" class="form-control form-control-sm" @bind="internalValue" cols="80"></textarea>
+    </div>
 </div>
 
 @code {
     [Parameter]
     public SysField FieldDefinition { get; set; }
 
-    private string _internalValue;
-    public string internalValue
+    private string internalValue
     {
-        get => _internalValue;
-        private set {
-            if (_internalValue == value) return;
-            _internalValue = value;
-            Output = value;
+        get => Output as string;
+        set
+        {
+            if (value != (Output as string))
+            {
+                OutputChanged.InvokeAsync(value);
+            }
         }
     }
 
-    private object _output;
     [Parameter]
-    public object Output
-    {
-        get => _output;
-        set
-        {
-            if (_output == value) return;
-            _output = value;
-            internalValue = value as string;
-            OutputChanged.InvokeAsync(value);
-        }
-    }
+    public object Output { get; set; }
 
     [Parameter]
     public EventCallback<object> OutputChanged { get; set; }

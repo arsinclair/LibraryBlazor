@@ -8,9 +8,11 @@
 
 <h2>Create new @entityName</h2>
 
-<form>
+<form class="row g-1">
     <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="entityFields" />
-    <button type="button" class="btn btn-info" @onclick="CreateEntity">Save @entityName</button>
+    <div class="col-auto">
+        <button type="button" class="btn btn-info" @onclick="CreateEntity">Save @entityName</button>
+    </div>
 </form>
 
 <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>

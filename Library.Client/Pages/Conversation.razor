@@ -43,12 +43,11 @@
                             string conversationName = ((EntityReference)message["ConversationId"])?.Name;
                             string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message darker" : "message";
                             DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
-                            <ChatMessage 
-                                         ClassName="@className" 
-                                         MessageText="@((string)message["Text"])" 
-                                         SentOn="@sentOn" 
-                                         ConversationName="@conversationName"
-                                         Contact="@((EntityReference)message["FromContactId"])"/>
+                            <ChatMessage ClassName="@className"
+                             MessageText="@((string)message["Text"])"
+                             SentOn="@sentOn"
+                             ConversationName="@conversationName"
+                             Contact="@((EntityReference)message["FromContactId"])" />
                         }
                     </div>
                 }
@@ -63,12 +62,14 @@
             }
         </div>
         <div class="col">
-            <form>
+            <form class="row g-1">
                 <div class="reverse-button" @onclick="ReverseAddressees">
                     <i class="fas fa-exchange-alt fa-rotate-90"></i>
                 </div>
                 <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="MessagesFields" />
-                <button type="button" class="btn btn-info" @onclick="CreateEntity">Add Message</button>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-info" @onclick="CreateEntity">Add Message</button>
+                </div>
             </form>
         </div>
     </div>
@@ -127,15 +128,15 @@
         if (Conversations.Count == 0)
         {
             var contactsQE = new QueryExpression("contact")
-            {
-                ColumnSet = new ColumnSet("FullName")
-            };
+                {
+                    ColumnSet = new ColumnSet("FullName")
+                };
             IEnumerable<EntityReference> contactsEF = connection.Get(contactsQE).Select(x => x.ToEntityReference(x["FullName"] as string));
 
             var conversationsQE = new QueryExpression("conversation")
-            {
-                ColumnSet = new ColumnSet("Subject")
-            };
+                {
+                    ColumnSet = new ColumnSet("Subject")
+                };
             IEnumerable<EntityReference> conversationsEF = connection.Get(conversationsQE).Select(x => x.ToEntityReference(x["Subject"] as string));
             Conversations = contactsEF.Concat(conversationsEF).ToList();
             VisibleConversations.AddRange(Conversations);

@@ -10,12 +10,14 @@
 <h2>Edit @entityName</h2>
 <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
 
-<form>
+<form class="row g-1">
     <EntityAttributes Attributes="entityAttributes" FieldDefinitions="fieldDefinitions" Entity="Entity" />
-    <button type="button" class="btn btn-info @disableClass" @onclick="SaveEntity">Save @entityName</button>
+    <div class="col-auto">
+        <button type="button" class="btn btn-info @disableClass" @onclick="SaveEntity">Save @entityName</button>
+    </div>
 </form>
 
-@code { 
+@code {
     private List<Attribute> entityAttributes = new List<DataAccessLibrary.Attribute>();
 
     [Parameter]
@@ -34,7 +36,7 @@
 
     protected override void OnInitialized()
     {
-        if (Id == Guid.Empty || Id == null)
+        if (Id == Guid.Empty)
         {
             return;
         }
