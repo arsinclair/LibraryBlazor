@@ -45,7 +45,12 @@
 .datepicker {
     height: initial !important;
     padding: .375rem .75rem;
+
+    border-radius: 0;
 }
+    .datepicker > div > div, .datepicker > div > span {
+        border-radius: 0 !important;
+    }
 
 .datepicker:hover {
     background-color: transparent !important;

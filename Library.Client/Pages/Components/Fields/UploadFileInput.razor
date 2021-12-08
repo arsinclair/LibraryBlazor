@@ -11,7 +11,7 @@
     <div class="col-auto">
         @if (internalValue == null)
         {
-            <InputFile class="form-control" OnChange="@LoadFiles" />
+            <InputFile class="form-control rounded-0" OnChange="@LoadFiles" />
         }
         else if (!string.IsNullOrEmpty(mimeType) && Entity != null && Entity.Id != Guid.Empty)
         {
@@ -45,7 +45,7 @@
             <label class="col-form-label-sm">Actions</label>
         </div>
         <div class="col-auto">
-            <button class="btn btn-sm btn-danger" @onclick="RemoveFileContent" @onclick:preventDefault="true">Remove File</button>
+            <button class="btn btn-sm btn-danger rounded-0" @onclick="RemoveFileContent" @onclick:preventDefault="true">Remove File</button>
         </div>
 
         @if (Entity != null)
@@ -53,11 +53,11 @@
             <div class="col-auto">
                 @if (Entity.Id != Guid.Empty)
                 {
-                    <a class="btn btn-sm btn-outline-dark" href="/api/File/Download/@Entity.Id" role="button">Download</a>
+                    <a class="btn btn-sm btn-outline-dark rounded-0" href="/api/File/Download/@Entity.Id" role="button">Download</a>
                 }
                 else
                 {
-                    <div class="alert alert-danger" role="alert">Entity ID is not found</div>
+                    <div class="alert alert-danger rounded-0" role="alert">Entity ID is not found</div>
                 }
             </div>
         }

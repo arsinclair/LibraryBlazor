@@ -20,7 +20,7 @@
             }
             else
             {
-                <input type="text" class="form-control" @oninput="@(e => SearchStarted(e))">
+                <input type="text" class="form-control form-control-sm rounded-0" @oninput="@(e => SearchStarted(e))">
                 <div class="scrollable-container">
                     @foreach (var conversation in VisibleConversations)
                     {
@@ -68,7 +68,7 @@
                 </div>
                 <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="MessagesFields" />
                 <div class="col-auto">
-                    <button type="button" class="btn btn-info" @onclick="CreateEntity">Add Message</button>
+                    <button type="button" class="btn btn-info rounded-0" @onclick="CreateEntity">Add Message</button>
                 </div>
             </form>
         </div>

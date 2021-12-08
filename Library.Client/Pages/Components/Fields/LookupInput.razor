@@ -7,13 +7,19 @@
     </div>
 
     <div class="col-auto">
+        @if (internalValue.LogicalName == "File" && internalValue.Id != Guid.Empty)
+        {
+            <a href="/api/File/@internalValue.Id" target="_blank">
+                <img src="/api/File/@internalValue.Id" style="max-width: 255px;" />
+            </a>
+        }
         <div class="input-group">
-            <input id="@(FieldDefinition.Name)_control" type="text" class="form-control form-control-sm" disabled value=@(internalValue.Name ?? "(none)")>
-            <button class="btn btn-outline-secondary" type="button" @onclick="ToggleSearchMenu"><i class="fas fa-search fa-sm" aria-hidden="true"></i></button>
+            <input id="@(FieldDefinition.Name)_control" type="text" class="form-control form-control-sm rounded-0" disabled value=@(internalValue.Name ?? "(none)")>
+            <button class="btn btn-outline-secondary rounded-0" type="button" @onclick="ToggleSearchMenu"><i class="fas fa-search fa-sm" aria-hidden="true"></i></button>
         </div>
     </div>
 
-    <div class="search-menu @isMenuHiddenClassName">
+    <div class="search-menu rounded-0 @isMenuHiddenClassName">
         <div class="search-menu-header">
             <label>Search for @FieldDefinition.ParentEntity.DisplayNamePlural</label>
             <div @onclick="ToggleSearchMenu"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i></div>
