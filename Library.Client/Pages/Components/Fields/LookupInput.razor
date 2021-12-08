@@ -72,6 +72,7 @@
                         Count = PreloadRecordsCount
                     }
                 };
+            preloadQE.Orders.Add(new OrderExpression("ModifiedOn", OrderType.Descending));
             var _searchResults = connection.Get(preloadQE);
             SearchResults = _searchResults.ToList();
         }
@@ -180,7 +181,7 @@
     public string LookupNameSource { get => FieldDefinition.ReferenceTarget.SearchAtField.Name; }
 
     [Parameter]
-    public int PreloadRecordsCount { get; set; } = 0;
+    public int PreloadRecordsCount { get; set; } = 5;
 
     [Parameter]
     public EventCallback<object> OutputChanged { get; set; }
