@@ -118,7 +118,7 @@ namespace DataAccessLibrary.Converters
                 throw new ArgumentNullException("entityReferenceFrom");
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException("connectionString");
-            if (targetId == null || targetId == Guid.Empty)
+            if (targetId == Guid.Empty)
                 throw new ArgumentNullException("targetId");
 
             string fieldMappingSQL = @$"SELECT sf_to.DatabaseColumnName AS TargetEntityId, se_to.DatabaseTableName AS TargetTableName, se_to.Name as TargetEntityName, sf_at.DatabaseColumnName AS TargetTextField
