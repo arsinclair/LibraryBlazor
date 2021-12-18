@@ -2,7 +2,8 @@
 @inject NavigationManager NavigationManager
 @inject IMetadataRepository metadataClient
 
-<table class="table table-striped table-sm table-bordered">
+<table class="table table-striped table-sm table-bordered caption-top">
+    <caption>@FieldDefinition.DisplayName</caption>
     <thead>
         <tr>
             @foreach (string columnName in columns)
@@ -29,7 +30,7 @@
     [Parameter]
     public SysField FieldDefinition { get; set; }
 
-    private string[] columns;
+    private string[] columns = new string[] { };
 
     protected override void OnParametersSet()
     {
