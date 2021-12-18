@@ -3,21 +3,39 @@
 <div class="@ClassName">
     <div class="message-header">
         <a href="/CMS/Contact/@(Contact.Id)/Edit" class="im-link">@Contact.Name</a>
-        @{ 
+        @{
             if (!string.IsNullOrEmpty(ConversationName))
             {
                 <span>@ConversationName</span>
             }
         }
-        
+
         <span class="time-right">@SentOn</span>
     </div>
     <div class="message-text">
-        @foreach (var line in lines) 
+        @foreach (var line in lines)
         {
             <p class="message-text">@line</p>
         }
     </div>
+    @if (Attachments.Count > 0)
+    {
+        <div>
+            @foreach (var attachment in Attachments)
+            {
+                if ((string)attachment["ContentType"] != "image/jpeg")
+                {
+                    <div>@attachment["Name"]</div>
+                }
+                else
+                {
+                    <a href="/CMS/file/@(attachment.Id)/Edit" target="_blank" title="@attachment["Name"]">
+                        <img src="/api/File/@attachment.Id" style="max-width: 100px; max-height: 100px; padding: 5px 10px;" />
+                    </a>
+                }
+            }
+        </div>
+    }
 </div>
 
 @code {
@@ -25,7 +43,7 @@
 
     private List<string> arrayrizeText(string text)
     {
-        if(!string.IsNullOrEmpty(text))
+        if (!string.IsNullOrEmpty(text))
         {
             var normalized = text.Replace("\r\n", "\n").Replace("\r", "\n");
             return normalized.Split("\n", StringSplitOptions.None).ToList();
@@ -33,14 +51,29 @@
         return null;
     }
 
+    private List<Entity> Attachments = new List<Entity>();
+
+    protected override void OnParametersSet()
+    {
+        if (Message.Contains("MessageAttachments") && ((List<Entity>)Message["MessageAttachments"]).Count > 0)
+        {
+            Attachments = Message["MessageAttachments"] as List<Entity>;
+        }
+    }
+
     [Parameter]
     public string ClassName { get; set; }
 
+    [Parameter]
+    public Entity Message { get; set; }
+
     private string _messageText;
     [Parameter]
-    public string MessageText {
+    public string MessageText
+    {
         get => _messageText;
-        set {
+        set
+        {
             _messageText = value;
             lines = arrayrizeText(value);
         }

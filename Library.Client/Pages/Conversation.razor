@@ -44,10 +44,12 @@
                             string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message darker" : "message";
                             DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
                             <ChatMessage ClassName="@className"
-                             MessageText="@((string)message["Text"])"
-                             SentOn="@sentOn"
-                             ConversationName="@conversationName"
-                             Contact="@((EntityReference)message["FromContactId"])" />
+                                MessageText="@((string)message["Text"])"
+                                SentOn="@sentOn"
+                                Message="@message"
+                                ConversationName="@conversationName"
+                                Contact="@((EntityReference)message["FromContactId"])" 
+                            />
                         }
                     </div>
                 }
@@ -148,7 +150,7 @@
     async void LoadMessages()
     {
         string whereClause = $"'{SelectedConversation.Id}' in (FromContactId, ToContactId, ConversationId)";
-        string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn" };
+        string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments" };
 
         // This should be refactored to use new QuerySyntax
         Messages = connection.Get("message", whereClause, columns: fields).ToList();
