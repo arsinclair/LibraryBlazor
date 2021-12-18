@@ -30,7 +30,8 @@
             <div @onclick="ClearSelectedValue" class="search-result">[clear]</div>
             @foreach (var item in SearchResults)
             {
-                <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@item[LookupNameSource]?.ToString()</div>
+                var text = string.IsNullOrEmpty(item[LookupNameSource] as string) ? "[notext]" : item[LookupNameSource]?.ToString().Truncate(60);
+                <div @onclick="@(e => SearchResultSelected(item.Id.ToString()))" class="search-result">@text</div>
             }
         </div>
         <hr>

@@ -12,12 +12,15 @@
 
         <span class="time-right">@SentOn</span>
     </div>
-    <div class="message-text">
-        @foreach (var line in lines)
-        {
-            <p class="message-text">@line</p>
-        }
-    </div>
+    @if (lines != null)
+    {
+        <div class="message-text">
+            @foreach (var line in lines)
+            {
+                <p class="message-text">@line</p>
+            }
+        </div>
+    }
     @if (Attachments.Count > 0)
     {
         <div>
