@@ -35,6 +35,8 @@
                 Entity="Entity"
             />
             break;
+        case "EntityCollection": <SubgridInput FieldDefinition="fieldDefinition" @bind-Output="attribute.Value" @bind-Output:event="OutputChanged" />
+            break;
         default: throw new NotImplementedException();
     }
 }

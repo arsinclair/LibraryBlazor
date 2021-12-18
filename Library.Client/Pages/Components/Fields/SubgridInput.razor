@@ -1,0 +1,61 @@
+@namespace Library.Client.Components.Fields
+@inject NavigationManager NavigationManager
+@inject IMetadataRepository metadataClient
+
+<table class="table table-striped table-sm table-bordered">
+    <thead>
+        <tr>
+            @foreach (string columnName in columns)
+            {
+                <th>@columnName</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Entity entity in internalValue)
+        {
+            <tr class="table-record" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entity.LogicalName}/{entity.Id}/Edit"))>
+                @foreach (string fieldName in columns)
+                {
+                    <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<p>Total Records: @internalValue.Count</p>
+
+@code {
+    [Parameter]
+    public SysField FieldDefinition { get; set; }
+
+    private string[] columns;
+
+    protected override void OnParametersSet()
+    {
+        if (internalValue.Count > 0)
+        {
+            SysListLayout layout = metadataClient.GetDefaultListLayout(internalValue.First().LogicalName);
+            if (layout == null || layout.Columns == null || layout.Columns.Length == 0)
+            {
+                throw new Exception($"The layout for {internalValue.First().LogicalName} is either not found or empty.");
+            }
+            columns = layout.Columns.Split(",");
+        }
+    }
+
+    private List<Entity> internalValue
+    {
+        get => Output as List<Entity>;
+        set
+        {
+            OutputChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public object Output { get; set; }
+
+    [Parameter]
+    public EventCallback<object> OutputChanged { get; set; }
+}

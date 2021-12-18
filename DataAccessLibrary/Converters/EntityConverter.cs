@@ -48,6 +48,11 @@ namespace DataAccessLibrary.Converters
                                     attribute = getTargetEntityReference(entityName, currentColumn, parsedGuid, connectionString);
                                     break;
                                 }
+                            case "EntityCollection":
+                                {
+                                    attribute = getRelatedEntities(entityName, currentColumn, (Guid)entity["Id"], connectionString);
+                                    break;
+                                }
                             case "Binary": attribute = (byte[])reader.GetValue(i); break;
                             default: throw new NotImplementedException();
                         }
@@ -57,6 +62,34 @@ namespace DataAccessLibrary.Converters
                 output.Add(entity);
             }
             return output;
+        }
+
+        private static List<Entity> getRelatedEntities(string currentEntityName, string currentColumn, Guid currentEntityId, string connectionString)
+        {
+            // Returns metadata about N:N entity mapping that makes possible querying related entities.
+            string metadataSQL = @"select targetentity.DatabaseTableName as TargetEntityTableName, targetentity.Name as TargetEntityName, junctionentity.DatabaseTableName as JunctionTableName, listview.Columns as Columns
+                                    from SysEntityMappings mapping
+                                    inner join SysFields sourcefield on mapping.SourceEntityFieldId = sourcefield.Id 
+                                    inner join SysEntities sourceentity on sourcefield.ParentEntity = sourceentity.Id 
+                                    inner join SysEntities targetentity on mapping.TargetEntityId = targetentity.Id 
+                                    inner join SysEntities junctionentity on mapping.JunctionEntityId = junctionentity.Id 
+                                    inner join SysListLayouts listview on mapping.TargetListId = listview.Id 
+                                    where UPPER(sourcefield.Name) = UPPER(@CurrentColumn) and UPPER(sourceentity.Name) = UPPER(@CurrentEntityName)"; // This must be done only via cache in the future
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                var result = connection.QuerySingle<EntityMappingResult>(metadataSQL, new { CurrentEntityName = currentEntityName, CurrentColumn = currentColumn });
+
+                // Returns records related to current entity via an N:N relationship
+                string relatedEntitiesSQL = @$"select Id, {result.Columns}
+                                                from {result.TargetEntityTableName}
+                                                where Id in (select EntityBId from {result.JunctionTableName} where EntityAId = '{currentEntityId.ToString()}')";
+
+                using (var reader = connection.ExecuteReader(relatedEntitiesSQL, CommandBehavior.SequentialAccess))
+                {
+                    return EntityConverter.Convert(reader, result.TargetEntityName, connectionString);
+                }
+            }
         }
 
         private static Dictionary<string, string> getColumnDefinitionsFromDB(string entityName, string connectionString)
@@ -122,5 +155,13 @@ namespace DataAccessLibrary.Converters
                 yield return reader.GetName(i);
             }
         }
+    }
+
+    class EntityMappingResult
+    {
+        public string TargetEntityTableName { get; set; }
+        public string TargetEntityName { get; set; }
+        public string JunctionTableName { get; set; }
+        public string Columns { get; set; }
     }
 }
