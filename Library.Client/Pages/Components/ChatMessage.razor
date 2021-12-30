@@ -12,6 +12,15 @@
 
         <span class="time-right">@SentOn</span>
     </div>
+    @if (quotedMessageLines != null)
+    {
+        <div class="quoted-message">
+            @foreach (var line in quotedMessageLines)
+            {
+                <p class="message-text">@line</p>
+            }
+        </div>
+    }
     @if (lines != null)
     {
         <div class="message-text">
@@ -21,7 +30,7 @@
             }
         </div>
     }
-    @if (Attachments != null && Attachments.Count > 0)
+    @if (Attachments?.Count > 0)
     {
         <div>
             @foreach (var attachment in Attachments)
@@ -43,6 +52,7 @@
 
 @code {
     private List<string> lines;
+    private List<string> quotedMessageLines;
 
     private List<string> arrayrizeText(string text)
     {
@@ -65,6 +75,11 @@
         else
         {
             Attachments = null;
+        }
+
+        if (Message["QuotedMessageId"] != null)
+        {
+            quotedMessageLines = arrayrizeText((Message["QuotedMessageId"] as EntityReference).Name);
         }
     }
 

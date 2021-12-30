@@ -150,7 +150,7 @@
     async void LoadMessages()
     {
         string whereClause = $"'{SelectedConversation.Id}' in (FromContactId, ToContactId, ConversationId)";
-        string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments" };
+        string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments", "QuotedMessageId" };
 
         // This should be refactored to use new QuerySyntax
         Messages = connection.Get("message", whereClause, columns: fields).ToList();
