@@ -21,7 +21,7 @@
             }
         </div>
     }
-    @if (Attachments.Count > 0)
+    @if (Attachments != null && Attachments.Count > 0)
     {
         <div>
             @foreach (var attachment in Attachments)
@@ -54,13 +54,17 @@
         return null;
     }
 
-    private List<Entity> Attachments = new List<Entity>();
+    private List<Entity> Attachments;
 
     protected override void OnParametersSet()
     {
         if (Message.Contains("MessageAttachments") && ((List<Entity>)Message["MessageAttachments"]).Count > 0)
         {
             Attachments = Message["MessageAttachments"] as List<Entity>;
+        }
+        else
+        {
+            Attachments = null;
         }
     }
 
