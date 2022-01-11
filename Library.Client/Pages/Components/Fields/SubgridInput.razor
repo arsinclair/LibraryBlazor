@@ -30,18 +30,15 @@
     [Parameter]
     public SysField FieldDefinition { get; set; }
 
-    private string[] columns = new string[] { };
+    private List<string> columns;
 
     protected override void OnParametersSet()
     {
+        columns = new List<string>();
+
         if (internalValue.Count > 0)
         {
-            SysListLayout layout = metadataClient.GetDefaultListLayout(internalValue.First().LogicalName);
-            if (layout == null || layout.Columns == null || layout.Columns.Length == 0)
-            {
-                throw new Exception($"The layout for {internalValue.First().LogicalName} is either not found or empty.");
-            }
-            columns = layout.Columns.Split(",");
+            columns = metadataClient.GetEntityCollectionViewColumns(FieldDefinition.Id);
         }
     }
 

@@ -166,6 +166,19 @@ namespace DataAccessLibrary.Repositories
             }
         }
 
+        public List<string> GetEntityCollectionViewColumns(Guid entityCollectionPointerFieldId)
+        {
+            string sql = $@"SELECT L.Columns 
+                        FROM SysListLayouts AS L 
+                        INNER JOIN SysEntityMappings entityMapping on entityMapping.TargetListId = L.Id
+                        WHERE entityMapping.SourceEntityFieldId = @EntityCollectionPointerFieldId;";
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                string columns = connection.Query<string>(sql, new { EntityCollectionPointerFieldId = entityCollectionPointerFieldId }).SingleOrDefault();
+                return columns.Split(",").ToList();
+            }
+        }
+
         public SysViewLayout GetDefaultViewLayout(string entityName)
         {
             string sql =
