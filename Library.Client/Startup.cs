@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Library.Client.Areas.Identity;
-using DataAccessLibrary;
 using DataAccessLibrary.Interfaces;
 using DataAccessLibrary.Repositories;
 using DataAccessLibrary.Cache;
