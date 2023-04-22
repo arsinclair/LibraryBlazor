@@ -30,24 +30,27 @@
             }
         </div>
     }
-    @if (Attachments?.Count > 0)
-    {
-        <div>
+    <div class="attachment-group">
+        @if (Attachments?.Count > 0)
+        {
             @foreach (var attachment in Attachments)
             {
-                if ((string)attachment["ContentType"] != "image/jpeg")
-                {
-                    <div>@attachment["Name"]</div>
-                }
-                else
-                {
+                <div class="attachment-item">
                     <a href="/CMS/file/@(attachment.Id)/Edit" target="_blank" title="@attachment["Name"]">
-                        <img src="/api/File/@attachment.Id" style="max-width: 100px; max-height: 100px; padding: 5px 10px;" />
+                        @if ((string)attachment["ContentType"] != "image/jpeg")
+                        {
+                            @attachment["Name"]
+                        }
+                        else
+                        {
+                            <img class="attachment-image" src="/api/File/@attachment.Id" />
+                        }
                     </a>
-                }
+                </div>
             }
-        </div>
-    }
+        }
+        <div class="new-attachment-button"></div>
+    </div>
 </div>
 
 @code {
