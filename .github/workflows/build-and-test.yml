@@ -19,7 +19,7 @@ jobs:
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0.x'
 
       - name: Install dependencies (dotnet restore)
         run: dotnet restore
@@ -37,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Library.Client-packaged
-          path: ./Library.Client/bin/Release/net5.0/win10-x64/publish/
+          path: ./Library.Client/bin/Release/net6.0/win10-x64/publish/

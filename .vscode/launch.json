@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Library.Client/bin/Debug/net5.0/Library.Client.dll",
+            "program": "${workspaceFolder}/Library.Client/bin/Debug/net6.0/Library.Client.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Library.Client",
             "stopAtEntry": false,
