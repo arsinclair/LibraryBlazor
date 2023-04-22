@@ -53,7 +53,7 @@ namespace DataAccessLibrary.Tests.Converters
         [Fact]
         public void ConvertToSQLDateTimeField()
         {
-            DateTime inputDateTime = DateTime.Parse("7/13/2021 10:54:27 PM");
+            DateTime inputDateTime = DateTime.ParseExact("7/13/2021 10:54:27 PM", "M/d/yyyy h:mm:ss tt", null);
             string dateTimeString = inputDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
             
             Assert.Equal($"'{dateTimeString}'", ValueConverter.ConvertToSQL(inputDateTime, "DateTime", true));
