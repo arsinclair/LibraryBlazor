@@ -1,0 +1,47 @@
+.attachment-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.attachment-item {
+    background: linear-gradient(90deg, #e3ffe7 0%, #c6dbff 100%);
+    border-radius: 5px;
+    border: 1px solid #b7b7b7;
+    max-width: 110px;
+    box-sizing: content-box;
+    cursor: pointer;
+}
+
+.attachment-item:hover {
+    border: 1px solid #535353;
+}
+
+.attachment-item > a {
+    display: block;
+    word-break: break-all;
+    white-space: pre-wrap;
+    font-size: 14px;
+    padding: 5px;
+}
+
+.attachment-image {
+    max-width: 100px; 
+    max-height: 100px;
+    border-radius: 5px;
+}
+
+.new-attachment-button {
+    height: 35px;
+    width: 35px;
+    background: url("svg/paperclip-icon.svg") center no-repeat;
+    background-size: 30px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid #7b7b7b47;
+}
+
+.new-attachment-button:hover {
+    border: 1px solid #535353;
+    background-color: #ffffff61;
+}

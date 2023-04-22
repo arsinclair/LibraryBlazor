@@ -48,11 +48,12 @@
                             string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message darker" : "message";
                             DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
                             <ChatMessage ClassName="@className"
-                             MessageText="@((string)message["Text"])"
-                             SentOn="@sentOn"
-                             Message="@message"
-                             ConversationName="@conversationName"
-                             Contact="@((EntityReference)message["FromContactId"])" />
+                                MessageText="@((string)message["Text"])"
+                                SentOn="@sentOn"
+                                Message="@message"
+                                ConversationName="@conversationName"
+                                Contact="@((EntityReference)message["FromContactId"])" 
+                            />
                         }
                     </div>
                 }
