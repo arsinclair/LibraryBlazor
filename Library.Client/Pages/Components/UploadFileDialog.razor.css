@@ -1,0 +1,18 @@
+.upload-file-dialog {
+    position: absolute;
+    z-index: 100;
+    background-color: #b1d1d2;
+    padding: 0.3rem;
+    border-radius: 3px;
+    border: 1px solid #888787;
+    box-shadow: 5px 5px #d2d2d2;
+}
+
+.upload-dialog-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.upload-dialog-header > label {
+    margin-bottom: 0;
+}
