@@ -1,0 +1,24 @@
+@namespace Library.Client.Components
+
+@if (isOpen == true)
+{
+    <div class="upload-file-dialog">
+        <div class="upload-dialog-header">
+            <label>Attach file</label>
+            <div @onclick="CloseUploadFileDialog"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i>
+            </div>
+        </div>
+        <hr>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool isOpen { get; set; }
+
+    private void CloseUploadFileDialog()
+    {
+        isOpen = false;
+        StateHasChanged();
+    }
+}
