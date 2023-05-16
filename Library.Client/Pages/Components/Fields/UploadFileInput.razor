@@ -15,7 +15,12 @@
         }
         else if (!string.IsNullOrEmpty(mimeType) && Entity != null && Entity.Id != Guid.Empty)
         {
-            <a href="/api/File/@Entity.Id" target="_blank"><img style="max-width: 255px;" src="/api/File/@Entity.Id" /></a>
+            <a href="/api/File/@Entity.Id" target="_blank">
+                <img style="max-width: 255px;" src="/api/File/@Entity.Id" />
+            </a>
+        }
+        else if (!string.IsNullOrEmpty(base64EncodedFile)) {
+            <img style="max-width: 255px;" src="@base64EncodedFile" />
         }
     </div>
 
@@ -83,6 +88,15 @@
         }
     }
 
+    private string EncodeToBase64(byte[] file, string mimeType)
+    {
+        if (mimeType.Split("/")[0] == "image") {
+            return "data:" + mimeType + ";base64," + Convert.ToBase64String(file);
+        }
+        return null;
+    }
+
+    string base64EncodedFile;
     async Task LoadFiles(InputFileChangeEventArgs e)
     {
         isLoading = true;
@@ -97,12 +111,14 @@
             exceptionMessage = ex.Message;
         }
         internalValue = ms.ToArray();
+        base64EncodedFile = EncodeToBase64(internalValue, e.File.ContentType);
         isLoading = false;
     }
 
     private void RemoveFileContent()
     {
         internalValue = null;
+        base64EncodedFile = null;
     }
 
     [Parameter]
