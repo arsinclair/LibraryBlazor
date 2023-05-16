@@ -1,24 +1,81 @@
 @namespace Library.Client.Components
+@inject IMetadataRepository metadataClient
+@inject IEntityRepository connection
+@using Attribute = DataAccessLibrary.Attribute
 
-@if (isOpen == true)
-{
-    <div class="upload-file-dialog">
-        <div class="upload-dialog-header">
-            <label>Attach file</label>
-            <div @onclick="CloseUploadFileDialog"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i>
-            </div>
+<div class="upload-file-dialog">
+    <div class="upload-dialog-header">
+        <label>Attach file</label>
+        <div @onclick="(async () => await HandleFileUpload(null))"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i>
         </div>
-        <hr>
     </div>
-}
+    <hr>
+    <form class="row g-1">
+        <div class="col-auto">
+            <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="entityFields" />
+            <button type="button" class="btn btn-info form-control-sm" @onclick="CreateEntity">Save File</button>
+        </div>
+    </form>
+    <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
+</div>
 
 @code {
     [Parameter]
-    public bool isOpen { get; set; }
+    public Guid MessageId { get; set; }
 
-    private void CloseUploadFileDialog()
+    [Parameter]
+    public EventCallback<Entity> OnFileUpload { get; set; }
+
+    private async Task HandleFileUpload(Entity? newAttachment)
     {
-        isOpen = false;
-        StateHasChanged();
+        await OnFileUpload.InvokeAsync(newAttachment);
+    }
+
+    private string[] columns;
+    private List<SysField> entityFields;
+    private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
+    protected override void OnInitialized()
+    {
+        columns = metadataClient.GetDefaultViewLayout("file").Columns.Split(",");
+        entityFields = metadataClient.GetFields("file");
+
+        foreach (string column in columns)
+        {
+            SysField fieldDefinition = entityFields.Single(x => string.Equals(x.Name, column, StringComparison.OrdinalIgnoreCase));
+            newEntityAttributes.Add(new Attribute(fieldDefinition.Name));
+        }
+    }
+
+    private string alertClass = "hidden alert-success";
+    private string alertMessage = "";
+    private async void CreateEntity()
+    {
+        Entity file = new Entity("file");
+        foreach (Attribute attr in newEntityAttributes)
+        {
+            file[attr.Key] = attr.Value;
+        }
+
+        try
+        {
+            Guid newId = connection.Create(file);
+            if (newId != Guid.Empty && MessageId != Guid.Empty)
+            {
+                Entity messageAttachment = new Entity("messageattachment");
+                messageAttachment["EntityAId"] = MessageId;
+                messageAttachment["EntityBId"] = newId;
+                Guid newMessageAttachmentId = connection.Create(messageAttachment);
+                await HandleFileUpload(file);
+            }
+            else
+            {
+                throw new Exception("Error, file not created.");
+            }
+        }
+        catch (Exception ex)
+        {
+            alertClass = "alert-danger";
+            alertMessage = ex.Message;
+        }
     }
 }

@@ -50,7 +50,10 @@
             }
         }
         <div class="new-attachment-button" @onclick="(() => { isUploadFileDialogOpen = true; })"></div>
-        <UploadFileDialog isOpen="@isUploadFileDialogOpen" />
+        @if (isUploadFileDialogOpen)
+        {
+            <UploadFileDialog OnFileUpload="HandleFileUpload" MessageId="@Message.Id" />
+        }
     </div>
 </div>
 
@@ -71,6 +74,15 @@
 
     private List<Entity> Attachments;
     private bool isUploadFileDialogOpen;
+    private void HandleFileUpload(Entity? newAttachment)
+    {
+        if (newAttachment != null) {
+            if (Attachments == null) Attachments = new List<Entity>();
+            
+            Attachments.Add(newAttachment);
+        }
+        isUploadFileDialogOpen = false;
+    }
 
     protected override void OnParametersSet()
     {
