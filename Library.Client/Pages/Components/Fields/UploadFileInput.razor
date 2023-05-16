@@ -1,7 +1,9 @@
 @namespace Library.Client.Components.Fields
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Web
+@using System.Text.RegularExpressions
 @using System.IO
+@inject IJSRuntime JSRuntime
 
 <div class="row g-1 align-items-center">
     <div class="col-auto">
@@ -112,6 +114,12 @@
         }
         internalValue = ms.ToArray();
         base64EncodedFile = EncodeToBase64(internalValue, e.File.ContentType);
+        var UIDPatternMatch = Regex.Match(e.File.Name, @"(L-[a-zA-Z0-9]{8})");
+        await JSRuntime.InvokeAsync<string>("userJsFunctions.populateEntityAttributes", new {
+            Name = e.File.Name,
+            ContentType = e.File.ContentType,
+            UID = UIDPatternMatch.Success ? UIDPatternMatch.Groups[1].Value : null
+        });
         isLoading = false;
     }
 
