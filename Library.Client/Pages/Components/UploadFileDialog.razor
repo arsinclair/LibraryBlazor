@@ -4,19 +4,17 @@
 @using Attribute = DataAccessLibrary.Attribute
 
 <div class="upload-file-dialog">
-    <div class="upload-dialog-header">
-        <label>Attach file</label>
-        <div @onclick="(async () => await HandleFileUpload(null))"><i class="fas fa-times search-menu-close-icon" aria-hidden="true"></i>
+    <div class="upload-file-dialog-content">
+        <div class="upload-dialog-header">
+            <label>Attach file</label>
+            <span class="close" @onclick="@CloseDialog">&times;</span>
         </div>
-    </div>
-    <hr>
-    <form class="row g-1">
-        <div class="col-auto">
+        <div class="upload-dialog-body">
             <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="entityFields" />
-            <button type="button" class="btn btn-info form-control-sm" @onclick="CreateEntity">Save File</button>
+            <button type="button" class="btn btn-info" @onclick="CreateEntity">Save File</button>
         </div>
-    </form>
-    <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
+        <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
+    </div>
 </div>
 
 @code {
@@ -44,6 +42,10 @@
             SysField fieldDefinition = entityFields.Single(x => string.Equals(x.Name, column, StringComparison.OrdinalIgnoreCase));
             newEntityAttributes.Add(new Attribute(fieldDefinition.Name));
         }
+    }
+
+    private async void CloseDialog() {
+        await HandleFileUpload(null);
     }
 
     private string alertClass = "hidden alert-success";
