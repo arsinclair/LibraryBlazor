@@ -9,6 +9,7 @@
 
 .page-header-content {
     display: flex;
+    gap: 10px;
     justify-content: flex-end;
     margin: 0 auto;
     position: relative;
@@ -19,12 +20,20 @@
     display: flex;
     align-items: center;
     float: left;
-    width: 140px;
     height: 42px;
 }
 
 .page-header-item > a {
     color: white;
+}
+
+.page-header-item > form > button {
+    background-color: #b9a1b5;
+    border-radius: 0;
+}
+
+.page-header-item > form > button:hover {
+    background-color: white;
 }
 
 .sidebar {

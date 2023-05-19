@@ -1,16 +1,51 @@
-.upload-file-dialog {
-    position: absolute;
-    z-index: 100;
-    background-color: #b1d1d2;
-    padding: 0.3rem;
-    border-radius: 3px;
-    border: 1px solid #888787;
-    box-shadow: 5px 5px #d2d2d2;
-}
-
 .upload-dialog-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-block-end: 1px solid #e9ecef;
+    font-size: 18px;
+    user-select: none;
+}
+
+.upload-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 20px;
+}
+
+.upload-file-dialog {
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+}
+
+.upload-file-dialog-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    border: 1px solid #888;
+    width: 60%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 28px;
+}
+  
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .upload-dialog-header > label {
