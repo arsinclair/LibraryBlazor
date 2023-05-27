@@ -36,7 +36,7 @@
             {
                 if (Messages?.Count > 0)
                 {
-                    <h5><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a></h5>
+                    <h5><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a> — @TotalCount messages</h5>
                     <div class="scrollable-container" id="messages-container">
                         @foreach (Entity message in Messages)
                         {
@@ -81,6 +81,7 @@
     private List<EntityReference> Conversations = new List<EntityReference>();
     private List<EntityReference> VisibleConversations = new List<EntityReference>();
     private List<Entity> Messages = new List<Entity>();
+    private int TotalCount = 0;
     private List<SysField> MessagesFields;
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
     private string SearchString;
@@ -93,6 +94,7 @@
     {
         SelectedConversation = null;
         Messages.Clear();
+        TotalCount = 0;
         SelectedConversation = Conversations.FirstOrDefault(x => x.Id == selectedId);
         if (SelectedConversation.LogicalName.ToLower() == "contact")
         {
@@ -162,6 +164,7 @@
         query.PageInfo.Count = 50;
 
         Messages = connection.Get(query).ToList();
+        TotalCount = connection.RetrieveTotalRecordCount("message", query.Criteria);
 
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");

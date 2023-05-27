@@ -261,8 +261,6 @@ namespace DataAccessLibrary.Repositories
             return new[] { "id", "createdon", "modifiedon" }.Contains(attribute.ToLower());
         }
 
-        #endregion
-
         private string transformColumns(string[] columns, bool allColumns = false)
         {
             string output;
@@ -302,5 +300,36 @@ namespace DataAccessLibrary.Repositories
         {
             return GetById(entityReference.Id.ToString(), entityReference.LogicalName, columns);
         }
+
+        #endregion
+
+        #region Messages
+
+        public int RetrieveTotalRecordCount(string entityName)
+        {
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(entityName);
+            string sql = $"SELECT COUNT(*) FROM {tableName};";
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                var count = connection.QuerySingle<int>(sql);
+                return count;
+            }
+        }
+
+        public int RetrieveTotalRecordCount(string entityName, FilterExpression criteria)
+        {
+            string tableName = CacheManager.GetDatabaseCache().GetTableName(entityName);
+            string whereClause = FilterExpressionConverter.ConvertToSQL(criteria, entityName);
+            string sql = $"SELECT COUNT(*) FROM [{tableName}]{whereClause};";
+
+            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
+            {
+                var count = connection.QuerySingle<int>(sql);
+                return count;
+            }
+        }
+
+        #endregion
     }
 }

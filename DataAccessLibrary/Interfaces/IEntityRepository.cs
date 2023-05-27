@@ -15,5 +15,8 @@ namespace DataAccessLibrary.Interfaces
         // These GetById methods should be deleted
         Entity GetById(string id, string entityName, bool allColumns);
         Entity GetById(EntityReference entityReference, params string[] allColumns);
+
+        int RetrieveTotalRecordCount(string entityName);
+        int RetrieveTotalRecordCount(string entityName, FilterExpression criteria);
     }
 }
