@@ -158,6 +158,19 @@
         /// </param>
         public void AddOrder(string attributeName, OrderType orderType) => this.Orders.Add(new OrderExpression(attributeName, orderType));
 
+        /// <summary>
+        ///   <para>Adds the specified order expression to the query expression.</para>
+        /// </summary>
+        /// <param name="attributeName">
+        ///   <para>Type: String. The name of the attribute.</para>
+        /// </param>
+        /// <param name="fallbackAttributeName">
+        ///   <para>Type: String. The fallback attribute name that will be used if the value of the attributeName is null.</para>
+        /// <param name="orderType">
+        ///   <para>Type: <see cref="T:DataAccessLibrary.Query.OrderType" />. The order type.</para>
+        /// </param>
+        public void AddOrder(string attributeName, string fallbackAttributeName, OrderType orderType) => this.Orders.Add(new OrderExpression(attributeName, fallbackAttributeName, orderType));
+
         public void AddOrder(string attributeName, OrderType orderType, string alias, string entityName)
         {
             this.Orders.Add(new OrderExpression(attributeName, orderType, alias, entityName));

@@ -169,7 +169,10 @@
         query.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
         query.Criteria.QueryOperator = LogicalOperator.Or;
 
-        Messages = connection.Get(query).OrderBy(x => x, new MessagesComparer()).ToList();
+        query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
+        query.PageInfo.Count = 100;
+
+        Messages = connection.Get(query).ToList();
 
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");

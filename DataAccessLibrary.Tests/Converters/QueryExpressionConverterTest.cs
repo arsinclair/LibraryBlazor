@@ -61,6 +61,20 @@ namespace DataAccessLibrary.Tests.Converters
         }
 
         [Fact]
+        public void BuildOrderByClauseWithFallbackField()
+        {
+            var queryExpression = new QueryExpression();
+            queryExpression.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
+            
+            // Single OrderBy
+            Assert.Equal("ORDER BY COALESCE([SentOn],[ProvisionalSentOn])DESC", QueryExpressionConverter.BuildOrderByWithOffset(queryExpression));
+
+            // Multiple OrderBy attributes
+            queryExpression.AddOrder("CreatedOn", OrderType.Descending);
+            Assert.Equal("ORDER BY COALESCE([SentOn],[ProvisionalSentOn])DESC,[CreatedOn]DESC", QueryExpressionConverter.BuildOrderByWithOffset(queryExpression));
+        }
+
+        [Fact]
         public void BuildMultiFieldOrderByClause()
         {
             var queryExpression = new QueryExpression()
@@ -82,6 +96,18 @@ namespace DataAccessLibrary.Tests.Converters
         {
             var queryExpression = new QueryExpression();
             queryExpression.Orders.Add(new OrderExpression("Incorrect Field'$", OrderType.Ascending));
+            Assert.Throws<ArgumentException>(() => QueryExpressionConverter.BuildOrderByWithOffset(queryExpression));
+
+            queryExpression.Orders.Clear();
+            queryExpression.Orders.Add(new OrderExpression("CorrectField", "Incorrect Field'$", OrderType.Ascending));
+            Assert.Throws<ArgumentException>(() => QueryExpressionConverter.BuildOrderByWithOffset(queryExpression));
+        }
+
+        [Fact]
+        public void BuildFallbackAttributeOrderByClauseWithoutPrimaryAttribute()
+        {
+            var queryExpression = new QueryExpression();
+            queryExpression.Orders.Add(new OrderExpression("", "ModifiedBy", OrderType.Ascending));
             Assert.Throws<ArgumentException>(() => QueryExpressionConverter.BuildOrderByWithOffset(queryExpression));
         }
 
