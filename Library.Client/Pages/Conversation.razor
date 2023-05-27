@@ -52,6 +52,13 @@
                             />
                         }
                     </div>
+                    <div class="pagination-container">
+                        @for (int i = 0; i < Math.Ceiling((double)TotalCount / RecordsPerPage); i++)
+                        {
+                            int pageNumber = i;
+                            <span class="@((PageNumber == i) ? "active" : "")" @onclick="() => SetPageNumber(pageNumber)">@(pageNumber + 1)</span>
+                        }
+                    </div>
                 }
                 else
                 {
@@ -82,6 +89,8 @@
     private List<EntityReference> VisibleConversations = new List<EntityReference>();
     private List<Entity> Messages = new List<Entity>();
     private int TotalCount = 0;
+    private int PageNumber = 0;
+    private int RecordsPerPage = 50;
     private List<SysField> MessagesFields;
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
     private string SearchString;
@@ -89,6 +98,15 @@
     private EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
 
     private EntityReference SelectedConversation;
+
+    void SetPageNumber(int number)
+    {
+        if (PageNumber != number)
+        {
+            PageNumber = number;
+            LoadMessages();
+        }
+    }
 
     private void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
     {
@@ -161,7 +179,8 @@
         query.Criteria.QueryOperator = LogicalOperator.Or;
 
         query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Ascending);
-        query.PageInfo.Count = 50;
+        query.PageInfo.Count = RecordsPerPage;
+        query.PageInfo.PageNumber = PageNumber;
 
         Messages = connection.Get(query).ToList();
         TotalCount = connection.RetrieveTotalRecordCount("message", query.Criteria);

@@ -173,6 +173,41 @@ sub {
     overflow-x: hidden;
 }
 
+.pagination-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 3px;
+    padding: 3px 0;
+}
+
+.pagination-container span {
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+    background-color: #efefef;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    user-select: none;
+    text-align: center;
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease-in-out;
+}
+
+.pagination-container span:not(.active):hover {
+    background-color: #d5d5d5;
+    border-color: #999;
+    color: #222;
+    cursor: pointer;
+}
+
+.pagination-container span.active {
+    background-color: #337ab7;
+    color: #fff;
+}
+
 .hidden {
     display: none;
 }
