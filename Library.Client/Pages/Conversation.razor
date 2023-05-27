@@ -160,12 +160,16 @@
 
     async void LoadMessages()
     {
-        string whereClause = $"'{SelectedConversation.Id}' in (FromContactId, ToContactId, ConversationId)";
         string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments", "QuotedMessageId" };
 
-        // This should be refactored to use new QuerySyntax
-        Messages = connection.Get("message", whereClause, columns: fields).ToList();
-        Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
+        var query = new QueryExpression("message");
+        query.ColumnSet.AddColumns(fields);
+        query.Criteria.AddQuery(new ConditionExpression("FromContactId", ConditionOperator.Equal, SelectedConversation.Id));
+        query.Criteria.AddQuery(new ConditionExpression("ToContactId", ConditionOperator.Equal, SelectedConversation.Id));
+        query.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
+        query.Criteria.QueryOperator = LogicalOperator.Or;
+
+        Messages = connection.Get(query).OrderBy(x => x, new MessagesComparer()).ToList();
 
         StateHasChanged();
         await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
