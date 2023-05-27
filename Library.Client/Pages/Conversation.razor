@@ -36,11 +36,7 @@
             {
                 if (Messages?.Count > 0)
                 {
-                    <h5>@(SelectedConversation.Name)</h5>
-                    if (!string.IsNullOrEmpty(ConversationParticipants))
-                    {
-                        <h6>@ConversationParticipants</h6>
-                    }
+                    <h5><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a></h5>
                     <div class="scrollable-container" id="messages-container">
                         @foreach (Entity message in Messages)
                         {
@@ -92,12 +88,10 @@
     private EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
 
     private EntityReference SelectedConversation;
-    private string ConversationParticipants;
 
     private void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
     {
         SelectedConversation = null;
-        ConversationParticipants = "";
         Messages.Clear();
         SelectedConversation = Conversations.FirstOrDefault(x => x.Id == selectedId);
         if (SelectedConversation.LogicalName.ToLower() == "contact")
@@ -107,11 +101,6 @@
         else if (SelectedConversation.LogicalName.ToLower() == "conversation")
         {
             newEntityAttributes.Single(x => x.Key == "ConversationId").Value = SelectedConversation;
-            var participantsJunctionQE = new QueryExpression("ConversationParticipant");
-            participantsJunctionQE.Criteria.AddQuery("EntityAId", ConditionOperator.Equal, SelectedConversation.Id);
-            participantsJunctionQE.ColumnSet.AddColumn("EntityBId");
-            var aparts = connection.Get(participantsJunctionQE);
-            ConversationParticipants = string.Join("; ", connection.Get(participantsJunctionQE).Select(x => x["EntityBId"].ToString()));
         }
 
         LoadMessages();
@@ -169,8 +158,8 @@
         query.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
         query.Criteria.QueryOperator = LogicalOperator.Or;
 
-        query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
-        query.PageInfo.Count = 100;
+        query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Ascending);
+        query.PageInfo.Count = 50;
 
         Messages = connection.Get(query).ToList();
 
