@@ -285,23 +285,6 @@ namespace DataAccessLibrary.Repositories
             return output;
         }
 
-        public IEnumerable<Entity> Get(string entityName, string whereClause = "", int count = 0, params string[] columns)
-        {
-            string tableName = CacheManager.GetDatabaseCache().GetTableName(entityName);
-            string columnsString = transformColumns(columns);
-            string rowCount = count > 0 ? $"TOP {count}" : string.Empty;
-            string whereString = !string.IsNullOrEmpty(whereClause) ? $"WHERE {whereClause}" : string.Empty;
-            string sql = $"SELECT {rowCount} {columnsString} FROM {tableName} {whereString};";
-
-            using (var connection = new SqlConnection(_configuration.GetConnectionString(DefaultConnection)))
-            {
-                using (var reader = connection.ExecuteReader(sql, System.Data.CommandBehavior.SequentialAccess))
-                {
-                    return EntityConverter.Convert(reader, entityName, _configuration.GetConnectionString(DefaultConnection));
-                }
-            }
-        }
-
         public IEnumerable<Entity> Get(QueryExpression query)
         {
             string sql = QueryExpressionConverter.ConvertToSQL(query);

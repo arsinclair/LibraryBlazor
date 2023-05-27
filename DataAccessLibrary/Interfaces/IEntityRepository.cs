@@ -10,8 +10,6 @@ namespace DataAccessLibrary.Interfaces
         int Delete(Entity entity);
         int Delete(Guid id, string entityName);
 
-        // This GET should be deleted
-        IEnumerable<Entity> Get(string entityName, string whereClause = "", int count = 0, params string[] columns);
         IEnumerable<Entity> Get(QueryExpression query);
         
         // These GetById methods should be deleted
