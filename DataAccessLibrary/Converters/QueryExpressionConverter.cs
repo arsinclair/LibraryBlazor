@@ -76,6 +76,8 @@ namespace DataAccessLibrary.Converters
                 {
                     if (Regex.IsMatch(sortOrder.AttributeName, ColumnNameRegexPattern))
                         throw new ArgumentException($"Query Expression Sort Order Attribute Name conatins invalid characters. {sortOrder.AttributeName}");
+                    if (!string.IsNullOrEmpty(sortOrder.FallbackAttributeName) && Regex.IsMatch(sortOrder.FallbackAttributeName, ColumnNameRegexPattern))
+                        throw new ArgumentException($"Query Expression Sort Order Fallback Attribute Name conatins invalid characters. {sortOrder.AttributeName}");
 
                     string orderType = string.Empty;
                     if (sortOrder.OrderType == OrderType.Ascending)
@@ -86,7 +88,13 @@ namespace DataAccessLibrary.Converters
                     {
                         orderType = "DESC";
                     }
-                    output.Add($"[{sortOrder.AttributeName}]{orderType}");
+                    string expression = $"[{sortOrder.AttributeName}]";
+                    if (!string.IsNullOrEmpty(sortOrder.FallbackAttributeName))
+                        expression = $" COALESCE({expression},[{sortOrder.FallbackAttributeName}])";
+                    output.Add($"{expression}{orderType}");
+                }
+                else if (!string.IsNullOrEmpty(sortOrder.FallbackAttributeName)) {
+                    throw new ArgumentException("Can't use a FallbackAttributeName with empty or missing AttributeName in the Order Clause of the Query Expression.");
                 }
             }
 
