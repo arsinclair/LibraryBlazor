@@ -36,16 +36,12 @@
             {
                 if (Messages?.Count > 0)
                 {
-                    <h5>@(SelectedConversation.Name)</h5>
-                    if (!string.IsNullOrEmpty(ConversationParticipants))
-                    {
-                        <h6>@ConversationParticipants</h6>
-                    }
+                    <h5><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a> — @TotalCount messages</h5>
                     <div class="scrollable-container" id="messages-container">
                         @foreach (Entity message in Messages)
                         {
                             string conversationName = ((EntityReference)message["ConversationId"])?.Name;
-                            string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message darker" : "message";
+                            string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message" : "message darker";
                             DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
                             <ChatMessage ClassName="@className"
                                 MessageText="@((string)message["Text"])"
@@ -54,6 +50,13 @@
                                 ConversationName="@conversationName"
                                 Contact="@((EntityReference)message["FromContactId"])" 
                             />
+                        }
+                    </div>
+                    <div class="pagination-container">
+                        @for (int i = 0; i < Math.Ceiling((double)TotalCount / RecordsPerPage); i++)
+                        {
+                            int pageNumber = i;
+                            <span class="@((PageNumber == i) ? "active" : "")" @onclick="() => SetPageNumber(pageNumber)">@(pageNumber + 1)</span>
                         }
                     </div>
                 }
@@ -85,6 +88,9 @@
     private List<EntityReference> Conversations = new List<EntityReference>();
     private List<EntityReference> VisibleConversations = new List<EntityReference>();
     private List<Entity> Messages = new List<Entity>();
+    private int TotalCount = 0;
+    private int PageNumber = 0;
+    private int RecordsPerPage = 50;
     private List<SysField> MessagesFields;
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
     private string SearchString;
@@ -92,13 +98,21 @@
     private EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
 
     private EntityReference SelectedConversation;
-    private string ConversationParticipants;
+
+    void SetPageNumber(int number)
+    {
+        if (PageNumber != number)
+        {
+            PageNumber = number;
+            LoadMessages();
+        }
+    }
 
     private void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
     {
         SelectedConversation = null;
-        ConversationParticipants = "";
         Messages.Clear();
+        TotalCount = 0;
         SelectedConversation = Conversations.FirstOrDefault(x => x.Id == selectedId);
         if (SelectedConversation.LogicalName.ToLower() == "contact")
         {
@@ -107,11 +121,6 @@
         else if (SelectedConversation.LogicalName.ToLower() == "conversation")
         {
             newEntityAttributes.Single(x => x.Key == "ConversationId").Value = SelectedConversation;
-            var participantsJunctionQE = new QueryExpression("ConversationParticipant");
-            participantsJunctionQE.Criteria.AddQuery("EntityAId", ConditionOperator.Equal, SelectedConversation.Id);
-            participantsJunctionQE.ColumnSet.AddColumn("EntityBId");
-            var aparts = connection.Get(participantsJunctionQE);
-            ConversationParticipants = string.Join("; ", connection.Get(participantsJunctionQE).Select(x => x["EntityBId"].ToString()));
         }
 
         LoadMessages();
@@ -170,12 +179,13 @@
         query.Criteria.QueryOperator = LogicalOperator.Or;
 
         query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
-        query.PageInfo.Count = 100;
+        query.PageInfo.Count = RecordsPerPage;
+        query.PageInfo.PageNumber = PageNumber;
 
         Messages = connection.Get(query).ToList();
+        TotalCount = connection.RetrieveTotalRecordCount("message", query.Criteria);
 
         StateHasChanged();
-        await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
 
     private async void CreateEntity()
@@ -193,7 +203,6 @@
         Messages.Add(message);
         Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
         newEntityAttributes.Single(x => x.Key == "Text").Value = string.Empty;
-        await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
 
     void SearchStarted(ChangeEventArgs e)

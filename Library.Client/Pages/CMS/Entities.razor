@@ -1,4 +1,4 @@
-@page "/CMS/Entities"
+@page "/cms/entities"
 @inject IMetadataRepository metadataClient
 @inject NavigationManager NavigationManager
 
@@ -10,7 +10,7 @@
     </thead>
     <tbody>
         @foreach (SysEntity entity in SystemEntities){
-            <tr class="table-record" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entity.Name}"))>
+            <tr class="table-record" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entity.Name}"))>
                 <td>@entity.DisplayNamePlural</td>
             </tr>
         }

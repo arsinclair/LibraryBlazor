@@ -37,7 +37,7 @@ namespace DataAccessLibrary.Tests.Converters
             };
             Assert.Equal("OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY", QueryExpressionConverter.BuildOffset(queryExpression));
 
-            queryExpression.PageInfo.PageNumber = 2 * rowsPerPage;
+            queryExpression.PageInfo.PageNumber = 2;
             Assert.Equal("OFFSET 200 ROWS FETCH NEXT 100 ROWS ONLY", QueryExpressionConverter.BuildOffset(queryExpression));
         }
 
@@ -260,7 +260,7 @@ namespace DataAccessLibrary.Tests.Converters
                 },
                 PageInfo = new PagingInfo()
                 {
-                    PageNumber = 50,
+                    PageNumber = 5,
                     Count = 10
                 }
             };
@@ -289,7 +289,7 @@ namespace DataAccessLibrary.Tests.Converters
                 },
                 PageInfo = new PagingInfo()
                 {
-                    PageNumber = 50,
+                    PageNumber = 5,
                     Count = 10
                 }
             };

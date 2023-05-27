@@ -10,7 +10,7 @@ namespace DataAccessLibrary.Extensions
         {
             var date1 = (DateTime?)(x["SentOn"] ?? x["ProvisionalSentOn"]);
             var date2 = (DateTime?)(y["SentOn"] ?? y["ProvisionalSentOn"]);
-            return Nullable.Compare(date1, date2);
+            return Nullable.Compare(date2, date1);
         }
     }
 }

@@ -1,9 +1,9 @@
-@page "/CMS/"
+@page "/cms/"
 @inject NavigationManager NavigationManager
 
 @* @DynamicComponent *@
 
-<button class="btn btn-primary rounded-0" @onclick="@(e => NavigateTo("/CMS/Settings/Entities"))">Settings</button>
+<button class="btn btn-primary rounded-0" @onclick="@(e => NavigateTo("/cms/settings/entities"))">Settings</button>
 
 @code {
     public ComponentBase DynamicComponent {get; set;}

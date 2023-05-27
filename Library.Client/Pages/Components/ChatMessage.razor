@@ -2,7 +2,7 @@
 
 <div class="@ClassName">
     <div class="message-header">
-        <a href="/CMS/Contact/@(Contact.Id)/Edit" class="im-link">@Contact.Name</a>
+        <a href="/cms/contact/@(Contact.Id)/edit" class="im-link">@Contact.Name</a>
         @{
             if (!string.IsNullOrEmpty(ConversationName))
             {
@@ -11,7 +11,7 @@
         }
 
         <span class="time-right">@SentOn</span>
-        <a class="open-message-view" href="/CMS/message/@Message.Id/edit" target="_blank"><i class="fas fa-external-link-alt fa-sm" aria-hidden="true"></i></a>
+        <a class="open-message-view" href="/cns/message/@Message.Id/edit" target="_blank"><i class="fas fa-external-link-alt fa-sm" aria-hidden="true"></i></a>
     </div>
     @if (quotedMessageLines != null)
     {
@@ -37,14 +37,14 @@
             @foreach (var attachment in Attachments)
             {
                 <div class="attachment-item">
-                    <a href="/CMS/file/@(attachment.Id)/Edit" target="_blank" title="@attachment["Name"]">
+                    <a href="/cms/file/@(attachment.Id)/edit" target="_blank" title="@attachment["Name"]">
                         @if ((string)attachment["ContentType"] != "image/jpeg")
                         {
                             @attachment["Name"]
                         }
                         else
                         {
-                            <img class="attachment-image" src="/api/File/@attachment.Id" />
+                            <img class="attachment-image" src="/api/file/@attachment.Id" />
                         }
                     </a>
                 </div>

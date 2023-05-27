@@ -104,17 +104,15 @@
 }
 
 .message {
-    border: 2px solid #dedede;
+    border: 1px solid #ccc;
     background-color: #a1e7ad;
-    border-radius: 5px;
     padding: 5px 10px;
     margin: 10px 0;
     margin-left: 4rem;
 }
 
 .darker {
-    border-color: #ccc;
-    background-color: #ddd;
+    background-color: hsl(0deg 0% 95%);
     margin-left: 0;
     margin-right: 4rem;
 }
@@ -171,6 +169,41 @@ sub {
     max-height: 70vh;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.pagination-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 3px;
+    padding: 3px 0;
+}
+
+.pagination-container span {
+    width: 28px;
+    height: 28px;
+    padding: 3px;
+    background-color: #efefef;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    user-select: none;
+    text-align: center;
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease-in-out;
+}
+
+.pagination-container span:not(.active):hover {
+    background-color: #d5d5d5;
+    border-color: #999;
+    color: #222;
+    cursor: pointer;
+}
+
+.pagination-container span.active {
+    background-color: #337ab7;
+    color: #fff;
 }
 
 .hidden {
