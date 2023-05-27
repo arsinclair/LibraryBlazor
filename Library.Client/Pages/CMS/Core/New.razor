@@ -1,10 +1,10 @@
-@page "/CMS/{entityName}/New"
+@page "/cms/{entityName}/new"
 @inject IMetadataRepository metadataClient
 @inject IEntityRepository connection
 @using Attribute = DataAccessLibrary.Attribute
 @inject NavigationManager NavigationManager
 
-<button class="btn btn-outline-secondary rounded-0 mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entityName}"))><i class="fas fa-arrow-left me-2"></i>Back</button>
+<button class="btn btn-outline-secondary rounded-0 mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entityName}"))><i class="fas fa-arrow-left me-2"></i>Back</button>
 
 <h2>Create new @entityName</h2>
 
@@ -16,7 +16,7 @@
 </form>
 
 <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
-<button class="btn btn-success rounded-0 @isHidden" @onclick=@(() => NavigationManager.NavigateTo($"/CMS/{entityName}/New", forceLoad: true))><i class="fas fa-plus me-2"></i>Create Another</button>
+<button class="btn btn-success rounded-0 @isHidden" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entityName}/new", forceLoad: true))><i class="fas fa-plus me-2"></i>Create Another</button>
 
 @code {
     private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();

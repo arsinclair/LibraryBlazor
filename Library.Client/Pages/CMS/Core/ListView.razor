@@ -1,10 +1,10 @@
-@page "/CMS/{entityName}/"
+@page "/cms/{entityName}/"
 @inject IEntityRepository connection
 @inject IMetadataRepository metadataClient
 @inject NavigationManager NavigationManager
 
 <div style="margin-bottom: 1rem;">
-    <button class="btn btn-success rounded-0 mt-2" @onclick="@(e => NavigateTo($"/CMS/{entityName}/New"))"><i class="fas fa-plus"></i> New</button>
+    <button class="btn btn-success rounded-0 mt-2" @onclick="@(e => NavigateTo($"/cms/{entityName}/new"))"><i class="fas fa-plus"></i> New</button>
     <button class="btn btn-secondary rounded-0 mt-2" disabled><i class="far fa-trash-alt"></i> Delete</button>
 </div>
 
@@ -19,7 +19,7 @@
     </thead>
     <tbody>
         @foreach (Entity entity in entities){
-            <tr class="table-record" @onclick=@(() => NavigateTo($"/CMS/{entityName}/{entity.Id}/Edit"))>
+            <tr class="table-record" @onclick=@(() => NavigateTo($"/cms/{entityName}/{entity.Id}/edit"))>
                 @foreach(string fieldName in columns)
                 {
                     <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
