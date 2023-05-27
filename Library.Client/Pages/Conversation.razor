@@ -178,7 +178,7 @@
         query.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
         query.Criteria.QueryOperator = LogicalOperator.Or;
 
-        query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Ascending);
+        query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
         query.PageInfo.Count = RecordsPerPage;
         query.PageInfo.PageNumber = PageNumber;
 
@@ -186,7 +186,6 @@
         TotalCount = connection.RetrieveTotalRecordCount("message", query.Criteria);
 
         StateHasChanged();
-        await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
 
     private async void CreateEntity()
@@ -204,7 +203,6 @@
         Messages.Add(message);
         Messages = Messages.OrderBy(x => x, new MessagesComparer()).ToList();
         newEntityAttributes.Single(x => x.Key == "Text").Value = string.Empty;
-        await JSRuntime.InvokeAsync<string>("userJsFunctions.scrollToBottom", "messages-container");
     }
 
     void SearchStarted(ChangeEventArgs e)

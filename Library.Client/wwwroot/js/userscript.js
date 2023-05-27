@@ -1,10 +1,4 @@
 window.userJsFunctions = {
-    scrollToBottom: function (element) {
-        var objDiv = document.getElementById(element);
-        if (objDiv != null && objDiv.scrollTop) {
-            objDiv.scrollTop = objDiv.scrollHeight;
-        }
-    },
     populateEntityAttributes: function (mappings) {
         if (mappings && Object.keys(mappings).length > 0) {
             for (const fieldName of Object.keys(mappings)) {
