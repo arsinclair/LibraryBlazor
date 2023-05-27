@@ -118,7 +118,7 @@ namespace DataAccessLibrary.Converters
 
             if (query.PageInfo.Count > 0)
             {
-                output = $"OFFSET {query.PageInfo.PageNumber} ROWS FETCH NEXT {query.PageInfo.Count} ROWS ONLY";
+                output = $"OFFSET {query.PageInfo.PageNumber * query.PageInfo.Count} ROWS FETCH NEXT {query.PageInfo.Count} ROWS ONLY";
             }
 
             return output;
