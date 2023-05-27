@@ -104,17 +104,15 @@
 }
 
 .message {
-    border: 2px solid #dedede;
+    border: 1px solid #ccc;
     background-color: #a1e7ad;
-    border-radius: 5px;
     padding: 5px 10px;
     margin: 10px 0;
     margin-left: 4rem;
 }
 
 .darker {
-    border-color: #ccc;
-    background-color: #ddd;
+    background-color: hsl(0deg 0% 95%);
     margin-left: 0;
     margin-right: 4rem;
 }
