@@ -2,7 +2,7 @@
 
 <div class="attachment-item">
     <a href="/cms/file/@(Attachment.Id)/edit" target="_blank" title="@Attachment["Name"]">
-        @if ((string)Attachment["ContentType"] != "image/jpeg")
+        @if (attachmentType != "image")
         {
             @Attachment["Name"]
         }
@@ -14,6 +14,12 @@
 </div>
 
 @code {
+    string attachmentType;
     [Parameter]
     public Entity Attachment { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        attachmentType = ((string)Attachment["ContentType"]).Split("/").FirstOrDefault();
+    }
 }
