@@ -1,5 +1,7 @@
 @namespace Library.Client.Components
 
+@inject IEntityRepository connection
+
 <div class="@ClassName">
     <div class="message-header">
         <a href="/cms/contact/@(Contact.Id)/edit" class="im-link">@Contact.Name</a>
@@ -13,12 +15,21 @@
         <span class="time-right">@SentOn</span>
         <a class="open-message-view" href="/cms/message/@Message.Id/edit" target="_blank"><i class="fas fa-external-link-alt fa-sm" aria-hidden="true"></i></a>
     </div>
-    @if (quotedMessageLines != null)
+    @if (hasQuotedMessage)
     {
         <div class="quoted-message">
-            @foreach (var line in quotedMessageLines)
+            @if (quotedMessageAttachments != null) {
+                @foreach (var quotedMessageAttachment in quotedMessageAttachments)
+                {
+                    <ChatMessageAttachment Attachment="@quotedMessageAttachment" />
+                }
+            }
+            @if (quotedMessageLines != null)
             {
-                <p class="message-text">@line</p>
+                @foreach (var line in quotedMessageLines)
+                {
+                    <p class="message-text">@line</p>
+                }
             }
         </div>
     }
@@ -36,18 +47,7 @@
         {
             @foreach (var attachment in Attachments)
             {
-                <div class="attachment-item">
-                    <a href="/cms/file/@(attachment.Id)/edit" target="_blank" title="@attachment["Name"]">
-                        @if ((string)attachment["ContentType"] != "image/jpeg")
-                        {
-                            @attachment["Name"]
-                        }
-                        else
-                        {
-                            <img class="attachment-image" src="/api/file/@attachment.Id" />
-                        }
-                    </a>
-                </div>
+                <ChatMessageAttachment Attachment="@attachment" />
             }
         }
         <div class="new-attachment-button" @onclick="(() => { isUploadFileDialogOpen = true; })"></div>
@@ -59,10 +59,12 @@
 </div>
 
 @code {
-    private List<string> lines;
-    private List<string> quotedMessageLines;
+    List<string> lines;
+    bool hasQuotedMessage;
+    List<string> quotedMessageLines;
+    List<Entity> quotedMessageAttachments;
 
-    private List<string> arrayrizeText(string text)
+    List<string> arrayrizeText(string text)
     {
         if (!string.IsNullOrEmpty(text))
         {
@@ -77,9 +79,10 @@
     bool isUploadFileDialogOpen;
     void HandleFileUpload(Entity? newAttachment)
     {
-        if (newAttachment != null) {
+        if (newAttachment != null)
+        {
             if (Attachments == null) Attachments = new List<Entity>();
-            
+
             Attachments.Add(newAttachment);
         }
         isUploadFileDialogOpen = false;
@@ -88,6 +91,8 @@
     protected override void OnParametersSet()
     {
         quotedMessageLines = null; // If this is not nulled, for some unknown reason Blazor leaks state from previous runs
+        quotedMessageAttachments = null;
+        hasQuotedMessage = false;
         if (Message.Contains("MessageAttachments") && ((List<Entity>)Message["MessageAttachments"]).Count > 0)
         {
             Attachments = Message["MessageAttachments"] as List<Entity>;
@@ -99,7 +104,13 @@
 
         if (Message["QuotedMessageId"] != null)
         {
+            hasQuotedMessage = true;
             quotedMessageLines = arrayrizeText((Message["QuotedMessageId"] as EntityReference).Name);
+            var query = new QueryExpression("message");
+            query.ColumnSet.AddColumns("MessageAttachments");
+            query.Criteria.AddQuery("Id", ConditionOperator.Equal, ((EntityReference)Message["QuotedMessageId"]).Id);
+            var quotedMessage = connection.Get(query).Single();
+            quotedMessageAttachments = quotedMessage["MessageAttachments"] as List<Entity>;
         }
     }
 
