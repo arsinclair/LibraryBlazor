@@ -85,19 +85,19 @@
 </div>
 
 @code {
-    private List<EntityReference> Conversations = new List<EntityReference>();
-    private List<EntityReference> VisibleConversations = new List<EntityReference>();
-    private List<Entity> Messages = new List<Entity>();
-    private int TotalCount = 0;
-    private int PageNumber = 0;
-    private int RecordsPerPage = 50;
-    private List<SysField> MessagesFields;
-    private List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
-    private string SearchString;
-    private Timer searchTimer = new Timer(400);
-    private EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
+    List<EntityReference> Conversations = new List<EntityReference>();
+    List<EntityReference> VisibleConversations = new List<EntityReference>();
+    List<Entity> Messages = new List<Entity>();
+    int TotalCount = 0;
+    int PageNumber = 0;
+    int RecordsPerPage = 50;
+    List<SysField> MessagesFields;
+    List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
+    string SearchString;
+    Timer searchTimer = new Timer(400);
+    EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
 
-    private EntityReference SelectedConversation;
+    EntityReference SelectedConversation;
 
     void SetPageNumber(int number)
     {
@@ -108,7 +108,7 @@
         }
     }
 
-    private void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
+    void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
     {
         SelectedConversation = null;
         Messages.Clear();
@@ -126,7 +126,7 @@
         LoadMessages();
     }
 
-    private void ReverseAddressees()
+    void ReverseAddressees()
     {
         var from = newEntityAttributes.Single(x => x.Key == "FromContactId").Value;
         var to = newEntityAttributes.Single(x => x.Key == "ToContactId").Value;
@@ -188,7 +188,7 @@
         StateHasChanged();
     }
 
-    private void CreateEntity()
+    void CreateEntity()
     {
         Entity message = new Entity("message");
         foreach (Attribute attr in newEntityAttributes)
@@ -215,7 +215,7 @@
         }
     }
 
-    private void DoSearch(Object source, ElapsedEventArgs e)
+    void DoSearch(Object source, ElapsedEventArgs e)
     {
         searchTimer.Stop();
         if (!string.IsNullOrEmpty(SearchString))

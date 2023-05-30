@@ -73,9 +73,9 @@
     }
 
 
-    private List<Entity> Attachments;
-    private bool isUploadFileDialogOpen;
-    private void HandleFileUpload(Entity? newAttachment)
+    List<Entity> Attachments;
+    bool isUploadFileDialogOpen;
+    void HandleFileUpload(Entity? newAttachment)
     {
         if (newAttachment != null) {
             if (Attachments == null) Attachments = new List<Entity>();
@@ -109,7 +109,7 @@
     [Parameter]
     public Entity Message { get; set; }
 
-    private string _messageText;
+    string _messageText;
     [Parameter]
     public string MessageText
     {
