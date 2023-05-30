@@ -18,9 +18,10 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (Entity entity in entities){
+        @foreach (Entity entity in entities)
+        {
             <tr class="table-record" @onclick=@(() => NavigateTo($"/cms/{entityName}/{entity.Id}/edit"))>
-                @foreach(string fieldName in columns)
+                @foreach (string fieldName in columns)
                 {
                     <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
                 }
@@ -28,11 +29,23 @@
         }
     </tbody>
 </table>
-<p>Total Records: @entities.Count</p>
+
+<div class="pagination-container">
+    <p>Total Records: @TotalCount</p>
+    @for (int i = 0; i < Math.Ceiling((double)TotalCount / RecordsPerPage); i++)
+    {
+        int pageNumber = i;
+        <span class="@((listQuery.PageInfo.PageNumber == i) ? "active" : "")" @onclick="() => SetPageNumber(pageNumber)">@(pageNumber + 1)</span>
+    }
+</div>
 
 @code {
     [Parameter]
     public string entityName { get; set; }
+
+    int TotalCount = 0;
+    int RecordsPerPage = 35;
+    QueryExpression listQuery;
 
     private List<Entity> entities;
     private string[] columns;
@@ -45,13 +58,32 @@
             throw new Exception($"The layout for {entityName} is either not found or empty.");
         }
         columns = layout.Columns.Split(",");
-        entities = connection.Get(new QueryExpression(entityName) { 
-            ColumnSet = new ColumnSet(columns) 
-        }).ToList();
+        listQuery = new QueryExpression(entityName);
+        listQuery.ColumnSet = new ColumnSet(columns);
+        listQuery.PageInfo.Count = RecordsPerPage;
+        listQuery.PageInfo.PageNumber = 0;
+        listQuery.AddOrder("ModifiedOn", OrderType.Descending);
+
+        LoadRecords();
+    }
+
+    void LoadRecords()
+    {
+        entities = connection.Get(listQuery).ToList();
+        TotalCount = connection.RetrieveTotalRecordCount(entityName, listQuery.Criteria);
     }
 
     private void NavigateTo(string url)
     {
         NavigationManager.NavigateTo(url);
+    }
+
+    void SetPageNumber(int number)
+    {
+        if (listQuery.PageInfo.PageNumber != number)
+        {
+            listQuery.PageInfo.PageNumber = number;
+            LoadRecords();
+        }
     }
 }

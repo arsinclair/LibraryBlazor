@@ -1,0 +1,25 @@
+@namespace Library.Client.Components
+
+<div class="attachment-item">
+    <a href="/cms/file/@(Attachment.Id)/edit" target="_blank" title="@Attachment["Name"]">
+        @if (attachmentType != "image")
+        {
+            @Attachment["Name"]
+        }
+        else
+        {
+            <img class="attachment-image" src="/api/file/@Attachment.Id" />
+        }
+    </a>
+</div>
+
+@code {
+    string attachmentType;
+    [Parameter]
+    public Entity Attachment { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        attachmentType = ((string)Attachment["ContentType"]).Split("/").FirstOrDefault();
+    }
+}
