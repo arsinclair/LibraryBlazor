@@ -1,3 +1,4 @@
 {
-    "razor.trace": "Verbose"
+    "razor.trace": "Verbose",
+    "editor.codeLens": false
 }
