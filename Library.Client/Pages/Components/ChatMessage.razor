@@ -87,6 +87,7 @@
 
     protected override void OnParametersSet()
     {
+        quotedMessageLines = null; // If this is not nulled, for some unknown reason Blazor leaks state from previous runs
         if (Message.Contains("MessageAttachments") && ((List<Entity>)Message["MessageAttachments"]).Count > 0)
         {
             Attachments = Message["MessageAttachments"] as List<Entity>;

@@ -167,7 +167,7 @@
         searchTimer.Elapsed += DoSearch;
     }
 
-    async void LoadMessages()
+    void LoadMessages()
     {
         string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments", "QuotedMessageId" };
 
@@ -188,7 +188,7 @@
         StateHasChanged();
     }
 
-    private async void CreateEntity()
+    private void CreateEntity()
     {
         Entity message = new Entity("message");
         foreach (Attribute attr in newEntityAttributes)
