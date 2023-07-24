@@ -1,0 +1,88 @@
+@namespace Library.Client.Components
+@using System
+
+<div class="pagination-container">
+    <p>@CurrentLowerVisibleRecordCount - @CurrentUpperVisibleRecordCount of @TotalCount</p>
+    <div class="page-navigation">
+        <button class="page-nav-button" @onclick="GoToFirstPage" disabled="@isFirstPage">⇤</button>
+        <button class="page-nav-button" @onclick="GoToPreviousPage" disabled="@isFirstPage">🡐</button>
+        <p>Page @(ListQuery.PageInfo.PageNumber + 1)</p>
+        <button class="page-nav-button" @onclick="GoToNextPage" disabled="@isLastPage">🡒</button>
+        <button class="page-nav-button" @onclick="GoToLastPage" disabled="@isLastPage">⇥</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    [Parameter]
+    public int RecordsPerPage { get; set; }
+
+    [Parameter]
+    public QueryExpression ListQuery { get; set; }
+
+    [Parameter]
+    public EventCallback<QueryExpression> ListQueryChanged { get; set; }
+
+    int CurrentLowerVisibleRecordCount;
+    int CurrentUpperVisibleRecordCount;
+    int LastPage;
+    bool isFirstPage;
+    bool isLastPage;
+
+    private void UpdatePageQuery()
+    {
+        CurrentLowerVisibleRecordCount = (ListQuery.PageInfo.PageNumber + 1) * RecordsPerPage - RecordsPerPage + 1;
+        CurrentUpperVisibleRecordCount = CurrentLowerVisibleRecordCount + RecordsPerPage - 1;
+        LastPage = (int)Math.Ceiling((double)TotalCount / RecordsPerPage);
+        isFirstPage = ListQuery.PageInfo.PageNumber == 0;
+        isLastPage = ListQuery.PageInfo.PageNumber >= LastPage - 1;
+    }
+
+    private void GoToNextPage()
+    {
+        if (!isLastPage)
+        {
+            SetPageNumber(ListQuery.PageInfo.PageNumber + 1);
+        }
+    }
+
+    private void GoToPreviousPage()
+    {
+        if (!isFirstPage)
+        {
+            SetPageNumber(ListQuery.PageInfo.PageNumber - 1);
+        }
+    }
+
+    private void GoToLastPage()
+    {
+        if (!isLastPage)
+        {
+            SetPageNumber(LastPage - 1);
+        }
+    }
+
+    private void GoToFirstPage()
+    {
+        if (!isFirstPage)
+        {
+            SetPageNumber(0);
+        }
+    }
+
+    private void SetPageNumber(int number)
+    {
+        if (ListQuery.PageInfo.PageNumber != number)
+        {
+            ListQuery.PageInfo.PageNumber = number;
+            ListQueryChanged.InvokeAsync(ListQuery);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        UpdatePageQuery();
+    }
+}
