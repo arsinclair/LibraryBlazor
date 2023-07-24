@@ -30,14 +30,7 @@
     </tbody>
 </table>
 
-<div class="pagination-container">
-    <p>Total Records: @TotalCount</p>
-    @for (int i = 0; i < Math.Ceiling((double)TotalCount / RecordsPerPage); i++)
-    {
-        int pageNumber = i;
-        <span class="@((listQuery.PageInfo.PageNumber == i) ? "active" : "")" @onclick="() => SetPageNumber(pageNumber)">@(pageNumber + 1)</span>
-    }
-</div>
+<Pagination TotalCount="@TotalCount" ListQuery="@listQuery" RecordsPerPage=@RecordsPerPage ListQueryChanged="HandleListQueryChanged" />
 
 @code {
     [Parameter]
@@ -73,17 +66,14 @@
         TotalCount = connection.RetrieveTotalRecordCount(entityName, listQuery.Criteria);
     }
 
+    private void HandleListQueryChanged(QueryExpression newListQuery)
+    {
+        listQuery = newListQuery;
+        LoadRecords();
+    }
+
     private void NavigateTo(string url)
     {
         NavigationManager.NavigateTo(url);
-    }
-
-    void SetPageNumber(int number)
-    {
-        if (listQuery.PageInfo.PageNumber != number)
-        {
-            listQuery.PageInfo.PageNumber = number;
-            LoadRecords();
-        }
     }
 }

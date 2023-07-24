@@ -52,13 +52,7 @@
                             />
                         }
                     </div>
-                    <div class="pagination-container">
-                        @for (int i = 0; i < Math.Ceiling((double)TotalCount / RecordsPerPage); i++)
-                        {
-                            int pageNumber = i;
-                            <span class="@((PageNumber == i) ? "active" : "")" @onclick="() => SetPageNumber(pageNumber)">@(pageNumber + 1)</span>
-                        }
-                    </div>
+                    <Pagination TotalCount="@TotalCount" ListQuery="@listQuery" RecordsPerPage=@RecordsPerPage ListQueryChanged="HandleListQueryChanged" />
                 }
                 else
                 {
@@ -89,24 +83,16 @@
     List<EntityReference> VisibleConversations = new List<EntityReference>();
     List<Entity> Messages = new List<Entity>();
     int TotalCount = 0;
-    int PageNumber = 0;
     int RecordsPerPage = 50;
+    string[] messagesFields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments", "QuotedMessageId" };
     List<SysField> MessagesFields;
+    QueryExpression listQuery;
     List<Attribute> newEntityAttributes = new List<DataAccessLibrary.Attribute>();
     string SearchString;
     Timer searchTimer = new Timer(400);
     EntityReference DefaultContact = new EntityReference("contact", Guid.Parse("50A79A31-788A-E811-8F78-08002791E63C"));
 
     EntityReference SelectedConversation;
-
-    void SetPageNumber(int number)
-    {
-        if (PageNumber != number)
-        {
-            PageNumber = number;
-            LoadMessages();
-        }
-    }
 
     void ConversationSelectionChanged(MouseEventArgs e, Guid selectedId)
     {
@@ -122,7 +108,13 @@
         {
             newEntityAttributes.Single(x => x.Key == "ConversationId").Value = SelectedConversation;
         }
+        PopulateConverationQueryFilter();
+        LoadMessages();
+    }
 
+    private void HandleListQueryChanged(QueryExpression newListQuery)
+    {
+        listQuery = newListQuery;
         LoadMessages();
     }
 
@@ -134,8 +126,27 @@
         newEntityAttributes.Single(x => x.Key == "FromContactId").Value = to;
     }
 
+    void PopulateConverationQueryFilter()
+    {
+        if (SelectedConversation != null)
+        {
+            listQuery.Criteria.AddQuery(new ConditionExpression("FromContactId", ConditionOperator.Equal, SelectedConversation.Id));
+            listQuery.Criteria.AddQuery(new ConditionExpression("ToContactId", ConditionOperator.Equal, SelectedConversation.Id));
+            listQuery.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
+            listQuery.Criteria.QueryOperator = LogicalOperator.Or;
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        listQuery = new QueryExpression("message");
+        listQuery.ColumnSet.AddColumns(messagesFields);
+        PopulateConverationQueryFilter();
+
+        listQuery.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
+        listQuery.PageInfo.Count = RecordsPerPage;
+        listQuery.PageInfo.PageNumber = 0;
+
         MessagesFields = metadataClient.GetFields("Message");
         newEntityAttributes.Add(new Attribute("FromContactId", DefaultContact));
         newEntityAttributes.Add(new Attribute("ToContactId"));
@@ -169,23 +180,10 @@
 
     void LoadMessages()
     {
-        string[] fields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments", "QuotedMessageId" };
+        Messages = connection.Get(listQuery).ToList();
+        TotalCount = connection.RetrieveTotalRecordCount("message", listQuery.Criteria);
 
-        var query = new QueryExpression("message");
-        query.ColumnSet.AddColumns(fields);
-        query.Criteria.AddQuery(new ConditionExpression("FromContactId", ConditionOperator.Equal, SelectedConversation.Id));
-        query.Criteria.AddQuery(new ConditionExpression("ToContactId", ConditionOperator.Equal, SelectedConversation.Id));
-        query.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
-        query.Criteria.QueryOperator = LogicalOperator.Or;
-
-        query.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
-        query.PageInfo.Count = RecordsPerPage;
-        query.PageInfo.PageNumber = PageNumber;
-
-        Messages = connection.Get(query).ToList();
-        TotalCount = connection.RetrieveTotalRecordCount("message", query.Criteria);
-
-        StateHasChanged();
+        StateHasChanged(); // ?
     }
 
     void CreateEntity()
