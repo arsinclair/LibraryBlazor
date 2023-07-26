@@ -4,18 +4,21 @@
 @using Attribute = DataAccessLibrary.Attribute
 @inject NavigationManager NavigationManager
 
-<button class="btn btn-outline-secondary rounded-0 mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entityName}"))><i class="fas fa-arrow-left me-2"></i>Back</button>
-<button class="btn btn-outline-success rounded-0 mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entityName}/new"))><i class="fas fa-plus me-2"></i>New</button>
-
-<h2>Edit @entityName</h2>
-<div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
-
-<form class="row g-1">
-    <EntityAttributes Attributes="entityAttributes" FieldDefinitions="fieldDefinitions" Entity="Entity" />
-    <div class="col-auto">
-        <button type="button" class="btn btn-info rounded-0 @disableClass" @onclick="SaveEntity">Save @entityName</button>
+<div class="edit-view-container">
+    <div class="edit-view-header">
+        <button class="btn btn-outline-secondary rounded-0 mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entityName}"))><i class="fas fa-arrow-left me-2"></i>Back</button>
+        <button class="btn btn-outline-success rounded-0 mt-2" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entityName}/new"))><i class="fas fa-plus me-2"></i>New</button>
     </div>
-</form>
+    <h2>Edit @entityName</h2>
+    <div class="alert m-2 @alertClass" role="alert">@alertMessage</div>
+
+    <form class="edit-view-form">
+        <EntityAttributes Attributes="entityAttributes" FieldDefinitions="fieldDefinitions" Entity="Entity" />
+        <div class="col-auto">
+            <button type="button" class="btn btn-info rounded-0 @disableClass" @onclick="SaveEntity">Save @entityName</button>
+        </div>
+    </form>
+</div>
 
 @code {
     private List<Attribute> entityAttributes = new List<DataAccessLibrary.Attribute>();

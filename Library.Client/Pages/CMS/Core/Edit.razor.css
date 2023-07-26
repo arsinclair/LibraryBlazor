@@ -1,0 +1,20 @@
+.edit-view-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-inline: 1rem;
+}
+
+.edit-view-header {
+    position: sticky;
+    top: 0;
+    margin-bottom: 1rem;
+    background-color: white;
+    z-index: 1100;
+}
+
+.edit-view-form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}

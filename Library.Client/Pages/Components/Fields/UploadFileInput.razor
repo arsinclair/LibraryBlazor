@@ -5,7 +5,7 @@
 @using System.IO
 @inject IJSRuntime JSRuntime
 
-<div class="row g-1 align-items-center">
+<div class="field-row">
     <div class="col-auto">
         <label class="col-form-label-sm">@FieldDefinition.DisplayName</label>
     </div>
@@ -47,27 +47,29 @@
 
 @if (internalValue != null)
 {
-    <div class="row g-1 align-items-center">
+    <div class="field-row">
         <div class="col-auto">
             <label class="col-form-label-sm">Actions</label>
         </div>
-        <div class="col-auto">
-            <button class="btn btn-sm btn-danger rounded-0" @onclick="RemoveFileContent" @onclick:preventDefault="true">Remove File</button>
-        </div>
-
-        @if (Entity != null)
-        {
+        <div class="button-row">
             <div class="col-auto">
-                @if (Entity.Id != Guid.Empty)
-                {
-                    <a class="btn btn-sm btn-outline-dark rounded-0" href="/api/File/Download/@Entity.Id" role="button">Download</a>
-                }
-                else
-                {
-                    <div class="alert alert-danger rounded-0" role="alert">Entity ID is not found</div>
-                }
+                <button class="btn btn-sm btn-danger rounded-0" @onclick="RemoveFileContent" @onclick:preventDefault="true">Remove File</button>
             </div>
-        }
+
+            @if (Entity != null)
+            {
+                <div class="col-auto">
+                    @if (Entity.Id != Guid.Empty)
+                    {
+                        <a class="btn btn-sm btn-outline-dark rounded-0" href="/api/File/Download/@Entity.Id" role="button">Download</a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger rounded-0" role="alert">Entity ID is not found</div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 }
 

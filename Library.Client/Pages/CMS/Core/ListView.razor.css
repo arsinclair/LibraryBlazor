@@ -1,0 +1,25 @@
+.list-view-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.table-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-inline: 1rem;
+}
+
+.table-container > table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.list-view-container > .list-view-header {
+    position: sticky;
+    top: 0;
+    margin-bottom: 1rem;
+    padding-inline: 1rem;
+}

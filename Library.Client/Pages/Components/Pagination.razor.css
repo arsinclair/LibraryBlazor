@@ -1,12 +1,17 @@
 .pagination-container {
+    background-color: rgb(243, 243, 243);
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    padding: 3px 0;
-    color: grey;
+    color: rgb(71, 71, 71);
     user-select: none;
+    position: sticky;
+    bottom: 0;
+    padding-inline: 10px;
+    height: 26px;
+    font-size: 14px;
 }
 
 .pagination-container > .page-navigation {

@@ -1,7 +1,8 @@
 .page-header {
-    /* position: absolute; */
+    grid-area: navbar;
     position: sticky;
     top: 0;
+    z-index: 1100;
     height: 42px;
     width: 100%;
     background-color: #77528a;
@@ -13,7 +14,7 @@
     justify-content: flex-end;
     margin: 0 auto;
     position: relative;
-    width: 960px;
+    max-width: 960px;
 }
 
 .page-header-item {
@@ -37,11 +38,7 @@
 }
 
 .sidebar {
-    height: 100vh;
-}
-
-.nav-link-text {
-    margin-left: 0.5rem;
+    grid-area: sidebar;
 }
 
 .navbar-brand {
@@ -92,6 +89,7 @@
 
 .listItem {
     cursor: pointer;
+    word-wrap: break-word;
 }
 
 .listItem:hover {
@@ -165,12 +163,6 @@ sub {
     border-left: 4px yellow solid;
 }
 
-.scrollable-container {
-    max-height: 70vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
 .hidden {
     display: none;
 }
@@ -212,11 +204,13 @@ sub {
 }
 
 .reverse-button {
-    position: relative;
-    text-align: end;
-    height: 0;
+    height: 20px;
     left: 2rem;
     cursor: pointer;
+}
+
+.field-row {
+    max-width: 450px;
 }
 
 hr {
@@ -230,4 +224,10 @@ hr {
 
 .table-record:hover {
     background-color: #ccc !important;
+}
+
+@media screen and (max-width: 768px) {
+    .field-row {
+        max-width: initial;
+    }
 }

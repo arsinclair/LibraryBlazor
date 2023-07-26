@@ -9,72 +9,69 @@
 
 @namespace Library.Client
 
-<h4>Conversation Creator</h4>
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col">
-            @if (Conversations is null || Conversations.Count == 0)
+<div class="three-column-container">
+    <h4 class="title">Conversation Creator</h4>
+    <div class="left">
+        @if (Conversations is null || Conversations.Count == 0)
+        {
+            <p>Loading Conversations...</p>
+        }
+        else
+        {
+            <input type="text" class="form-control form-control-sm rounded-0 conversation-search" @oninput="@(e => SearchStarted(e))">
+            <div class="scrollable-container">
+                @foreach (var conversation in VisibleConversations)
+                {
+                    var classname = SelectedConversation?.Id != conversation.Id ? "listItem" : "listItem selected";
+                    var isChat = conversation.LogicalName.ToLower() == "conversation" ? "Chat:" : string.Empty;
+                    <div class="@classname" id="@conversation.Id" @onclick="@(e => ConversationSelectionChanged(e, conversation.Id))">@isChat @conversation.Name</div>
+                }
+            </div>
+        }
+    </div>
+    <div class="center">
+        @if (SelectedConversation != null)
+        {
+            if (Messages?.Count > 0)
             {
-                <p>Loading Conversations...</p>
-            }
-            else
-            {
-                <input type="text" class="form-control form-control-sm rounded-0" @oninput="@(e => SearchStarted(e))">
-                <div class="scrollable-container">
-                    @foreach (var conversation in VisibleConversations)
+                <h5 class="center-header"><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a> — @TotalCount messages</h5>
+                <div class="scrollable-container" id="messages-container">
+                    @foreach (Entity message in Messages)
                     {
-                        var classname = SelectedConversation?.Id != conversation.Id ? "listItem" : "listItem selected";
-                        var isChat = conversation.LogicalName.ToLower() == "conversation" ? "Chat:" : string.Empty;
-                        <div class="@classname" id="@conversation.Id" @onclick="@(e => ConversationSelectionChanged(e, conversation.Id))">@isChat @conversation.Name</div>
+                        string conversationName = ((EntityReference)message["ConversationId"])?.Name;
+                        string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message" : "message darker";
+                        DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
+                        <ChatMessage ClassName="@className"
+                            MessageText="@((string)message["Text"])"
+                            SentOn="@sentOn"
+                            Message="@message"
+                            ConversationName="@conversationName"
+                            Contact="@((EntityReference)message["FromContactId"])" 
+                        />
                     }
                 </div>
-            }
-        </div>
-        <div class="col-6">
-            @if (SelectedConversation != null)
-            {
-                if (Messages?.Count > 0)
-                {
-                    <h5><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a> — @TotalCount messages</h5>
-                    <div class="scrollable-container" id="messages-container">
-                        @foreach (Entity message in Messages)
-                        {
-                            string conversationName = ((EntityReference)message["ConversationId"])?.Name;
-                            string className = DefaultContact.SameAs((EntityReference)message["FromContactId"]) ? "message" : "message darker";
-                            DateTime? sentOn = (DateTime?)(message["SentOn"] ?? message["ProvisionalSentOn"]);
-                            <ChatMessage ClassName="@className"
-                                MessageText="@((string)message["Text"])"
-                                SentOn="@sentOn"
-                                Message="@message"
-                                ConversationName="@conversationName"
-                                Contact="@((EntityReference)message["FromContactId"])" 
-                            />
-                        }
-                    </div>
-                    <Pagination TotalCount="@TotalCount" ListQuery="@listQuery" RecordsPerPage=@RecordsPerPage ListQueryChanged="HandleListQueryChanged" />
-                }
-                else
-                {
-                    <h5>@($"No messages")</h5>
-                }
+                <Pagination TotalCount="@TotalCount" ListQuery="@listQuery" RecordsPerPage=@RecordsPerPage ListQueryChanged="HandleListQueryChanged" />
             }
             else
             {
-                <h4>Select Contact</h4>
+                <h5 class="center-header">@($"No messages")</h5>
             }
-        </div>
-        <div class="col">
-            <form class="row g-1">
-                <div class="reverse-button" @onclick="ReverseAddressees">
-                    <i class="fas fa-exchange-alt fa-rotate-90"></i>
-                </div>
-                <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="MessagesFields" />
-                <div class="col-auto">
-                    <button type="button" class="btn btn-info rounded-0" @onclick="CreateEntity">Add Message</button>
-                </div>
-            </form>
-        </div>
+        }
+        else
+        {
+            <h4 class="center-header">Select Contact</h4>
+        }
+    </div>
+    <div class="right">
+        <form class="form-input">
+            <div class="reverse-button" @onclick="ReverseAddressees">
+                <i class="fas fa-exchange-alt fa-rotate-90"></i>
+            </div>
+            <EntityAttributes Attributes="newEntityAttributes" FieldDefinitions="MessagesFields" />
+            <div class="col-auto">
+                <button type="button" class="btn btn-info rounded-0" @onclick="CreateEntity">Add Message</button>
+            </div>
+        </form>
     </div>
 </div>
 
