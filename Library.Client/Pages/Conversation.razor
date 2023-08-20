@@ -34,7 +34,22 @@
         {
             if (Messages?.Count > 0)
             {
-                <h5 class="center-header"><a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a> — @TotalCount messages</h5>
+                <h5 class="center-header">
+                    <a href="/cms/conversation/@SelectedConversation.Id/edit" target="_blank">@(SelectedConversation.Name)</a>
+                    <span>@TotalCount messages</span>
+                    @if (SelectedConversation.LogicalName.ToLower() == "contact")
+                    {
+                        <div>
+                            <label for="showAllMessagesForUser">Show All</label>
+                            <input 
+                                id="showAllMessagesForUser"
+                                type="checkbox"
+                                value="@showAllMessagesForUser" @onchange="HandleShowAllUserMessagesToggle"
+                                disabled="@IsShowAllMessagesForUserUpdating"
+                            />
+                        </div>
+                    }
+                </h5>
                 <div class="scrollable-container" id="messages-container">
                     @foreach (Entity message in Messages)
                     {
@@ -79,6 +94,8 @@
     List<EntityReference> Conversations = new List<EntityReference>();
     List<EntityReference> VisibleConversations = new List<EntityReference>();
     List<Entity> Messages = new List<Entity>();
+    bool showAllMessagesForUser = true;
+    bool IsShowAllMessagesForUserUpdating = false;
     int TotalCount = 0;
     int RecordsPerPage = 50;
     string[] messagesFields = new[] { "Text", "SentOn", "ConversationId", "FromContactId", "ToContactId", "ProvisionalSentOn", "MessageAttachments", "QuotedMessageId" };
@@ -96,6 +113,7 @@
         SelectedConversation = null;
         Messages.Clear();
         TotalCount = 0;
+        listQuery.PageInfo.PageNumber = 0;
         SelectedConversation = Conversations.FirstOrDefault(x => x.Id == selectedId);
         if (SelectedConversation.LogicalName.ToLower() == "contact")
         {
@@ -105,7 +123,7 @@
         {
             newEntityAttributes.Single(x => x.Key == "ConversationId").Value = SelectedConversation;
         }
-        PopulateConverationQueryFilter();
+        PopulateConversationQueryFilter();
         LoadMessages();
     }
 
@@ -123,14 +141,40 @@
         newEntityAttributes.Single(x => x.Key == "FromContactId").Value = to;
     }
 
-    void PopulateConverationQueryFilter()
+    async Task HandleShowAllUserMessagesToggle(ChangeEventArgs e)
+    {
+        IsShowAllMessagesForUserUpdating = true;
+        await Task.Delay(1);
+        Messages.Clear();
+        TotalCount = 0;
+        listQuery.PageInfo.PageNumber = 0;
+        showAllMessagesForUser = Convert.ToBoolean(e.Value);
+        PopulateConversationQueryFilter();
+        LoadMessages();
+        IsShowAllMessagesForUserUpdating = false;
+    }
+
+    void PopulateConversationQueryFilter()
     {
         if (SelectedConversation != null)
         {
-            listQuery.Criteria.AddQuery(new ConditionExpression("FromContactId", ConditionOperator.Equal, SelectedConversation.Id));
-            listQuery.Criteria.AddQuery(new ConditionExpression("ToContactId", ConditionOperator.Equal, SelectedConversation.Id));
-            listQuery.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
-            listQuery.Criteria.QueryOperator = LogicalOperator.Or;
+            listQuery.Criteria.Queries.Clear();
+            listQuery.Criteria.SubQueries.Clear();
+            if (SelectedConversation.LogicalName.ToLower() == "conversation")
+            {
+                listQuery.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Equal, SelectedConversation.Id));
+            }
+            else if (SelectedConversation.LogicalName.ToLower() == "contact") {
+                var adresseeFilter = new FilterExpression(LogicalOperator.Or);
+                adresseeFilter.AddQuery(new ConditionExpression("FromContactId", ConditionOperator.Equal, SelectedConversation.Id));
+                adresseeFilter.AddQuery(new ConditionExpression("ToContactId", ConditionOperator.Equal, SelectedConversation.Id));
+                listQuery.Criteria.AddSubQuery(adresseeFilter);
+
+                if (showAllMessagesForUser == false)
+                {
+                    listQuery.Criteria.AddQuery(new ConditionExpression("ConversationId", ConditionOperator.Null));
+                }
+            }
         }
     }
 
@@ -138,7 +182,7 @@
     {
         listQuery = new QueryExpression("message");
         listQuery.ColumnSet.AddColumns(messagesFields);
-        PopulateConverationQueryFilter();
+        PopulateConversationQueryFilter();
 
         listQuery.AddOrder("SentOn", "ProvisionalSentOn", OrderType.Descending);
         listQuery.PageInfo.Count = RecordsPerPage;
