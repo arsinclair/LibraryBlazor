@@ -36,6 +36,7 @@ namespace DataAccessLibrary.Converters
                         var isLastQuery = (i == filterExpression.Queries.Count - 1);
                         if (!isLastQuery || hasSubQueries)
                         {
+                            if (char.IsLetterOrDigit(output[output.Length - 1])) output += " ";
                             output += operatorSQL;
                         }
                     }
@@ -47,6 +48,7 @@ namespace DataAccessLibrary.Converters
                         output += FilterExpressionConverter.ConvertToSQL(filterExpression.SubQueries[i], entityName, depth);
                         if (i != filterExpression.SubQueries.Count - 1)
                         {
+                            if (char.IsLetterOrDigit(output[output.Length - 1])) output += " ";
                             output += operatorSQL;
                         }
                     }
