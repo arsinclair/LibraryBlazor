@@ -83,6 +83,21 @@ namespace DataAccessLibrary.Tests.Converters
         }
 
         [Fact]
+        public void ConvertToSQLSingleQueryMultipleSubQueriesFilterExpressionTest()
+        {
+            FilterExpression fe = new FilterExpression(LogicalOperator.And);
+
+            fe.AddQuery("Contact", "BirthDate", ConditionOperator.GreaterThan, new DateTime(2023, 08, 01));
+
+            FilterExpression subQuery = new FilterExpression(LogicalOperator.And);
+            subQuery.AddQuery("Contact", "FirstName", ConditionOperator.Like, "Sarah");
+            subQuery.AddQuery("Contact", "FirstName", ConditionOperator.Like, "David");
+            fe.AddSubQuery(subQuery);
+
+            Assert.Equal("WHERE([BirthDate]>'2023-08-01 00:00:00.000'AND([FirstName]LIKE'%Sarah%'AND[FirstName]LIKE'%David%'))", FilterExpressionConverter.ConvertToSQL(fe, "Contact"));
+        }
+
+        [Fact]
         public void ConvertToSQLComplexFilterExpressionTest()
         {
             FilterExpression fe = new FilterExpression(LogicalOperator.And);
