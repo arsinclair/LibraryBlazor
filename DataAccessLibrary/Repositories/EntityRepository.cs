@@ -6,6 +6,7 @@ using Dapper;
 using DataAccessLibrary.Converters;
 using DataAccessLibrary.Interfaces;
 using DataAccessLibrary.Models;
+using DataAccessLibrary.Models.Metadata;
 using Microsoft.Extensions.Configuration;
 using DataAccessLibrary.Query;
 using DataAccessLibrary.Cache;
@@ -65,8 +66,16 @@ namespace DataAccessLibrary.Repositories
                     continue;
                 }
 
+                SysField fieldDefinition = CacheManager.GetDatabaseCache().GetFieldByName(attr.Key , entity.LogicalName);
+                object newValue = attr.Value;
+                if (fieldDefinition.Type.Name == "EntityCollection")
+                {
+                    newValue = "[N:N Relationship]";
+                }
+
+
                 fieldNames += attr.Key;
-                fieldValues += stringifyAttribute(attr.Value);
+                fieldValues += stringifyAttribute(newValue);
 
                 if (!last)
                 {
