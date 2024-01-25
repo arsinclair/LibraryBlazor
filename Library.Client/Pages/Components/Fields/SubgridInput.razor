@@ -13,18 +13,30 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (Entity entity in internalValue)
+        @if (internalValue == null || internalValue.Count == 0)
         {
-            <tr class="table-record" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entity.LogicalName}/{entity.Id}/edit"))>
-                @foreach (string fieldName in columns)
-                {
-                    <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
-                }
+            <tr>
+                <td colspan="@columns.Count">No records found.</td>
             </tr>
+        }
+        else
+        {
+            foreach (Entity entity in internalValue)
+            {
+                <tr class="table-record" @onclick=@(() => NavigationManager.NavigateTo($"/cms/{entity.LogicalName}/{entity.Id}/edit"))>
+                    @foreach (string fieldName in columns)
+                    {
+                        <td>@(entity.Contains(fieldName) ? entity[fieldName] : string.Empty)</td>
+                    }
+                </tr>
+            }
         }
     </tbody>
 </table>
-<p>Total Records: @internalValue.Count</p>
+@if (internalValue != null)
+{
+    <p>Total Records: @internalValue.Count</p>
+}
 
 @code {
     [Parameter]
@@ -34,12 +46,7 @@
 
     protected override void OnParametersSet()
     {
-        columns = new List<string>();
-
-        if (internalValue.Count > 0)
-        {
-            columns = metadataClient.GetEntityCollectionViewColumns(FieldDefinition.Id);
-        }
+        columns = metadataClient.GetEntityCollectionViewColumns(FieldDefinition.Id);
     }
 
     private List<Entity> internalValue
